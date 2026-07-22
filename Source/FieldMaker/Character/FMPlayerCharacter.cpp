@@ -1,8 +1,11 @@
-﻿#include "FieldMaker/Character/FMPlayerCharacter.h"
+﻿#include "FMPlayerCharacter.h"
 
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+
+#include "Components/FMEquipmentComponent.h"
+#include "Components/FMInventoryComponent.h"
 
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
@@ -13,10 +16,16 @@
 #include "Engine/LocalPlayer.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
+#include "Weapon/FMWeaponBase.h"
+#include "Weapon/FMWeaponTypes.h"
 
 
 AFMPlayerCharacter::AFMPlayerCharacter()
 {
+	/* =========================================================
+	 * Actor
+	 * ========================================================= */
+
 	// 현재 캐릭터에는 프레임마다 실행할 로직이 없으므로 Tick 비활성화
 	PrimaryActorTick.bCanEverTick = false;
 
@@ -24,7 +33,10 @@ AFMPlayerCharacter::AFMPlayerCharacter()
 	bReplicates = true;
 
 	// 기본 캐릭터 충돌 크기
-	GetCapsuleComponent()->InitCapsuleSize(42.0f, 96.0f);
+	GetCapsuleComponent()->InitCapsuleSize(
+		42.0f,
+		96.0f
+	);
 
 	/* =========================================================
 	 * FPS Rotation
@@ -50,15 +62,19 @@ AFMPlayerCharacter::AFMPlayerCharacter()
 		.bCanCrouch = true;
 
 	// 기본 이동 속도
-	GetCharacterMovement()->MaxWalkSpeed = DefaultMoveSpeed;
+	GetCharacterMovement()->MaxWalkSpeed =
+		DefaultMoveSpeed;
 
 	// 앉은 상태 이동 속도
 	GetCharacterMovement()->MaxWalkSpeedCrouched =
 		CrouchedMoveSpeed;
 
 	// 가속과 감속
-	GetCharacterMovement()->MaxAcceleration = 2048.0f;
-	GetCharacterMovement()->BrakingDecelerationWalking = 2048.0f;
+	GetCharacterMovement()->MaxAcceleration =
+		2048.0f;
+
+	GetCharacterMovement()->BrakingDecelerationWalking =
+		2048.0f;
 
 	/* =========================================================
 	 * Third Person Mesh
@@ -71,7 +87,7 @@ AFMPlayerCharacter::AFMPlayerCharacter()
 	GetMesh()->SetCastShadow(true);
 	GetMesh()->bCastHiddenShadow = true;
 
-	// 현재는 이동 충돌이나 Trace를 방해하지 않도록 비활성화
+	// 이동 충돌이나 Trace를 방해하지 않도록 비활성화
 	GetMesh()->SetCollisionEnabled(
 		ECollisionEnabled::NoCollision
 	);
@@ -132,12 +148,40 @@ AFMPlayerCharacter::AFMPlayerCharacter()
 	FirstPersonMesh->SetRelativeRotation(
 		FRotator::ZeroRotator
 	);
+
+	/* =========================================================
+	 * Inventory / Equipment Components
+	 * ========================================================= */
+
+	// 보유 무기 슬롯 관리
+	InventoryComponent =
+		CreateDefaultSubobject<UFMInventoryComponent>(
+			TEXT("InventoryComponent")
+		);
+
+	// 현재 장착 무기 관리
+	EquipmentComponent =
+		CreateDefaultSubobject<UFMEquipmentComponent>(
+			TEXT("EquipmentComponent")
+		);
 }
 
 
 void AFMPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	/*
+	 * 기본 상태는 근접무기 슬롯.
+	 * 실제 근접무기가 아직 없으면 CurrentWeapon은 nullptr이며
+	 * 빈손 상태로 시작한다.
+	 */
+	if (HasAuthority() && EquipmentComponent)
+	{
+		EquipmentComponent->EquipSlot(
+			EFMWeaponSlot::Melee
+		);
+	}
 }
 
 
@@ -145,14 +189,18 @@ void AFMPlayerCharacter::SetupPlayerInputComponent(
 	UInputComponent* PlayerInputComponent
 )
 {
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
+	Super::SetupPlayerInputComponent(
+		PlayerInputComponent
+	);
 
 	/* =========================================================
 	 * Mapping Context 등록
 	 * ========================================================= */
 
 	APlayerController* PlayerController =
-		Cast<APlayerController>(GetController());
+		Cast<APlayerController>(
+			GetController()
+		);
 
 	if (PlayerController)
 	{
@@ -166,7 +214,10 @@ void AFMPlayerCharacter::SetupPlayerInputComponent(
 					UEnhancedInputLocalPlayerSubsystem
 				>();
 
-			if (InputSubsystem && PlayerMappingContext)
+			if (
+				InputSubsystem &&
+				PlayerMappingContext
+			)
 			{
 				InputSubsystem->AddMappingContext(
 					PlayerMappingContext,
@@ -296,32 +347,149 @@ void AFMPlayerCharacter::SetupPlayerInputComponent(
 			&AFMPlayerCharacter::StopSilentWalk
 		);
 	}
+
+	/* =========================================================
+	 * Primary Weapon - Key 1
+	 * ========================================================= */
+
+	if (PrimaryWeaponAction)
+	{
+		EnhancedInputComponent->BindAction(
+			PrimaryWeaponAction,
+			ETriggerEvent::Started,
+			this,
+			&AFMPlayerCharacter::EquipPrimaryWeapon
+		);
+	}
+
+	/* =========================================================
+	 * Secondary Weapon - Key 2
+	 * ========================================================= */
+
+	if (SecondaryWeaponAction)
+	{
+		EnhancedInputComponent->BindAction(
+			SecondaryWeaponAction,
+			ETriggerEvent::Started,
+			this,
+			&AFMPlayerCharacter::EquipSecondaryWeapon
+		);
+	}
+
+	/* =========================================================
+	 * Melee Weapon - Key 3
+	 * ========================================================= */
+
+	if (MeleeWeaponAction)
+	{
+		EnhancedInputComponent->BindAction(
+			MeleeWeaponAction,
+			ETriggerEvent::Started,
+			this,
+			&AFMPlayerCharacter::EquipMeleeWeapon
+		);
+	}
+
+	/* =========================================================
+	 * Throwable Weapon - Key 4
+	 * ========================================================= */
+
+	if (ThrowableWeaponAction)
+	{
+		EnhancedInputComponent->BindAction(
+			ThrowableWeaponAction,
+			ETriggerEvent::Started,
+			this,
+			&AFMPlayerCharacter::EquipThrowableWeapon
+		);
+	}
+	/* =========================================================
+ * Fire
+ * ========================================================= */
+
+	if (FireAction)
+	{
+		EnhancedInputComponent->BindAction(
+			FireAction,
+			ETriggerEvent::Started,
+			this,
+			&AFMPlayerCharacter::StartFire
+		);
+
+		EnhancedInputComponent->BindAction(
+			FireAction,
+			ETriggerEvent::Completed,
+			this,
+			&AFMPlayerCharacter::StopFire
+		);
+
+		EnhancedInputComponent->BindAction(
+			FireAction,
+			ETriggerEvent::Canceled,
+			this,
+			&AFMPlayerCharacter::StopFire
+		);
+	}
+
+	/* =========================================================
+	 * Reload
+	 * ========================================================= */
+
+	if (ReloadAction)
+	{
+		EnhancedInputComponent->BindAction(
+			ReloadAction,
+			ETriggerEvent::Started,
+			this,
+			&AFMPlayerCharacter::ReloadWeapon
+		);
+	}
 }
 
 
-void AFMPlayerCharacter::Move(const FInputActionValue& Value)
+void AFMPlayerCharacter::Move(
+	const FInputActionValue& Value
+)
 {
-	const FVector2D MovementInput = Value.Get<FVector2D>();
+	const FVector2D MovementInput =
+		Value.Get<FVector2D>();
 
 	if (!Controller)
 	{
 		return;
 	}
 
-	const FRotator ControlRotation = Controller->GetControlRotation();
-	const FRotator YawRotation(0.f, ControlRotation.Yaw, 0.f);
+	const FRotator ControlRotation =
+		Controller->GetControlRotation();
+
+	const FRotator YawRotation(
+		0.0f,
+		ControlRotation.Yaw,
+		0.0f
+	);
 
 	const FVector ForwardDirection =
-		FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+		FRotationMatrix(YawRotation)
+		.GetUnitAxis(EAxis::X);
 
 	const FVector RightDirection =
-		FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+		FRotationMatrix(YawRotation)
+		.GetUnitAxis(EAxis::Y);
 
-	// X = 앞뒤
-	AddMovementInput(ForwardDirection, MovementInput.X);
+	/*
+	 * 현재 프로젝트 IMC 구성 기준:
+	 * X = 앞뒤
+	 * Y = 좌우
+	 */
+	AddMovementInput(
+		ForwardDirection,
+		MovementInput.X
+	);
 
-	// Y = 좌우
-	AddMovementInput(RightDirection, MovementInput.Y);
+	AddMovementInput(
+		RightDirection,
+		MovementInput.Y
+	);
 }
 
 
@@ -332,8 +500,13 @@ void AFMPlayerCharacter::Look(
 	const FVector2D LookInput =
 		Value.Get<FVector2D>();
 
-	AddControllerYawInput(LookInput.X);
-	AddControllerPitchInput(LookInput.Y);
+	AddControllerYawInput(
+		LookInput.X
+	);
+
+	AddControllerPitchInput(
+		LookInput.Y
+	);
 }
 
 
@@ -379,4 +552,116 @@ void AFMPlayerCharacter::StopSilentWalk()
 {
 	GetCharacterMovement()->MaxWalkSpeed =
 		DefaultMoveSpeed;
+}
+
+
+/* =============================================================
+ * Weapon Slot Input Functions
+ * ============================================================= */
+
+void AFMPlayerCharacter::EquipPrimaryWeapon()
+{
+	if (!EquipmentComponent)
+	{
+		return;
+	}
+
+	EquipmentComponent->EquipSlot(
+		EFMWeaponSlot::Primary
+	);
+}
+
+
+void AFMPlayerCharacter::EquipSecondaryWeapon()
+{
+	if (!EquipmentComponent)
+	{
+		return;
+	}
+
+	EquipmentComponent->EquipSlot(
+		EFMWeaponSlot::Secondary
+	);
+}
+
+
+void AFMPlayerCharacter::EquipMeleeWeapon()
+{
+	if (!EquipmentComponent)
+	{
+		return;
+	}
+
+	EquipmentComponent->EquipSlot(
+		EFMWeaponSlot::Melee
+	);
+}
+
+
+void AFMPlayerCharacter::EquipThrowableWeapon()
+{
+	if (!EquipmentComponent)
+	{
+		return;
+	}
+
+	EquipmentComponent->EquipSlot(
+		EFMWeaponSlot::Throwable
+	);
+}
+
+void AFMPlayerCharacter::StartFire()
+{
+	if (!EquipmentComponent)
+	{
+		return;
+	}
+
+	AFMWeaponBase* CurrentWeapon =
+		EquipmentComponent->GetCurrentWeapon();
+
+	if (!CurrentWeapon)
+	{
+		return;
+	}
+
+	CurrentWeapon->StartFire();
+}
+
+
+void AFMPlayerCharacter::StopFire()
+{
+	if (!EquipmentComponent)
+	{
+		return;
+	}
+
+	AFMWeaponBase* CurrentWeapon =
+		EquipmentComponent->GetCurrentWeapon();
+
+	if (!CurrentWeapon)
+	{
+		return;
+	}
+
+	CurrentWeapon->StopFire();
+}
+
+
+void AFMPlayerCharacter::ReloadWeapon()
+{
+	if (!EquipmentComponent)
+	{
+		return;
+	}
+
+	AFMWeaponBase* CurrentWeapon =
+		EquipmentComponent->GetCurrentWeapon();
+
+	if (!CurrentWeapon)
+	{
+		return;
+	}
+
+	CurrentWeapon->StartReload();
 }

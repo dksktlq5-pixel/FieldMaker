@@ -10,6 +10,9 @@ class UInputComponent;
 class UInputMappingContext;
 class UInputAction;
 
+class UFMInventoryComponent;
+class UFMEquipmentComponent;
+
 struct FInputActionValue;
 
 UCLASS()
@@ -19,6 +22,28 @@ class FIELDMAKER_API AFMPlayerCharacter : public ACharacter
 
 public:
 	AFMPlayerCharacter();
+
+	/* =========================================================
+	 * Component Getters
+	 * ========================================================= */
+
+	UFUNCTION(BlueprintPure, Category = "FM|Character")
+	USkeletalMeshComponent* GetFirstPersonMesh() const
+	{
+		return FirstPersonMesh;
+	}
+
+	UFUNCTION(BlueprintPure, Category = "FM|Inventory")
+	UFMInventoryComponent* GetInventoryComponent() const
+	{
+		return InventoryComponent;
+	}
+
+	UFUNCTION(BlueprintPure, Category = "FM|Equipment")
+	UFMEquipmentComponent* GetEquipmentComponent() const
+	{
+		return EquipmentComponent;
+	}
 
 protected:
 	virtual void BeginPlay() override;
@@ -30,7 +55,7 @@ public:
 
 protected:
 	/* =========================================================
-	 * Components
+	 * Camera / Mesh Components
 	 * ========================================================= */
 
 	/**
@@ -54,6 +79,28 @@ protected:
 		meta = (AllowPrivateAccess = "true")
 	)
 	TObjectPtr<USkeletalMeshComponent> FirstPersonMesh;
+
+	/**
+	 * 플레이어가 보유한 무기 슬롯을 관리
+	 */
+	UPROPERTY(
+		VisibleAnywhere,
+		BlueprintReadOnly,
+		Category = "FM|Components",
+		meta = (AllowPrivateAccess = "true")
+	)
+	TObjectPtr<UFMInventoryComponent> InventoryComponent;
+
+	/**
+	 * 현재 장착한 무기와 선택 슬롯을 관리
+	 */
+	UPROPERTY(
+		VisibleAnywhere,
+		BlueprintReadOnly,
+		Category = "FM|Components",
+		meta = (AllowPrivateAccess = "true")
+	)
+	TObjectPtr<UFMEquipmentComponent> EquipmentComponent;
 
 	/* =========================================================
 	 * Enhanced Input
@@ -119,6 +166,66 @@ protected:
 	)
 	TObjectPtr<UInputAction> SilentWalkAction;
 
+	/**
+	 * 1번 주무기 슬롯 입력
+	 */
+	UPROPERTY(
+		EditDefaultsOnly,
+		BlueprintReadOnly,
+		Category = "FM|Input|Weapon"
+	)
+	TObjectPtr<UInputAction> PrimaryWeaponAction;
+
+	/**
+	 * 2번 보조무기 슬롯 입력
+	 */
+	UPROPERTY(
+		EditDefaultsOnly,
+		BlueprintReadOnly,
+		Category = "FM|Input|Weapon"
+	)
+	TObjectPtr<UInputAction> SecondaryWeaponAction;
+
+	/**
+	 * 3번 근접무기 슬롯 입력
+	 */
+	UPROPERTY(
+		EditDefaultsOnly,
+		BlueprintReadOnly,
+		Category = "FM|Input|Weapon"
+	)
+	TObjectPtr<UInputAction> MeleeWeaponAction;
+
+	/**
+	 * 4번 투척무기 슬롯 입력
+	 */
+	UPROPERTY(
+		EditDefaultsOnly,
+		BlueprintReadOnly,
+		Category = "FM|Input|Weapon"
+	)
+	TObjectPtr<UInputAction> ThrowableWeaponAction;
+	
+	/**
+ * 무기 발사 입력
+ */
+	UPROPERTY(
+		EditDefaultsOnly,
+		BlueprintReadOnly,
+		Category = "FM|Input|Weapon"
+	)
+	TObjectPtr<UInputAction> FireAction;
+
+	/**
+	 * 무기 재장전 입력
+	 */
+	UPROPERTY(
+		EditDefaultsOnly,
+		BlueprintReadOnly,
+		Category = "FM|Input|Weapon"
+	)
+	TObjectPtr<UInputAction> ReloadAction;
+
 	/* =========================================================
 	 * Movement
 	 * ========================================================= */
@@ -155,7 +262,7 @@ protected:
 
 private:
 	/* =========================================================
-	 * Input Functions
+	 * Movement Input Functions
 	 * ========================================================= */
 
 	void Move(const FInputActionValue& Value);
@@ -168,4 +275,16 @@ private:
 
 	void StartSilentWalk();
 	void StopSilentWalk();
+
+	/* =========================================================
+	 * Weapon Slot Input Functions
+	 * ========================================================= */
+
+	void EquipPrimaryWeapon();
+	void EquipSecondaryWeapon();
+	void EquipMeleeWeapon();
+	void EquipThrowableWeapon();
+	void StartFire();
+	void StopFire();
+	void ReloadWeapon();
 };

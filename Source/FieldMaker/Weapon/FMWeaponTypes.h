@@ -8,7 +8,9 @@ enum class EFMWeaponSlot : uint8
 {
 	None        UMETA(DisplayName = "None"),
 	Primary     UMETA(DisplayName = "Primary"),
-	Secondary   UMETA(DisplayName = "Secondary")
+	Secondary   UMETA(DisplayName = "Secondary"),
+	Melee       UMETA(DisplayName = "Melee"),
+	Throwable   UMETA(DisplayName = "Throwable")
 };
 
 UENUM(BlueprintType)
