@@ -1,0 +1,14 @@
+{
+    "Version": "1.2",
+    "Data": {
+        "Source": "d:\\unreal\\fieldmaker\\fieldmaker\\source\\fieldmaker\\fieldmaker.cpp",
+        "ProvidedModule": "",
+        "PCH": "d:\\unreal\\fieldmaker\\fieldmaker\\intermediate\\build\\win64\\x64\\fieldmakereditor\\development\\unrealed\\sharedpch.unrealed.project.valapi.valexpapi.cpp20.h.pch",
+        "Includes": [
+            "d:\\unreal\\fieldmaker\\fieldmaker\\intermediate\\build\\win64\\x64\\unrealeditor\\development\\fieldmaker\\definitions.fieldmaker.h",
+            "d:\\unreal\\fieldmaker\\fieldmaker\\source\\fieldmaker\\fieldmaker.h"
+        ],
+        "ImportedModules": [],
+        "ImportedHeaderUnits": []
+    }
+}

@@ -1,0 +1,14 @@
+{
+	"Targets": [
+		{
+			"Name": "FIELDMAKER",
+			"Path": "..\\Source\\FIELDMAKER.Target.cs",
+			"Type": "Game"
+		},
+		{
+			"Name": "FIELDMAKEREditor",
+			"Path": "..\\Source\\FIELDMAKEREditor.Target.cs",
+			"Type": "Editor"
+		}
+	]
+}
