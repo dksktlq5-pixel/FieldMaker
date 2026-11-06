@@ -1,5 +1,21 @@
-#include "FMCharacter.h"
+﻿#include "FMCharacter.h"
+#include "FMPlayerState.h"
+#include "FMGameState.h"
+#include "FMGrenade.h"
+#include "FMWeaponPoseMesh.h"
+#include "TimerManager.h"
+#include "Kismet/GameplayStatics.h"
+#include "Net/UnrealNetwork.h"
+#include "Components/StaticMeshComponent.h"
+#include "Engine/StaticMesh.h"
+#include "Engine/DamageEvents.h"
+#include "Misc/PackageName.h"
+#include "FMUserPreferences.h"
+#include "Animation/AnimSequence.h"
 #include "Camera/CameraComponent.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "Engine/SkeletalMesh.h"
+#include "UObject/ConstructorHelpers.h"
 #include "Components/CapsuleComponent.h"
 #include "EnhancedInputComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -8,8 +24,8 @@
 
 namespace
 {
-constexpr float WalkSpeed = 450.0f;
-constexpr float SprintSpeed = 650.0f;
+constexpr float WalkSpeed = 250.0f;
+constexpr float SprintSpeed = 550.0f;
 constexpr float CameraHeight = 64.0f;
 
 const UInputAction* LoadAction(const TCHAR* Name)
@@ -19,17 +35,186 @@ const UInputAction* LoadAction(const TCHAR* Name)
 }
 }
 
-AFMCharacter::AFMCharacter()
+AFMCharacter::AFMCharacter(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer.SetDefaultSubobjectClass<UFMWeaponPoseMesh>(ACharacter::MeshComponentName))
 {
+	PrimaryActorTick.bCanEverTick = true;
 	bUseControllerRotationYaw = true;
 	FirstPersonCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
 	FirstPersonCamera->SetupAttachment(GetCapsuleComponent());
 	FirstPersonCamera->SetRelativeLocation(FVector(0, 0, CameraHeight));
 	FirstPersonCamera->bUsePawnControlRotation = true;
 
+	USkeletalMeshComponent* Body = GetMesh();
+	Body->SetRelativeLocation(FVector(0.0, 0.0, -GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight()));
+	Body->SetRelativeRotation(FRotator(0.0, -90.0, 0.0));
+	Body->SetOwnerNoSee(true);
+	// Use the fixed base body's physics asset for bullets, never cosmetic modules.
+	Body->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	Body->SetCollisionResponseToAllChannels(ECR_Ignore);
+	Body->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Block);
+	Body->SetGenerateOverlapEvents(false);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Ignore);
+	Body->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
+
+	const TCHAR* PartNames[] = {
+		TEXT("Head"), TEXT("Arms"), TEXT("Jeans"), TEXT("Shirt_RolledUp_Blue"),
+		TEXT("Bulletproof_Bege"), TEXT("Drops_1_Bege"), TEXT("Holster_Hard_Bege"), TEXT("Patch_Back")
+	};
+	for (const TCHAR* PartName : PartNames)
+	{
+		auto* Part = CreateDefaultSubobject<USkeletalMeshComponent>(FName(FString(TEXT("Outfit_")) + PartName));
+		Part->SetupAttachment(Body);
+		Part->SetOwnerNoSee(true);
+		Part->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		Part->SetGenerateOverlapEvents(false);
+		Part->bUseAttachParentBound = true;
+		const FString Path = FString::Printf(TEXT("/Game/QuantumCharacter/Mesh/Modules/SKM_%s.SKM_%s"), PartName, PartName);
+		Part->SetSkeletalMeshAsset(LoadObject<USkeletalMesh>(nullptr, *Path));
+		OutfitParts.Add(Part);
+	}
+	OutfitCap = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Outfit_Cap"));
+	OutfitCap->SetupAttachment(Body, TEXT("head"));
+	OutfitCap->SetOwnerNoSee(true);
+	OutfitCap->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	OutfitCap->SetGenerateOverlapEvents(false);
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> CapMesh(
+		TEXT("/Game/QuantumCharacter/Mesh/Modules/SM_Cap_Bege.SM_Cap_Bege"));
+	OutfitCap->SetStaticMesh(CapMesh.Object);
+
+	FirstPersonArms = CreateDefaultSubobject<UFMWeaponPoseMesh>(TEXT("FirstPersonArms"));
+	FirstPersonArms->SetupAttachment(FirstPersonCamera);
+	FirstPersonArms->SetRelativeLocation(FVector(8.0, 0.0, -170.0));
+	FirstPersonArms->SetRelativeRotation(FRotator(0.0, -90.0, 0.0));
+	// The imported mesh bounds describe the reference pose, below the animated hands.
+	FirstPersonArms->SetBoundsScale(2.0f);
+	FirstPersonArms->SetOnlyOwnerSee(true);
+	FirstPersonArms->SetCastShadow(false);
+	FirstPersonArms->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	FirstPersonArms->SetGenerateOverlapEvents(false);
+
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> BodyMesh(
+		TEXT("/Game/QuantumCharacter/Mesh/SKM_QuantumCharacter.SKM_QuantumCharacter"));
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> ArmsMesh(
+		TEXT("/Game/FieldMaker/Character/SKM_FMFirstPersonArms.SKM_FMFirstPersonArms"));
+	static ConstructorHelpers::FObjectFinder<UAnimSequence> ArmsIdle(
+		TEXT("/Game/QuantumCharacter/Demo/Animations/A_MM_Idle.A_MM_Idle"));
+	Body->SetSkeletalMeshAsset(BodyMesh.Object);
+	if (BodyMesh.Object && Body->GetBoneIndex(TEXT("head")) != INDEX_NONE)
+	{
+		// The cap was modeled in mesh space, while the head bone has rotated local axes.
+		const FMatrix HeadReferencePose = BodyMesh.Object->GetComposedRefPoseMatrix(TEXT("head"));
+		OutfitCap->SetRelativeRotation(FQuat(HeadReferencePose).Inverse());
+	}
+	FirstPersonArms->SetSkeletalMeshAsset(ArmsMesh.Object);
+	FirstPersonArms->SetAnimationMode(EAnimationMode::AnimationSingleNode);
+	FirstPersonArms->AnimationData.AnimToPlay = ArmsIdle.Object;
+	FirstPersonArms->AnimationData.bSavedLooping = true;
+	FirstPersonArms->AnimationData.bSavedPlaying = true;
+
+	InitializeWeaponPresentation();
+
 	auto* Movement = GetCharacterMovement();
 	Movement->GetNavAgentPropertiesRef().bCanCrouch = true;
 	Movement->MaxWalkSpeed = WalkSpeed;
+}
+
+void AFMCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+	if (FPackageName::DoesPackageExist(TEXT("/Game/FieldMaker/Data/DT_FMWeapons")))
+		WeaponDataTable = LoadObject<UDataTable>(nullptr,TEXT("/Game/FieldMaker/Data/DT_FMWeapons.DT_FMWeapons"));
+	if (FPackageName::DoesPackageExist(TEXT("/Game/FieldMaker/Data/DT_FMArmor")))
+		ArmorDataTable = LoadObject<UDataTable>(nullptr,TEXT("/Game/FieldMaker/Data/DT_FMArmor.DT_FMArmor"));
+	if (FPackageName::DoesPackageExist(TEXT("/Game/FieldMaker/Data/DT_FMWeaponVisuals")))
+  WeaponVisualDataTable = LoadObject<UDataTable>(nullptr,TEXT("/Game/FieldMaker/Data/DT_FMWeaponVisuals.DT_FMWeaponVisuals"));
+	if (HasAuthority())
+	{
+		const FFMWeaponRow Primary = GetWeaponData(EFMWeaponSlot::Primary);
+		const FFMWeaponRow Secondary = GetWeaponData(EFMWeaponSlot::Secondary);
+		PrimaryAmmo = Primary.MagazineSize; PrimaryReserve = Primary.ReserveAmmo;
+		SecondaryAmmo = Secondary.MagazineSize; SecondaryReserve = Secondary.ReserveAmmo;
+		Grenades = GetWeaponData(EFMWeaponSlot::Throwable).MagazineSize;
+	}
+
+	if (UClass* LocomotionClass = LoadClass<UAnimInstance>(nullptr,
+		TEXT("/Game/FieldMaker/Character/ABP_FMLocomotion.ABP_FMLocomotion_C")))
+	{
+		GetMesh()->SetAnimInstanceClass(LocomotionClass);
+	}
+	RefreshAppearance();
+	OnRep_WeaponSlot();
+	UpdateWeaponPresentation(0.f);
+}
+
+void AFMCharacter::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+	if (HasAuthority())
+	{
+		if (!IsCombatPhaseAllowed() || Health <= 0.f)
+		{
+			CancelWeaponActions();
+			bAiming = false;
+		}
+		if (Health <= 0.f) bSprinting = false;
+		UpdateStanceSpeed();
+	}
+	if (IsLocallyControlled())
+	{
+		ADSAlpha = FMath::FInterpTo(ADSAlpha, bAiming ? 1.f : 0.f, DeltaSeconds, 14.f);
+		FirstPersonCamera->SetFieldOfView(FMath::Lerp(90.f, GetWeaponData(WeaponSlot).AimFOV, ADSAlpha));
+	}
+	if (GetNetMode() != NM_DedicatedServer && GetPlayerState())
+	{
+		UpdateWeaponPresentation(DeltaSeconds);
+	}
+}
+
+void AFMCharacter::OnRep_PlayerState()
+{
+	Super::OnRep_PlayerState();
+	RefreshAppearance();
+}
+
+void AFMCharacter::RefreshAppearance()
+{
+	const auto* State = GetPlayerState<AFMPlayerState>();
+	ApplyAppearance(State ? State->GetAppearanceId() : FMAppearance::Default);
+}
+
+void AFMCharacter::ApplyAppearance(uint8 AppearanceId)
+{
+	if (!FMAppearance::IsValid(AppearanceId))
+	{
+		return;
+	}
+
+	USkeletalMeshComponent* Body = GetMesh();
+	const USkeletalMesh* BodyAsset = Body->GetSkeletalMeshAsset();
+	const bool bModularReady = BodyAsset && OutfitParts.Num() == 8 && !OutfitParts.ContainsByPredicate(
+		[BodyAsset](const USkeletalMeshComponent* Part)
+		{
+			const USkeletalMesh* Asset = Part ? Part->GetSkeletalMeshAsset() : nullptr;
+			return !Asset || Asset->GetSkeleton() != BodyAsset->GetSkeleton();
+		});
+	Body->SetVisibility(!bModularReady);
+
+	const uint8 OptionalParts[] = {FMAppearance::Vest, FMAppearance::Drops, FMAppearance::Holster, FMAppearance::Patch};
+	for (int32 Index = 0; Index < OutfitParts.Num(); ++Index)
+	{
+		auto* Part = OutfitParts[Index].Get();
+		if (Part)
+		{
+			if (bModularReady)
+			{
+				Part->SetLeaderPoseComponent(Body);
+			}
+			Part->SetVisibility(bModularReady && (Index < 4 || (AppearanceId & OptionalParts[Index - 4])));
+		}
+	}
+	OutfitCap->SetVisibility(bModularReady && Body->DoesSocketExist(TEXT("head")) && (AppearanceId & FMAppearance::Cap));
 }
 
 void AFMCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -78,8 +263,10 @@ void AFMCharacter::Move(const FInputActionValue& Value)
 void AFMCharacter::Look(const FInputActionValue& Value)
 {
 	const FVector2D Axis = Value.Get<FVector2D>();
-	AddControllerYawInput(Axis.X);
-	AddControllerPitchInput(Axis.Y);
+	const FMLocalPreferences& Preferences = FMLocalPreferences::Get();
+	const float AimSensitivity = FMath::Lerp(1.f, Preferences.ADSSensitivity, ADSAlpha);
+	AddControllerYawInput(Axis.X * Preferences.Sensitivity * AimSensitivity);
+	AddControllerPitchInput(Axis.Y * Preferences.Sensitivity * AimSensitivity * (Preferences.bInvertY ? -1.0f : 1.0f));
 }
 
 void AFMCharacter::ToggleCrouch()
@@ -118,14 +305,303 @@ void AFMCharacter::StopSprint()
 
 void AFMCharacter::SetSprint(bool bSprint)
 {
-	GetCharacterMovement()->MaxWalkSpeed = bSprint ? SprintSpeed : WalkSpeed;
-	if (!HasAuthority())
-	{
-		ServerSetSprint(bSprint);
-	}
+	ServerSetSprint(bSprint);
 }
 
 void AFMCharacter::ServerSetSprint_Implementation(bool bSprint)
 {
-	SetSprint(bSprint);
+	bSprinting = bSprint && Health > 0.f;
+	if (bSprinting)
+	{
+		bAiming = false;
+		CancelWeaponActions();
+	}
+	UpdateStanceSpeed();
+	ForceNetUpdate();
+}
+
+void AFMCharacter::UpdateStanceSpeed()
+{
+	GetCharacterMovement()->MaxWalkSpeed = bSprinting ? SprintSpeed : bAiming ? 180.f : WalkSpeed;
+}
+
+void AFMCharacter::OnRep_CombatStance() { UpdateStanceSpeed(); }
+
+bool AFMCharacter::IsCombatPhaseAllowed(bool bForAttack) const
+{
+	const auto* State = GetWorld()->GetGameState<AFMGameState>();
+	if (!State) return false;
+	switch (State->GetMatchSnapshot().Phase)
+	{
+	case EFMMatchPhase::Practice: case EFMMatchPhase::Combat: case EFMMatchPhase::CombatTest: return true;
+	case EFMMatchPhase::KnifeCombat: return !bForAttack || WeaponSlot == EFMWeaponSlot::Melee;
+	default: return false;
+	}
+}
+
+bool AFMCharacter::CanAttack() const
+{
+	return Health > 0.f && Controller && !bSprinting && !IsReloading() && IsCombatPhaseAllowed()
+		&& !(WeaponMotion.Motion == EFMWeaponMotion::Equip && GetMotionAge() < GetEquipDuration());
+}
+
+bool AFMCharacter::CanAim() const
+{
+	return CanAttack() && (WeaponSlot == EFMWeaponSlot::Primary || WeaponSlot == EFMWeaponSlot::Secondary);
+}
+
+void AFMCharacter::ServerSetAiming_Implementation(bool bNewAiming)
+{
+	bAiming = bNewAiming && CanAim();
+	UpdateStanceSpeed();
+	ForceNetUpdate();
+}
+
+void AFMCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(AFMCharacter, Health);
+	DOREPLIFETIME(AFMCharacter, Armor);
+	DOREPLIFETIME(AFMCharacter, bSprinting);
+	DOREPLIFETIME(AFMCharacter, bAiming);
+	DOREPLIFETIME(AFMCharacter, WeaponSlot);
+ DOREPLIFETIME(AFMCharacter, PrimaryWeaponId);
+ DOREPLIFETIME(AFMCharacter, SecondaryWeaponId);
+	DOREPLIFETIME(AFMCharacter, WeaponMotion);
+	DOREPLIFETIME_CONDITION(AFMCharacter, PrimaryAmmo, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(AFMCharacter, PrimaryReserve, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(AFMCharacter, SecondaryAmmo, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(AFMCharacter, SecondaryReserve, COND_OwnerOnly);
+	DOREPLIFETIME(AFMCharacter, Grenades);
+}
+
+int32 AFMCharacter::GetLoadedAmmo() const
+{
+	switch (WeaponSlot)
+	{
+	case EFMWeaponSlot::Primary: return PrimaryAmmo;
+	case EFMWeaponSlot::Secondary: return SecondaryAmmo;
+	case EFMWeaponSlot::Throwable: return Grenades;
+	default: return 0;
+	}
+}
+
+int32 AFMCharacter::GetReserveAmmo() const
+{
+	switch (WeaponSlot)
+	{
+	case EFMWeaponSlot::Primary: return PrimaryReserve;
+	case EFMWeaponSlot::Secondary: return SecondaryReserve;
+	default: return 0;
+	}
+}
+
+float AFMCharacter::TakeDamage(float Damage, const FDamageEvent& Event, AController* InstigatorController, AActor* Causer)
+{
+	if (!HasAuthority() || Health <= 0.f || !IsCombatPhaseAllowed(false) || !FMath::IsFinite(Damage) || Damage <= 0.f)
+	{
+		return 0.f;
+	}
+
+	const auto* Victim = GetPlayerState<AFMPlayerState>();
+	const auto* Attacker = InstigatorController ? InstigatorController->GetPlayerState<AFMPlayerState>() : nullptr;
+	if (Victim && Attacker && Victim != Attacker && Victim->GetTeam() < AFMPlayerState::UnassignedTeam
+		&& Victim->GetTeam() == Attacker->GetTeam())
+	{
+		return 0.f;
+	}
+
+	float HealthDamage = Damage;
+	if (Event.IsOfType(FPointDamageEvent::ClassID) && Event.DamageTypeClass &&
+		Event.DamageTypeClass->IsChildOf(UFMFirearmDamageType::StaticClass()))
+	{
+		const auto& Point = static_cast<const FPointDamageEvent&>(Event);
+		if (HitZoneForBone(Point.HitInfo.BoneName) != EFMHitZone::Head && HasArmor())
+		{
+			const float Absorbed = FMath::Min(Armor, Damage * GetArmorRules().AbsorptionFraction);
+			Armor -= Absorbed;
+			HealthDamage -= Absorbed;
+		}
+	}
+	const float Applied = Super::TakeDamage(FMath::Min(HealthDamage, Health), Event, InstigatorController, Causer);
+	Health = FMath::Max(0.f, Health - Applied);
+	if (Health <= 0.f)
+	{
+		GetCharacterMovement()->DisableMovement();
+		bSprinting = false;
+		bAiming = false;
+		CancelWeaponActions();
+	}
+	ForceNetUpdate();
+	return Applied;
+}
+
+void AFMCharacter::ServerEquipWeapon_Implementation(EFMWeaponSlot Slot)
+{
+	if (Health <= 0.f || Slot > EFMWeaponSlot::Throwable || Slot == WeaponSlot)
+	{
+		return;
+	}
+
+	CancelWeaponActions();
+	WeaponSlot = Slot;
+	NextAttackTime = FMath::Max(NextAttackTime, GetWorld()->GetTimeSeconds() + GetEquipDuration());
+	SetWeaponMotion(EFMWeaponMotion::Equip);
+	OnRep_WeaponSlot();
+}
+
+void AFMCharacter::ServerUseWeapon_Implementation()
+{
+	const double Now = GetWorld()->GetTimeSeconds();
+	if (!CanAttack() || Now + UE_DOUBLE_SMALL_NUMBER < NextAttackTime || (WeaponSlot != EFMWeaponSlot::Melee && GetLoadedAmmo() <= 0))
+	{
+		return;
+	}
+
+	const FVector Start = FirstPersonCamera->GetComponentLocation();
+	const FRotator Aim = GetBaseAimRotation();
+	if (WeaponSlot == EFMWeaponSlot::Throwable)
+	{
+		NextAttackTime = Now + GetWeaponData(WeaponSlot).AttackInterval;
+		SetWeaponMotion(EFMWeaponMotion::Throw);
+		MulticastWeaponEffects(EFMWeaponMotion::Throw, WeaponSlot);
+		GetWorldTimerManager().SetTimer(ThrowTimer, this, &AFMCharacter::ReleaseGrenade, ThrowReleaseTime, false);
+		return;
+	}
+
+	const FFMWeaponRow Data = GetWeaponData(WeaponSlot);
+	float Damage = Data.Damage;
+	switch (WeaponSlot)
+	{
+	case EFMWeaponSlot::Primary:
+		--PrimaryAmmo;
+		break;
+	case EFMWeaponSlot::Secondary:
+		--SecondaryAmmo;
+		break;
+	case EFMWeaponSlot::Melee:
+		break;
+	default:
+		return;
+	}
+	NextAttackTime = Now + Data.AttackInterval;
+
+	const EFMWeaponMotion Motion = WeaponSlot == EFMWeaponSlot::Melee ? EFMWeaponMotion::Melee : EFMWeaponMotion::Fire;
+	SetWeaponMotion(Motion);
+	MulticastWeaponEffects(Motion, WeaponSlot);
+
+	for(int32 Pellet=0;Pellet<Data.PelletCount;++Pellet)
+ {
+ const FVector Direction = Data.SpreadDegrees>0 ? FMath::VRandCone(Aim.Vector(),FMath::DegreesToRadians(Data.SpreadDegrees)) : Aim.Vector();
+	FHitResult Hit;
+	FCollisionQueryParams Query(SCENE_QUERY_STAT(FMWeapon), false, this);
+	if (GetWorld()->LineTraceSingleByChannel(Hit, Start, Start + Direction * Data.Range, ECC_GameTraceChannel1, Query))
+	{
+		const EFMHitZone Zone = HitZoneForBone(Hit.BoneName);
+		Damage *= Zone == EFMHitZone::Head ? Data.HeadMultiplier : Zone == EFMHitZone::Limb ? Data.LimbMultiplier : 1.f;
+		if (Data.FalloffStart < Data.Range)
+			Damage *= FMath::GetMappedRangeValueClamped(FVector2D(Data.FalloffStart,Data.Range),
+				FVector2D(1.f,Data.MinimumDamageFraction),Hit.Distance);
+		UGameplayStatics::ApplyPointDamage(Hit.GetActor(), Damage, Direction, Hit, GetController(), this,
+			WeaponSlot == EFMWeaponSlot::Melee ? UDamageType::StaticClass() : UFMFirearmDamageType::StaticClass());
+	}
+ }
+}
+
+void AFMCharacter::ServerStartFire_Implementation()
+{
+	ServerUseWeapon_Implementation();
+	if (WeaponSlot <= EFMWeaponSlot::Secondary && GetWeaponData(WeaponSlot).bAutomatic && CanAttack() && GetLoadedAmmo() > 0)
+	{
+		RepeatFire();
+	}
+}
+
+void AFMCharacter::RepeatFire()
+{
+	if (GetWorld()->GetTimeSeconds() + UE_DOUBLE_SMALL_NUMBER >= NextAttackTime)
+	{
+		ServerUseWeapon_Implementation();
+	}
+	if (CanAttack() && WeaponSlot <= EFMWeaponSlot::Secondary && GetWeaponData(WeaponSlot).bAutomatic && GetLoadedAmmo() > 0)
+	{
+		const float Delay = FMath::Max(0.001, NextAttackTime - GetWorld()->GetTimeSeconds());
+		GetWorldTimerManager().SetTimer(AutoFireTimer, this, &AFMCharacter::RepeatFire, Delay, false);
+	}
+}
+
+void AFMCharacter::ServerStopFire_Implementation()
+{
+	GetWorldTimerManager().ClearTimer(AutoFireTimer);
+}
+
+void AFMCharacter::ServerReload_Implementation()
+{
+	const bool bPrimary = WeaponSlot == EFMWeaponSlot::Primary;
+	if (Health <= 0.f || bSprinting || !IsCombatPhaseAllowed() || IsReloading() ||
+		(WeaponMotion.Motion == EFMWeaponMotion::Equip && GetMotionAge() < GetEquipDuration()) ||
+		(!bPrimary && WeaponSlot != EFMWeaponSlot::Secondary) || GetReserveAmmo() <= 0 ||
+		GetLoadedAmmo() >= GetWeaponData(WeaponSlot).MagazineSize)
+	{
+		return;
+	}
+
+	ServerStopFire_Implementation();
+	bAiming = false;
+	SetWeaponMotion(EFMWeaponMotion::Reload);
+	MulticastWeaponEffects(EFMWeaponMotion::Reload, WeaponSlot);
+	GetWorldTimerManager().SetTimer(ReloadTimer, this, &AFMCharacter::FinishReload, GetReloadDuration(), false);
+}
+
+void AFMCharacter::FinishReload()
+{
+	if (!HasAuthority() || Health <= 0.f || WeaponSlot > EFMWeaponSlot::Secondary || !IsCombatPhaseAllowed())
+	{
+		CancelReload(); return;
+	}
+	const bool bPrimary = WeaponSlot == EFMWeaponSlot::Primary;
+	int32& Loaded = bPrimary ? PrimaryAmmo : SecondaryAmmo;
+	int32& Reserve = bPrimary ? PrimaryReserve : SecondaryReserve;
+	const int32 Count = FMath::Clamp(GetWeaponData(WeaponSlot).MagazineSize - Loaded, 0, Reserve);
+	Loaded += Count;
+	Reserve -= Count;
+	SetWeaponMotion(EFMWeaponMotion::Ready);
+}
+
+void AFMCharacter::UnPossessed()
+{
+	CancelWeaponActions();
+	Super::UnPossessed();
+}
+
+void AFMCharacter::CancelWeaponActions()
+{
+	bAiming = false;
+	ServerStopFire_Implementation();
+	GetWorldTimerManager().ClearTimer(ThrowTimer);
+	CancelReload();
+}
+
+void AFMCharacter::ReleaseGrenade()
+{
+	if (!CanAttack() || WeaponSlot != EFMWeaponSlot::Throwable || Grenades <= 0) return;
+	FActorSpawnParameters Spawn;
+	Spawn.Owner = this;
+	Spawn.Instigator = this;
+	Spawn.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	const FRotator Aim = GetBaseAimRotation();
+	const FVector Start = FirstPersonCamera->GetComponentLocation();
+	if (GetWorld()->SpawnActor<AFMGrenade>(Start, Aim, Spawn))
+	{
+		--Grenades;
+	}
+}
+
+void AFMCharacter::CancelReload()
+{
+	if (IsReloading())
+	{
+		GetWorldTimerManager().ClearTimer(ReloadTimer);
+		SetWeaponMotion(EFMWeaponMotion::Ready);
+	}
 }
