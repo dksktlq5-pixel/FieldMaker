@@ -24,5 +24,6 @@ struct FFMWeaponVisualRow : public FTableRowBase
  UPROPERTY(EditAnywhere,BlueprintReadWrite) FVector ViewOffset = FVector::ZeroVector;
  UPROPERTY(EditAnywhere,BlueprintReadWrite) FVector ADSOffset = FVector::ZeroVector;
  UPROPERTY(EditAnywhere,BlueprintReadWrite) FText ModelLabel;
+ UPROPERTY(EditAnywhere,BlueprintReadWrite) bool bAvailable = true;
  UPROPERTY(EditAnywhere,BlueprintReadWrite) bool bRepresentative = true;
 };

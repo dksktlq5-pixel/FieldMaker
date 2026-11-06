@@ -31,19 +31,19 @@ struct FChoice
 {
 	FText Category;
 	FText Item;
-	uint8 Mask;
+	uint32 Mask;
 };
 
 const TArray<FChoice>& GetChoices()
 {
 	static const TArray<FChoice> Items = {
-		{LOCTEXT("Cap", "모자"), LOCTEXT("CapItem", "베이지 전술 모자"), FMAppearance::Cap},
+		{LOCTEXT("Cap", "모자"), LOCTEXT("CapItem", "전술 모자 · PBR 색상"), FMAppearance::Cap},
 		{LOCTEXT("Head", "머리 · 얼굴"), LOCTEXT("HeadItem", "Quantum 기본 얼굴"), 0},
-		{LOCTEXT("Shirt", "상의"), LOCTEXT("ShirtItem", "파란 롤업 셔츠"), 0},
-		{LOCTEXT("Vest", "방탄복"), LOCTEXT("VestItem", "베이지 방탄복"), FMAppearance::Vest},
+		{LOCTEXT("Shirt", "상의"), LOCTEXT("ShirtItem", "롤업 셔츠 · PBR 색상"), 0},
+		{LOCTEXT("Vest", "방탄복"), LOCTEXT("VestItem", "방탄복 · PBR 색상"), FMAppearance::Vest},
 		{LOCTEXT("Drops", "전술 장비"), LOCTEXT("DropsItem", "전술 파우치"), FMAppearance::Drops},
 		{LOCTEXT("Holster", "홀스터"), LOCTEXT("HolsterItem", "베이지 하드 홀스터"), FMAppearance::Holster},
-		{LOCTEXT("Jeans", "바지"), LOCTEXT("JeansItem", "베이지 청바지"), 0},
+		{LOCTEXT("Jeans", "바지"), LOCTEXT("JeansItem", "청바지 · PBR 색상"), 0},
 		{LOCTEXT("Patch", "패치"), LOCTEXT("PatchItem", "후면 패치"), FMAppearance::Patch}
 	};
 	return Items;
@@ -110,8 +110,22 @@ void UFMCustomizeWidget::InitializePreview(float ExposureEV, bool bHideEnvironme
 	PreviewBrush.SetImageSize(FVector2D(340, 396));
 }
 
+bool UFMCustomizeWidget::ApplyDraft()
+{
+ const bool bSaved=UFMAppearanceSaveGame::Save(DraftAppearance);
+ Status=bSaved?LOCTEXT("Saved", "외형을 저장했습니다."):LOCTEXT("SaveFailed", "외형을 저장할 수 없습니다.");
+ if(bSaved)OnApplied.ExecuteIfBound(DraftAppearance);
+ return bSaved;
+}
+
+void UFMCustomizeWidget::SelectStyle(int32 CategoryIndex,int32 StyleIndex)
+{
+ DraftAppearance=FMAppearance::WithStyle(DraftAppearance,CategoryIndex,StyleIndex);
+ if(Preview)Preview->ApplyAppearance(DraftAppearance);
+}
 TSharedRef<SWidget> UFMCustomizeWidget::RebuildWidget()
 {
+ SetIsFocusable(true);
 	const auto Text = [this](TAttribute<FText> Label, int32 Size, FLinearColor Color = White)
 	{
 		FSlateFontInfo Font = MenuFont;
@@ -183,10 +197,10 @@ TSharedRef<SWidget> UFMCustomizeWidget::RebuildWidget()
 										+ SVerticalBox::Slot().AutoHeight()
 										[
 											Button(TAttribute<FText>::CreateLambda([this] {
-												const uint8 Mask = GetChoices()[Category].Mask;
+												const uint32 Mask = GetChoices()[Category].Mask;
 												return Mask ? (DraftAppearance & Mask ? LOCTEXT("Remove", "벗기") : LOCTEXT("Equip", "착용")) : LOCTEXT("Fixed", "기본 파츠");
 											}), [this, ApplyPreview] {
-												const uint8 Mask = GetChoices()[Category].Mask;
+												const uint32 Mask = GetChoices()[Category].Mask;
 												if (!Mask)
 												{
 													return;
@@ -201,6 +215,22 @@ TSharedRef<SWidget> UFMCustomizeWidget::RebuildWidget()
 												ApplyPreview();
 											})
 										]
+
+ + SVerticalBox::Slot().AutoHeight().Padding(0,5,0,0)
+ [SNew(SBox).Visibility_Lambda([this]{return FMAppearance::StyleCount(Category)>0?EVisibility::Visible:EVisibility::Collapsed;})
+ [Button(FText::FromString(TEXT("기본 PBR")),[this]{SelectStyle(Category,0);})]]
+
+ + SVerticalBox::Slot().AutoHeight().Padding(0,5,0,0)
+ [SNew(SBox).Visibility_Lambda([this]{return FMAppearance::StyleCount(Category)>1?EVisibility::Visible:EVisibility::Collapsed;})
+ [Button(FText::FromString(TEXT("올리브")),[this]{SelectStyle(Category,1);})]]
+
+ + SVerticalBox::Slot().AutoHeight().Padding(0,5,0,0)
+ [SNew(SBox).Visibility_Lambda([this]{return FMAppearance::StyleCount(Category)>2?EVisibility::Visible:EVisibility::Collapsed;})
+ [Button(FText::FromString(TEXT("차콜")),[this]{SelectStyle(Category,2);})]]
+
+ + SVerticalBox::Slot().AutoHeight().Padding(0,5,0,0)
+ [SNew(SBox).Visibility_Lambda([this]{return FMAppearance::StyleCount(Category)>3?EVisibility::Visible:EVisibility::Collapsed;})
+ [Button(FText::FromString(TEXT("블랙")),[this]{SelectStyle(Category,3);})]]
 										+ SVerticalBox::Slot().AutoHeight().Padding(0, 14, 0, 0)
 										[ Text(TAttribute<FText>::CreateLambda([this] { return Status; }), 14, Gold) ]
 									]
@@ -210,16 +240,7 @@ TSharedRef<SWidget> UFMCustomizeWidget::RebuildWidget()
 							[
 								SNew(SHorizontalBox)
 								+ SHorizontalBox::Slot().AutoWidth().Padding(4)
-								[ Button(LOCTEXT("Apply", "적용"), [this] {
-									if (UFMAppearanceSaveGame::Save(DraftAppearance))
-									{
-										Status = LOCTEXT("Saved", "외형을 저장했습니다.");
-									}
-									else
-									{
-										Status = LOCTEXT("SaveFailed", "외형을 저장할 수 없습니다.");
-									}
-								}) ]
+								[ Button(LOCTEXT("Apply", "적용"), [this] { ApplyDraft(); }) ]
 								+ SHorizontalBox::Slot().AutoWidth().Padding(4)
 								[ Button(LOCTEXT("Reset", "기본 외형"), [this, ApplyPreview] { DraftAppearance = FMAppearance::Default; Status = FText::GetEmpty(); ApplyPreview(); }) ]
 								+ SHorizontalBox::Slot().AutoWidth().Padding(4)
@@ -251,3 +272,9 @@ void UFMCustomizeWidget::NativeDestruct()
 }
 
 #undef LOCTEXT_NAMESPACE
+
+FReply UFMCustomizeWidget::NativeOnKeyDown(const FGeometry& G,const FKeyEvent& E)
+{
+ if(E.GetKey()==EKeys::C || E.GetKey()==EKeys::Escape){if(!E.IsRepeat())OnClosed.ExecuteIfBound();return FReply::Handled();}
+ return Super::NativeOnKeyDown(G,E);
+}

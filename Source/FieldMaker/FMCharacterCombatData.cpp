@@ -1,4 +1,4 @@
-﻿#include "FMCharacter.h"
+#include "FMCharacter.h"
 #include "FMGameState.h"
 #include "Engine/World.h"
 
@@ -46,11 +46,13 @@ FFMWeaponRow AFMCharacter::GetWeaponData(EFMWeaponSlot Slot) const
 	return Data;
 }
 
-FFMArmorRow AFMCharacter::GetArmorRules() const
+FFMArmorRow AFMCharacter::GetArmorRules() const {return GetCatalogArmorRules(ArmorId);}
+
+FFMArmorRow AFMCharacter::GetCatalogArmorRules(FName Id) const
 {
 	FFMArmorRow Rules;
 	if (ArmorDataTable)
-		if (const auto* Row = ArmorDataTable->FindRow<FFMArmorRow>(TEXT("LightArmor"),TEXT("Armor"),false)) Rules = *Row;
+		if (const auto* Row = ArmorDataTable->FindRow<FFMArmorRow>(Id,TEXT("Armor"),false)) Rules = *Row;
 	Rules.MaximumArmor = SafeValue(Rules.MaximumArmor,50,0,1000);
 	Rules.AbsorptionFraction = SafeValue(Rules.AbsorptionFraction,.5f,0,1);
 	return Rules;
@@ -77,6 +79,15 @@ void AFMCharacter::RefillArmor()
 	ForceNetUpdate();
 }
 
+void AFMCharacter::ServerEquipTestArmor_Implementation(FName Id)
+{
+ const auto* State=GetWorld()->GetGameState<AFMGameState>();
+ if(!State || State->GetMatchSnapshot().Phase!=EFMMatchPhase::CombatTest || Health<=0)return;
+ if(Id!=TEXT("LightArmor") && Id!=TEXT("MediumArmor"))return;
+ if(!ArmorDataTable || !ArmorDataTable->FindRow<FFMArmorRow>(Id,TEXT("ArmorSelection"),false))return;
+ ArmorId=Id;RefillArmor();ForceNetUpdate();
+}
+
 void AFMCharacter::ServerToggleTestArmor_Implementation()
 {
 	const auto* State = GetWorld()->GetGameState<AFMGameState>();
@@ -93,6 +104,7 @@ FName AFMCharacter::GetWeaponId(EFMWeaponSlot Slot) const
 TArray<FName> AFMCharacter::GetCatalogWeaponIds() const
 {
  TArray<FName> Ids=WeaponDataTable?WeaponDataTable->GetRowNames():TArray<FName>();
+ Ids.RemoveAll([this](const FName& Id){return !GetCatalogWeaponData(Id).bInCatalog || Id==TEXT("Knife");});
  Ids.Sort([this](const FName& A,const FName& B){const auto X=GetCatalogWeaponData(A),Y=GetCatalogWeaponData(B);return X.Price!=Y.Price?X.Price<Y.Price:A.LexicalLess(B);});
  return Ids;
 }
@@ -107,7 +119,8 @@ void AFMCharacter::ServerSelectCatalogWeapon_Implementation(FName Id)
  // Free catalog selection is confined to the combat sandbox until purchase/economy is connected.
  if(!State || State->GetMatchSnapshot().Phase!=EFMMatchPhase::CombatTest || Health<=0 || !WeaponDataTable)return;
  const auto* Row=WeaponDataTable->FindRow<FFMWeaponRow>(Id,TEXT("Selection"),false);
- if(!Row || Row->Category==EFMWeaponCategory::Melee || Row->Category==EFMWeaponCategory::Grenade)return;
+ if(!GetCatalogWeaponVisual(Id).bAvailable)return;
+ if(!Row || !Row->bInCatalog || Row->Category==EFMWeaponCategory::Melee || Row->Category==EFMWeaponCategory::Grenade)return;
  const auto Slot=Row->Category==EFMWeaponCategory::Pistol?EFMWeaponSlot::Secondary:EFMWeaponSlot::Primary;
  FName& Current=Slot==EFMWeaponSlot::Primary?PrimaryWeaponId:SecondaryWeaponId;
  if(Current==Id){ServerEquipWeapon_Implementation(Slot);return;}

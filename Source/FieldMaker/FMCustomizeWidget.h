@@ -4,6 +4,8 @@
 #include "Styling/SlateTypes.h"
 #include "FMCustomizeWidget.generated.h"
 
+DECLARE_DELEGATE_OneParam(FFMAppearanceApplied,uint32);
+
 UCLASS()
 class UFMCustomizeWidget : public UUserWidget
 {
@@ -11,15 +13,20 @@ class UFMCustomizeWidget : public UUserWidget
 
 public:
 	FSimpleDelegate OnClosed;
+ FFMAppearanceApplied OnApplied;
 	FButtonStyle ButtonStyle;
 	FSlateFontInfo MenuFont;
-	void InitializePreview(float ExposureEV = 0.f, bool bHideEnvironment = false);
+	UFUNCTION(BlueprintCallable, Category="Appearance") void SelectStyle(int32 CategoryIndex,int32 StyleIndex);
+ UFUNCTION(BlueprintPure, Category="Appearance") int32 GetDraftAppearance() const { return int32(DraftAppearance); }
+ UFUNCTION(BlueprintCallable, Category="Appearance") bool ApplyDraft();
+ void InitializePreview(float ExposureEV = 0.f, bool bHideEnvironment = false);
  void CleanupPreview();
  const FSlateBrush* GetPreviewBrush() const { return &PreviewBrush; }
 
 protected:
 	virtual TSharedRef<SWidget> RebuildWidget() override;
 	virtual void NativeDestruct() override;
+ virtual FReply NativeOnKeyDown(const FGeometry& Geometry,const FKeyEvent& Event) override;
 
 private:
 	UPROPERTY(Transient)
@@ -35,6 +42,6 @@ private:
 
 	FSlateBrush PreviewBrush;
 	FText Status;
-	uint8 DraftAppearance = 0;
+	uint32 DraftAppearance = 0;
 	int32 Category = 0;
 };

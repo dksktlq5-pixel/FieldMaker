@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include "GameFramework/Character.h"
 #include "FMCombatData.h"
 #include "FMWeaponVisualData.h"
@@ -47,6 +47,9 @@ public:
 	bool HasArmor() const { return Armor > 0.f; }
 	UFUNCTION(BlueprintPure, Category="Combat")
 	FFMArmorRow GetArmorRules() const;
+ UFUNCTION(BlueprintPure, Category="Combat") FFMArmorRow GetCatalogArmorRules(FName Id) const;
+ UFUNCTION(BlueprintPure, Category="Combat") FName GetArmorId() const {return ArmorId;}
+ UFUNCTION(Server, Reliable) void ServerEquipTestArmor(FName Id);
 	UFUNCTION(BlueprintPure, Category="Combat")
 	FFMWeaponRow GetWeaponData(EFMWeaponSlot Slot) const;
  UFUNCTION(BlueprintPure, Category="Presentation") FFMWeaponVisualRow GetWeaponVisualData() const;
@@ -99,7 +102,7 @@ public:
 	void ServerSetSprint(bool bSprint);
 
 	bool GetWeaponGripTargets(const USkeletalMeshComponent& PoseMesh, FFMGripTargets& Targets) const;
-	void ApplyAppearance(uint8 AppearanceId);
+	void ApplyAppearance(uint32 AppearanceId);
 	virtual void OnStartCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust) override;
 	virtual void OnEndCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust) override;
 
@@ -127,6 +130,7 @@ private:
 	float Health = MaxHealth;
 	UPROPERTY(Replicated)
 	float Armor = 0.f;
+ UPROPERTY(Replicated) FName ArmorId = TEXT("LightArmor");
 	UPROPERTY()
 	TObjectPtr<UDataTable> WeaponDataTable;
 	UPROPERTY()
@@ -217,6 +221,16 @@ private:
 
 	UPROPERTY()
 	TObjectPtr<class USoundBase> RifleShot;
+ UPROPERTY() TObjectPtr<class USoundAttenuation> FireAttenuation;
+ UPROPERTY() TObjectPtr<USoundBase> ShotgunShot;
+ UPROPERTY() TObjectPtr<USoundBase> PistolReloadOut;
+ UPROPERTY() TObjectPtr<USoundBase> ShotgunReloadOut;
+ UPROPERTY() TObjectPtr<USoundBase> RifleReloadIn;
+ UPROPERTY() TObjectPtr<USoundBase> PistolReloadIn;
+ UPROPERTY() TObjectPtr<USoundBase> ShotgunReloadIn;
+ FTimerHandle ReloadSoundTimer;
+ void PlayReloadInsert();
+ UFUNCTION(BlueprintPure, Category="Audio") USoundBase* GetCurrentFireSound() const;
 	UPROPERTY()
 	TObjectPtr<USoundBase> PistolShot;
 	UPROPERTY()

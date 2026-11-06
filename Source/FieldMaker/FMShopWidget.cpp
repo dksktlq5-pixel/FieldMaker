@@ -1,4 +1,4 @@
-﻿#include "FMShopWidget.h"
+#include "FMShopWidget.h"
 #include "FMCustomizeWidget.h"
 #include "Widgets/Images/SImage.h"
 #include "FMPlayerController.h"
@@ -19,6 +19,7 @@
 
 namespace
 {
+bool IsArmor(FName Id){return Id==TEXT("LightArmor") || Id==TEXT("MediumArmor");}
 const FLinearColor Mint(.85f,.69f,.29f), Ink(.035f,.039f,.043f), Paper(.90f,.90f,.88f), Muted(.53f,.54f,.54f);
 TSharedRef<STextBlock> Text(const FText& Value,int32 Size,FLinearColor Color=Paper)
 {
@@ -62,7 +63,7 @@ void UFMShopWidget::SelectWeaponById(FName Id){const int32 I=Catalog.IndexOfByKe
 FText UFMShopWidget::SelectedName() const
 {
  const auto Id=SelectedId();
- if(Id==TEXT("Armor"))return FText::FromString(TEXT("경량 방탄복"));
+ if(IsArmor(Id))if(const auto* P=GetOwningPlayerPawn<AFMCharacter>())return P->GetCatalogArmorRules(Id).DisplayName;
  if(Id==TEXT("Flash"))return FText::FromString(TEXT("섬광탄"));
  if(Id==TEXT("Smoke"))return FText::FromString(TEXT("연막탄"));
  if(Id==TEXT("Fire"))return FText::FromString(TEXT("화염병 / 소이탄"));
@@ -72,7 +73,7 @@ FText UFMShopWidget::SelectedName() const
 }
 int32 UFMShopWidget::IconFor(FName Id) const
 {
- if(Id==TEXT("Armor"))return 4;
+ if(IsArmor(Id))return 4;
  if(Id==TEXT("Knife"))return 2;
  if(Id==TEXT("Grenade") || Id==TEXT("Flash") || Id==TEXT("Smoke") || Id==TEXT("Fire") || Id==TEXT("Decoy"))return 3;
  const auto* P=GetOwningPlayerPawn<AFMCharacter>();if(!P)return 0;
@@ -82,7 +83,7 @@ FText UFMShopWidget::DetailText() const
 {
  const auto* P=GetOwningPlayerPawn<AFMCharacter>();if(!P)return FText::GetEmpty();
  const auto Id=SelectedId();
- if(Id==TEXT("Armor"))return FText::FromString(FString::Printf(TEXT("방어력  %.0f / %.0f\n총탄 피해 감소  %.0f%%\n\n머리·칼·폭발 피해는 우회합니다.\n흡수한 피해만큼 방어력이 소모됩니다."),P->GetArmor(),P->GetArmorRules().MaximumArmor,P->GetArmorRules().AbsorptionFraction*100));
+ if(IsArmor(Id))return FText::FromString(FString::Printf(TEXT("방어력  %.0f / %.0f\n총탄 피해 감소  %.0f%%\n\n머리·칼·폭발 피해는 우회합니다.\n흡수한 피해만큼 방어력이 소모됩니다."),P->GetArmor(),P->GetCatalogArmorRules(Id).MaximumArmor,P->GetCatalogArmorRules(Id).AbsorptionFraction*100));
  if(Id==TEXT("Flash") || Id==TEXT("Smoke") || Id==TEXT("Fire") || Id==TEXT("Decoy"))return FText::FromString(TEXT("카탈로그 예정 항목\n\n효과와 전용 투사체는 아직 구현되지 않았습니다."));
  if(Id==TEXT("Grenade"))return FText::FromString(TEXT("파편 수류탄\n신관  1.8초\n폭발 반경  4.5m\n중심 피해  85\n\n폭발 피해는 방탄복을 우회합니다."));
  const auto D=P->GetCatalogWeaponData(Id);
@@ -94,12 +95,13 @@ bool UFMShopWidget::CanActivate() const
 {
  const auto* P=GetOwningPlayerPawn<AFMCharacter>();const auto* G=GetWorld()->GetGameState<AFMGameState>();
  if(!P || P->GetHealth()<=0 || !G || G->GetMatchSnapshot().Phase!=EFMMatchPhase::CombatTest)return false;
+ if(!P->GetCatalogWeaponVisual(SelectedId()).bAvailable)return false;
  return IconFor(SelectedId())!=3 || SelectedId()==TEXT("Grenade");
 }
 FText UFMShopWidget::ActionText() const
 {
  if(!CanActivate())return FText::FromString(TEXT("장착 불가 / 준비 중"));
- if(SelectedId()==TEXT("Armor"))return FText::FromString(GetOwningPlayerPawn<AFMCharacter>()->HasArmor()?TEXT("테스트 방탄복 해제"):TEXT("테스트 방탄복 착용"));
+ if(IsArmor(SelectedId()))return FText::FromString(TEXT("테스트 착용 / 보충"));
  return FText::FromString(TEXT("테스트 장착"));
 }
 void UFMShopWidget::ActivateSelection()
@@ -108,7 +110,7 @@ void UFMShopWidget::ActivateSelection()
  if(auto* P=GetOwningPlayerPawn<AFMCharacter>())
  {
   const auto Id=SelectedId();
-  if(Id==TEXT("Armor"))P->ServerToggleTestArmor();
+  if(IsArmor(Id))P->ServerEquipTestArmor(Id);
   else if(Id==TEXT("Knife"))P->ServerEquipWeapon(EFMWeaponSlot::Melee);
   else if(Id==TEXT("Grenade"))P->ServerEquipWeapon(EFMWeaponSlot::Throwable);
   else P->ServerSelectCatalogWeapon(Id);
@@ -132,7 +134,7 @@ TSharedRef<SWidget> UFMShopWidget::RebuildWidget()
   if(CharacterPreview)CharacterPreview->InitializePreview(9.f,true);
  }
  if(const auto* P=GetOwningPlayerPawn<AFMCharacter>())Catalog=P->GetCatalogWeaponIds();
- Catalog.Append({TEXT("Armor"),TEXT("Flash"),TEXT("Smoke"),TEXT("Fire"),TEXT("Decoy")});
+ Catalog.Append({TEXT("LightArmor"),TEXT("MediumArmor"),TEXT("Flash"),TEXT("Smoke"),TEXT("Fire"),TEXT("Decoy")});
  SelectWeaponById(TEXT("M4"));
  CardStyle=FCoreStyle::Get().GetWidgetStyle<FButtonStyle>("Button");
  CardStyle.SetNormal(FSlateColorBrush(FLinearColor(.06f,.065f,.07f,.85f)));
@@ -140,18 +142,18 @@ TSharedRef<SWidget> UFMShopWidget::RebuildWidget()
  CardStyle.SetPressed(FSlateColorBrush(FLinearColor(.28f,.24f,.13f)));
  ActionStyle=CardStyle;ActionStyle.SetNormal(FSlateColorBrush(Mint));
  auto Columns=SNew(SHorizontalBox);
- const TCHAR* Headers[]={TEXT("장비"),TEXT("권총"),TEXT("기관단총"),TEXT("소총 · 저격소총"),TEXT("중화기"),TEXT("수류탄")};
- for(int32 Column=0;Column<6;++Column)
+ const TCHAR* Headers[]={TEXT("장비"),TEXT("권총"),TEXT("기관단총"),TEXT("라이플"),TEXT("저격소총"),TEXT("중화기"),TEXT("수류탄")};
+ for(int32 Column=0;Column<7;++Column)
  {
   auto Rows=SNew(SVerticalBox);
   for(int32 I=0;I<Catalog.Num();++I)
   {
    const FName Id=Catalog[I];const int32 Icon=IconFor(Id);
-   const int32 Group=Icon==4 || Icon==2?0:Icon==1?1:Icon==5?2:Icon==0 || Icon==6?3:Icon==7 || Icon==8?4:5;
+   const int32 Group=Icon==4 || Icon==2?0:Icon==1?1:Icon==5?2:Icon==0?3:Icon==6?4:Icon==7 || Icon==8?5:6;
    if(Group!=Column)continue;
    const auto* P=GetOwningPlayerPawn<AFMCharacter>();
-   const FText Name=Id==TEXT("Armor")?FText::FromString(TEXT("경량 방탄복")):Id==TEXT("Flash")?FText::FromString(TEXT("섬광탄")):Id==TEXT("Smoke")?FText::FromString(TEXT("연막탄")):Id==TEXT("Fire")?FText::FromString(TEXT("화염병 / 소이탄")):Id==TEXT("Decoy")?FText::FromString(TEXT("유인 수류탄")):P->GetCatalogWeaponData(Id).DisplayName;
-   const int32 Price=Id==TEXT("Armor")?650:P->GetCatalogWeaponData(Id).Price;
+   const FText Name=IsArmor(Id)?P->GetCatalogArmorRules(Id).DisplayName:Id==TEXT("Flash")?FText::FromString(TEXT("섬광탄")):Id==TEXT("Smoke")?FText::FromString(TEXT("연막탄")):Id==TEXT("Fire")?FText::FromString(TEXT("화염병 / 소이탄")):Id==TEXT("Decoy")?FText::FromString(TEXT("유인 수류탄")):P->GetCatalogWeaponData(Id).DisplayName;
+   const int32 Price=IsArmor(Id)?P->GetCatalogArmorRules(Id).Price:P->GetCatalogWeaponData(Id).Price;
    const bool Pending=Icon==3 && Id!=TEXT("Grenade");
    Rows->AddSlot().AutoHeight().Padding(0,0,0,6)
     [SNew(SBox).HeightOverride(91)

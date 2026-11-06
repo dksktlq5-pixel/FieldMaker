@@ -6,6 +6,7 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "TimerManager.h"
+#include "Sound/SoundBase.h"
 #include "UObject/ConstructorHelpers.h"
 
 AFMGrenade::AFMGrenade()
@@ -54,5 +55,12 @@ void AFMGrenade::Detonate()
 {
 	UGameplayStatics::ApplyRadialDamageWithFalloff(this, 85.f, 15.f, GetActorLocation(), 100.f, 450.f,
 		1.f, nullptr, {}, this, GetInstigatorController());
-	Destroy();
+ MulticastExplosionSound(GetActorLocation());
+ Destroy();
+}
+
+void AFMGrenade::MulticastExplosionSound_Implementation(FVector Location)
+{
+ if(GetNetMode()==NM_DedicatedServer)return;
+ if(auto* Sound=LoadObject<USoundBase>(nullptr,TEXT("/Game/FreeWeaponSFX/Wav/GrenadeLauncher/sfx_wpn_gl_explosion.sfx_wpn_gl_explosion")))UGameplayStatics::PlaySoundAtLocation(this,Sound,Location,.6f);
 }

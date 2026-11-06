@@ -1,4 +1,5 @@
-﻿#include "FMCharacter.h"
+#include "FMCharacter.h"
+#include "Materials/MaterialInterface.h"
 #include "FMPlayerState.h"
 #include "FMGameState.h"
 #include "FMGrenade.h"
@@ -184,7 +185,7 @@ void AFMCharacter::RefreshAppearance()
 	ApplyAppearance(State ? State->GetAppearanceId() : FMAppearance::Default);
 }
 
-void AFMCharacter::ApplyAppearance(uint8 AppearanceId)
+void AFMCharacter::ApplyAppearance(uint32 AppearanceId)
 {
 	if (!FMAppearance::IsValid(AppearanceId))
 	{
@@ -201,7 +202,7 @@ void AFMCharacter::ApplyAppearance(uint8 AppearanceId)
 		});
 	Body->SetVisibility(!bModularReady);
 
-	const uint8 OptionalParts[] = {FMAppearance::Vest, FMAppearance::Drops, FMAppearance::Holster, FMAppearance::Patch};
+	const uint32 OptionalParts[] = {FMAppearance::Vest, FMAppearance::Drops, FMAppearance::Holster, FMAppearance::Patch};
 	for (int32 Index = 0; Index < OutfitParts.Num(); ++Index)
 	{
 		auto* Part = OutfitParts[Index].Get();
@@ -215,6 +216,24 @@ void AFMCharacter::ApplyAppearance(uint8 AppearanceId)
 		}
 	}
 	OutfitCap->SetVisibility(bModularReady && Body->DoesSocketExist(TEXT("head")) && (AppearanceId & FMAppearance::Cap));
+ const auto StyleMaterial=[&](const TCHAR* PartName,int32 Category)->UMaterialInterface*
+ {
+  const FString Name=FString::Printf(TEXT("MI_FM_%s_%d"),PartName,FMAppearance::GetStyle(AppearanceId,Category));
+  return LoadObject<UMaterialInterface>(nullptr,*(TEXT("/Game/FieldMaker/Character/Styles/")+Name+TEXT(".")+Name));
+ };
+ if(auto* M=StyleMaterial(TEXT("Cap"),0))OutfitCap->SetMaterial(0,M);
+ if(OutfitParts.Num()==8)
+ {
+  if(auto* M=StyleMaterial(TEXT("Shirt"),2))
+  {
+   OutfitParts[3]->SetMaterial(0,M);
+   const auto Slots=FirstPersonArms->GetMaterialSlotNames();
+   for(int32 I=0;I<Slots.Num();++I)if((Slots[I].ToString().Contains(TEXT("Shirt")) || Slots[I].ToString().Contains(TEXT("Sleeve"))))FirstPersonArms->SetMaterial(I,M);
+  }
+  if(auto* M=StyleMaterial(TEXT("Jeans"),6))OutfitParts[2]->SetMaterial(0,M);
+  if(auto* M=StyleMaterial(TEXT("Vest"),3))OutfitParts[4]->SetMaterial(0,M);
+ }
+
 }
 
 void AFMCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -362,6 +381,7 @@ void AFMCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(AFMCharacter, Health);
 	DOREPLIFETIME(AFMCharacter, Armor);
+ DOREPLIFETIME(AFMCharacter, ArmorId);
 	DOREPLIFETIME(AFMCharacter, bSprinting);
 	DOREPLIFETIME(AFMCharacter, bAiming);
 	DOREPLIFETIME(AFMCharacter, WeaponSlot);

@@ -1,4 +1,4 @@
-#include "FMMenuPlayerController.h"
+﻿#include "FMMenuPlayerController.h"
 #include "FMCustomizeWidget.h"
 #include "FMSettingsWidget.h"
 
@@ -109,7 +109,7 @@ void AFMMenuPlayerController::LogMenuSelection(const TCHAR* Selection)
 	UE_LOG(LogTemp, Display, TEXT("FIELDMAKER menu preview: %s"), Selection);
 }
 
-void AFMMenuPlayerController::Play() { UGameplayStatics::OpenLevel(this, TEXT("/Game/Map/L_FMMovementTest")); }
+void AFMMenuPlayerController::Play() { UGameplayStatics::OpenLevel(this, TEXT("/Game/Map/L_FMBridgeBattlefield")); }
 void AFMMenuPlayerController::Armory() { LogMenuSelection(TEXT("Armory")); }
 void AFMMenuPlayerController::Structure() { LogMenuSelection(TEXT("Structure")); }
 void AFMMenuPlayerController::Training() { Play(); }

@@ -16,4 +16,5 @@ protected:
 
 private:
 	void Detonate();
+ UFUNCTION(NetMulticast, Reliable) void MulticastExplosionSound(FVector Location);
 };

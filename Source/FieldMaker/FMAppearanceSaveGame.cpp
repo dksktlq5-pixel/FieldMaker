@@ -1,4 +1,4 @@
-#include "FMAppearanceSaveGame.h"
+﻿#include "FMAppearanceSaveGame.h"
 #include "Kismet/GameplayStatics.h"
 
 namespace
@@ -6,13 +6,14 @@ namespace
 const FString SlotName(TEXT("FieldMaker.Appearance"));
 }
 
-uint8 UFMAppearanceSaveGame::Load()
+uint32 UFMAppearanceSaveGame::Load()
 {
 	const auto* Save = Cast<UFMAppearanceSaveGame>(UGameplayStatics::LoadGameFromSlot(SlotName, 0));
-	return Save && FMAppearance::IsValid(Save->AppearanceId) ? Save->AppearanceId : FMAppearance::Default;
+	const uint32 Code=Save?(Save->bHasAppearanceCode?Save->AppearanceCode:Save->AppearanceId):FMAppearance::Default;
+ return FMAppearance::IsValid(Code)?Code:FMAppearance::Default;
 }
 
-bool UFMAppearanceSaveGame::Save(uint8 Id)
+bool UFMAppearanceSaveGame::Save(uint32 Id)
 {
 	if (!FMAppearance::IsValid(Id))
 	{
@@ -20,6 +21,6 @@ bool UFMAppearanceSaveGame::Save(uint8 Id)
 	}
 
 	auto* Save = CastChecked<UFMAppearanceSaveGame>(UGameplayStatics::CreateSaveGameObject(StaticClass()));
-	Save->AppearanceId = Id;
+	Save->AppearanceCode = Id; Save->bHasAppearanceCode=true;
 	return UGameplayStatics::SaveGameToSlot(Save, SlotName, 0);
 }

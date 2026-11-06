@@ -9,12 +9,13 @@ void AFMPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	DOREPLIFETIME(AFMPlayerState, Team);
 }
 
-void AFMPlayerState::SetAppearanceId(uint8 Id)
+void AFMPlayerState::SetAppearanceId(uint32 Id)
 {
 	if (HasAuthority() && FMAppearance::IsValid(Id))
 	{
 		AppearanceId = Id;
 		OnRep_AppearanceId();
+        ForceNetUpdate();
 	}
 }
 

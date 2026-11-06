@@ -1,4 +1,4 @@
-﻿#include "FMCharacter.h"
+#include "FMCharacter.h"
 #include "Misc/PackageName.h"
 
 #include "Camera/CameraComponent.h"
@@ -11,6 +11,8 @@
 #include "Math/RotationMatrix.h"
 #include "Materials/MaterialInterface.h"
 #include "Sound/SoundBase.h"
+#include "Sound/SoundAttenuation.h"
+#include "TimerManager.h"
 #include "UObject/ConstructorHelpers.h"
 
 namespace
@@ -65,18 +67,28 @@ void AFMCharacter::InitializeWeaponPresentation()
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> Knife(TEXT("/Game/FieldMaker/Weapons/Realistic/SM_FM_M9.SM_FM_M9"));
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> Grenade(TEXT("/Game/FieldMaker/Weapons/Realistic/SM_FM_G67.SM_FM_G67"));
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> RifleMag(TEXT("/Game/FPS_Weapon_Bundle/Weapons/Meshes/AR4/SM_AR4_Mag.SM_AR4_Mag"));
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> Sphere(TEXT("/Engine/BasicShapes/Sphere.Sphere"));
-	static ConstructorHelpers::FObjectFinder<UMaterialInterface> FlashMaterial(TEXT("/Game/FieldMaker/Weapons/M_FMMuzzleFlash.M_FMMuzzleFlash"));
-	static ConstructorHelpers::FObjectFinder<USoundBase> RifleAudio(TEXT("/Game/FieldMaker/Weapons/A_FMRifle.A_FMRifle"));
-	static ConstructorHelpers::FObjectFinder<USoundBase> PistolAudio(TEXT("/Game/FieldMaker/Weapons/A_FMPistol.A_FMPistol"));
-	static ConstructorHelpers::FObjectFinder<USoundBase> ReloadAudio(TEXT("/Game/FieldMaker/Weapons/A_FMReload.A_FMReload"));
-	static ConstructorHelpers::FObjectFinder<USoundBase> MeleeAudio(TEXT("/Game/FieldMaker/Weapons/A_FMMelee.A_FMMelee"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> FlamePlane(TEXT("/Engine/BasicShapes/Plane.Plane"));
+	static ConstructorHelpers::FObjectFinder<UMaterialInterface> FlashMaterial(TEXT("/Game/FieldMaker/Weapons/M_FMMuzzleFlame.M_FMMuzzleFlame"));
+	static ConstructorHelpers::FObjectFinder<USoundBase> RifleAudio(TEXT("/Game/FreeWeaponSFX/Wav/AssaultRifle/Gunshots/sfx_wpn_ar_gunshot_01.sfx_wpn_ar_gunshot_01"));
+	static ConstructorHelpers::FObjectFinder<USoundBase> PistolAudio(TEXT("/Game/FreeWeaponSFX/Wav/Handgun/Gunshots/sfx_wpn_hgn_gunshot_01.sfx_wpn_hgn_gunshot_01"));
+	static ConstructorHelpers::FObjectFinder<USoundBase> ReloadAudio(TEXT("/Game/FreeWeaponSFX/Wav/AssaultRifle/Reload/sfx_wpn_ar_reload_01_magOut.sfx_wpn_ar_reload_01_magOut"));
+	static ConstructorHelpers::FObjectFinder<USoundBase> MeleeAudio(TEXT("/Game/FieldMaker/Weapons/A_FMKnifeWhoosh.A_FMKnifeWhoosh"));
 	static ConstructorHelpers::FObjectFinder<USoundBase> ThrowAudio(TEXT("/Game/FieldMaker/Weapons/A_FMThrow.A_FMThrow"));
 	WeaponModels = {Rifle.Object, Pistol.Object, Knife.Object, Grenade.Object};
 	MagazineModels = {RifleMag.Object, nullptr};
 	RifleShot = RifleAudio.Object;
+ static ConstructorHelpers::FObjectFinder<USoundAttenuation> Attenuation(TEXT("/Game/FieldMaker/Weapons/A_FMFireAttenuation.A_FMFireAttenuation"));
+ FireAttenuation=Attenuation.Object;
 	PistolShot = PistolAudio.Object;
 	ReloadSound = ReloadAudio.Object;
+ static ConstructorHelpers::FObjectFinder<USoundBase> Sgn(TEXT("/Game/FreeWeaponSFX/Wav/Shotgun/Gunshots/sfx_wpn_sgn_gunshot_01.sfx_wpn_sgn_gunshot_01"));
+ static ConstructorHelpers::FObjectFinder<USoundBase> ArIn(TEXT("/Game/FreeWeaponSFX/Wav/AssaultRifle/Reload/sfx_wpn_ar_reload_03_magIn.sfx_wpn_ar_reload_03_magIn"));
+ static ConstructorHelpers::FObjectFinder<USoundBase> HgnIn(TEXT("/Game/FreeWeaponSFX/Wav/Handgun/Reload/sfx_wpn_hgn_reload_04_magIn.sfx_wpn_hgn_reload_04_magIn"));
+ static ConstructorHelpers::FObjectFinder<USoundBase> SgnIn(TEXT("/Game/FreeWeaponSFX/Wav/Shotgun/Reload/sfx_wpn_sgn_reload_04_chambering.sfx_wpn_sgn_reload_04_chambering"));
+ static ConstructorHelpers::FObjectFinder<USoundBase> HgnOut(TEXT("/Game/FreeWeaponSFX/Wav/Handgun/Reload/sfx_wpn_hgn_reload_02_magOut.sfx_wpn_hgn_reload_02_magOut"));
+ static ConstructorHelpers::FObjectFinder<USoundBase> SgnOut(TEXT("/Game/FreeWeaponSFX/Wav/Shotgun/Reload/sfx_wpn_sgn_reload_01_charge.sfx_wpn_sgn_reload_01_charge"));
+ PistolReloadOut=HgnOut.Object;ShotgunReloadOut=SgnOut.Object;
+ ShotgunShot=Sgn.Object;RifleReloadIn=ArIn.Object;PistolReloadIn=HgnIn.Object;ShotgunReloadIn=SgnIn.Object;
 	MeleeSound = MeleeAudio.Object;
 	ThrowSound = ThrowAudio.Object;
 
@@ -103,7 +115,10 @@ void AFMCharacter::InitializeWeaponPresentation()
 	WorldFlash = AddPart(TEXT("WorldMuzzleFlash"), WorldWeapon, false);
 	for (UStaticMeshComponent* Flash : {ViewFlash.Get(), WorldFlash.Get()})
 	{
-		Flash->SetStaticMesh(Sphere.Object);
+		Flash->SetStaticMesh(FlamePlane.Object);
+  Flash->SetRelativeRotation(FRotator(0,0,90));
+  auto* Cross=AddPart(Flash==ViewFlash?TEXT("ViewFlameCross"):TEXT("WorldFlameCross"),Flash,Flash==ViewFlash);
+  Cross->SetStaticMesh(FlamePlane.Object);Cross->SetMaterial(0,FlashMaterial.Object);Cross->SetRelativeRotation(FRotator(0,0,90));
 		Flash->SetMaterial(0, FlashMaterial.Object);
 		Flash->SetCastShadow(false);
 	}
@@ -297,7 +312,7 @@ void AFMCharacter::UpdateWeaponPresentation(float DeltaSeconds)
 	WorldWeapon->SetVisibility(bVisible && bGrenadeReady);
  for(auto* Accessory:{ViewAccessory.Get(),WorldAccessory.Get()})Accessory->SetVisibility(bVisible && Accessory->GetStaticMesh()!=nullptr);
 
-	const bool bFlash = bVisible && bFirearm && Motion == EFMWeaponMotion::Fire && Age < 0.075f;
+	const bool bFlash = bVisible && bFirearm && Motion == EFMWeaponMotion::Fire && Age < 0.045f;
 	for (UStaticMeshComponent* Flash : {ViewFlash.Get(), WorldFlash.Get()})
 	{
 		if (bFlash)
@@ -305,10 +320,10 @@ void AFMCharacter::UpdateWeaponPresentation(float DeltaSeconds)
 			float MuzzleX=bPrimary?62.f:21.f;
    if(bPrimary && GetWeaponData(WeaponSlot).Category==EFMWeaponCategory::Sniper)MuzzleX=104.f;
    else if(bPrimary && PrimaryWeaponId==TEXT("M4A1S"))MuzzleX=83.f;
-   Flash->SetRelativeLocation(bDetailed?Visual.Muzzle:FVector(MuzzleX, 0.f, bPrimary ? 9.f : 7.f));
-			Flash->SetRelativeScale3D(FVector(bPrimary ? 0.13f : 0.1f, 0.047f, 0.044f));
+   Flash->SetRelativeLocation((bDetailed?Visual.Muzzle:FVector(MuzzleX, 0.f, bPrimary ? 9.f : 7.f))+FVector(bPrimary?9.f:6.f,0,0));
+			Flash->SetRelativeScale3D(FVector(bPrimary ? 0.18f : 0.12f, 0.06f, 1.f));
 		}
-		Flash->SetVisibility(bFlash);
+		Flash->SetVisibility(bFlash,true);
 	}
 }
 
@@ -437,8 +452,9 @@ void AFMCharacter::MulticastWeaponEffects_Implementation(EFMWeaponMotion Motion,
 	USoundBase* Sound = nullptr;
 	switch (Motion)
 	{
-	case EFMWeaponMotion::Fire: Sound = Slot == EFMWeaponSlot::Primary ? RifleShot.Get() : PistolShot.Get(); break;
-	case EFMWeaponMotion::Reload: Sound = ReloadSound; break;
+	case EFMWeaponMotion::Fire: Sound = GetCurrentFireSound(); break;
+	case EFMWeaponMotion::Reload: Sound = Slot==EFMWeaponSlot::Secondary?PistolReloadOut.Get():GetWeaponData(Slot).Category==EFMWeaponCategory::Shotgun?ShotgunReloadOut.Get():ReloadSound.Get();
+ GetWorld()->GetTimerManager().SetTimer(ReloadSoundTimer,this,&AFMCharacter::PlayReloadInsert,GetReloadDuration()*.65f,false);break;
 	case EFMWeaponMotion::Melee: Sound = MeleeSound; break;
 	case EFMWeaponMotion::Throw: Sound = ThrowSound; break;
 	default: break;
@@ -452,10 +468,23 @@ void AFMCharacter::MulticastWeaponEffects_Implementation(EFMWeaponMotion Motion,
 		const APlayerController* Listener = GetWorld()->GetFirstPlayerController();
 		const APawn* ListenerPawn = Listener ? Listener->GetPawn() : nullptr;
 		const float Distance = ListenerPawn ? FVector::Distance(GetActorLocation(), ListenerPawn->GetActorLocation()) : 0.f;
-		const float Volume = 0.55f * (1.f - FMath::Clamp(Distance / 3800.f, 0.f, 1.f));
+		const float Volume = 0.55f * (1.f - FMath::Clamp(Distance / 15000.f, 0.f, 1.f));
 		if (Volume > 0.f)
 		{
-			UGameplayStatics::PlaySoundAtLocation(this, Sound, GetActorLocation(), Volume);
+			UGameplayStatics::PlaySoundAtLocation(this, Sound, GetActorLocation(), Volume, 1.f, 0.f, FireAttenuation);
 		}
 	}
+}
+
+USoundBase* AFMCharacter::GetCurrentFireSound() const
+{
+ const auto Category=GetWeaponData(WeaponSlot).Category;
+ return Category==EFMWeaponCategory::Pistol?PistolShot.Get():Category==EFMWeaponCategory::Shotgun?ShotgunShot.Get():RifleShot.Get();
+}
+void AFMCharacter::PlayReloadInsert()
+{
+ if(!IsReloading() || Health<=0)return;
+ const auto Category=GetWeaponData(WeaponSlot).Category;
+ auto* S=Category==EFMWeaponCategory::Pistol?PistolReloadIn.Get():Category==EFMWeaponCategory::Shotgun?ShotgunReloadIn.Get():RifleReloadIn.Get();
+ if(S){if(IsLocallyControlled())UGameplayStatics::PlaySound2D(this,S,.6f);else {const auto* PC=GetWorld()->GetFirstPlayerController();const APawn* P=PC?PC->GetPawn():nullptr;const float D=P?FVector::Distance(P->GetActorLocation(),GetActorLocation()):0;const float V=.45f*(1.f-FMath::Clamp(D/1800.f,0.f,1.f));if(V>0)UGameplayStatics::PlaySoundAtLocation(this,S,GetActorLocation(),V);}}
 }

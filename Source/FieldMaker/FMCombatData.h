@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "Engine/DataTable.h"
 #include "GameFramework/DamageType.h"
@@ -17,6 +17,7 @@ struct FFMWeaponRow : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadWrite) FText DisplayName;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite) EFMWeaponCategory Category = EFMWeaponCategory::Rifle;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite) int32 Price = 0;
+ UPROPERTY(EditAnywhere, BlueprintReadWrite) bool bInCatalog = true;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite) int32 PelletCount = 1;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite) float SpreadDegrees = 0.f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite) float AimFOV = 65.f;
@@ -38,7 +39,9 @@ USTRUCT(BlueprintType)
 struct FFMArmorRow : public FTableRowBase
 {
 	GENERATED_BODY()
-	UPROPERTY(EditAnywhere, BlueprintReadWrite) float MaximumArmor = 50.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite) FText DisplayName;
+ UPROPERTY(EditAnywhere, BlueprintReadWrite) int32 Price = 650;
+ UPROPERTY(EditAnywhere, BlueprintReadWrite) float MaximumArmor = 50.f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite) float AbsorptionFraction = 0.5f;
 };
 

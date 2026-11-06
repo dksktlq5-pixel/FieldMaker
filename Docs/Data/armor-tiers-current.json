@@ -1,0 +1,16 @@
+[
+	{
+		"Name": "LightArmor",
+		"DisplayName": "NSLOCTEXT(\"DT_FMArmor [7C2EF75FFCC3C3DD3C607617EECD694E]\", \"LightArmor_DisplayName\", \"소형 방탄복\")",
+		"Price": 500,
+		"MaximumArmor": 50,
+		"AbsorptionFraction": 0.5
+	},
+	{
+		"Name": "MediumArmor",
+		"DisplayName": "NSLOCTEXT(\"DT_FMArmor [7C2EF75FFCC3C3DD3C607617EECD694E]\", \"MediumArmor_DisplayName\", \"중형 방탄복\")",
+		"Price": 750,
+		"MaximumArmor": 100,
+		"AbsorptionFraction": 0.5
+	}
+]
