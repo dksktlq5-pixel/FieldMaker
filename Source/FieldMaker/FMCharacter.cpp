@@ -90,6 +90,7 @@ AFMCharacter::AFMCharacter(const FObjectInitializer& ObjectInitializer)
 	FirstPersonArms->SetRelativeRotation(FRotator(0.0, -90.0, 0.0));
 	// The imported mesh bounds describe the reference pose, below the animated hands.
 	FirstPersonArms->SetBoundsScale(2.0f);
+ FirstPersonArms->VisibilityBasedAnimTickOption=EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
 	FirstPersonArms->SetOnlyOwnerSee(true);
 	FirstPersonArms->SetCastShadow(false);
 	FirstPersonArms->SetCollisionEnabled(ECollisionEnabled::NoCollision);

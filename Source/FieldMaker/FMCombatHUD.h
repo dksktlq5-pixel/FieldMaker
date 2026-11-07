@@ -9,5 +9,8 @@ class AFMCombatHUD : public AHUD
 	GENERATED_BODY()
 
 public:
-	virtual void DrawHUD() override;
+	AFMCombatHUD();
+ virtual void DrawHUD() override;
+private:
+ UPROPERTY() TObjectPtr<class UTexture2D> ScopeMask;
 };

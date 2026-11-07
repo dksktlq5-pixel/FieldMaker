@@ -51,6 +51,8 @@ FFMHandTarget BlendHands(const FFMHandTarget& From, const FFMHandTarget& To, flo
 	Result.IndexBend = FMath::Lerp(From.IndexBend, To.IndexBend, Alpha);
 	Result.ThumbOpposition = FMath::Lerp(From.ThumbOpposition, To.ThumbOpposition, Alpha);
 	Result.ThumbAlongFrame = FMath::Lerp(From.ThumbAlongFrame, To.ThumbAlongFrame, Alpha);
+ Result.bWeaponGrip=From.bWeaponGrip || To.bWeaponGrip;
+ Result.ElbowPole=FMath::Lerp(From.ElbowPole,To.ElbowPole,Alpha);
 	return Result;
 }
 
@@ -187,6 +189,8 @@ void AFMCharacter::UpdateWeaponPresentation(float DeltaSeconds)
 	const bool bPrimary = WeaponSlot == EFMWeaponSlot::Primary;
 	const bool bFirearm = IsFirearm(WeaponSlot);
 	const bool bVisible = GetPlayerState() && Health > 0.f;
+ const bool bScoped=IsScopeViewActive();
+ FirstPersonArms->SetVisibility(bVisible && !bScoped);
 	// Keep the running weapon close to the lowered shoulders instead of an idle aim pose.
 	SprintPoseAlpha = FMath::FInterpTo(SprintPoseAlpha, bSprinting && GetVelocity().Size2D() > 100.f ? 1.f : 0.f, DeltaSeconds, 10.f);
 	// Retract the knife stance's shoulders while keeping both hands anchored in camera space.
@@ -303,14 +307,14 @@ void AFMCharacter::UpdateWeaponPresentation(float DeltaSeconds)
 	for (UStaticMeshComponent* Magazine : {ViewMagazine.Get(), WorldMagazine.Get()})
 	{
 		Magazine->SetRelativeLocationAndRotation(MagBase + MagOffset, Visual.MagazineRotation + FRotator(15.f, -12.f, 7.f) * MagazineTravel);
-		Magazine->SetVisibility(bVisible && bFirearm && Magazine->GetStaticMesh()!=nullptr);
+		Magazine->SetVisibility(bVisible && bFirearm && Magazine->GetStaticMesh()!=nullptr && (Magazine!=ViewMagazine || !bScoped));
 	}
 
 	const bool bGrenadeReady = WeaponSlot != EFMWeaponSlot::Throwable ||
 		(Grenades > 0 && (Motion != EFMWeaponMotion::Throw || Age < ThrowReleaseTime || Age > 0.53f));
-	ViewWeapon->SetVisibility(bVisible && bGrenadeReady);
+	ViewWeapon->SetVisibility(bVisible && bGrenadeReady && !bScoped);
 	WorldWeapon->SetVisibility(bVisible && bGrenadeReady);
- for(auto* Accessory:{ViewAccessory.Get(),WorldAccessory.Get()})Accessory->SetVisibility(bVisible && Accessory->GetStaticMesh()!=nullptr);
+ for(auto* Accessory:{ViewAccessory.Get(),WorldAccessory.Get()})Accessory->SetVisibility(bVisible && Accessory->GetStaticMesh()!=nullptr && (Accessory!=ViewAccessory || !bScoped));
 
 	const bool bFlash = bVisible && bFirearm && Motion == EFMWeaponMotion::Fire && Age < 0.045f;
 	for (UStaticMeshComponent* Flash : {ViewFlash.Get(), WorldFlash.Get()})
@@ -323,7 +327,7 @@ void AFMCharacter::UpdateWeaponPresentation(float DeltaSeconds)
    Flash->SetRelativeLocation((bDetailed?Visual.Muzzle:FVector(MuzzleX, 0.f, bPrimary ? 9.f : 7.f))+FVector(bPrimary?9.f:6.f,0,0));
 			Flash->SetRelativeScale3D(FVector(bPrimary ? 0.18f : 0.12f, 0.06f, 1.f));
 		}
-		Flash->SetVisibility(bFlash,true);
+		Flash->SetVisibility(bFlash && (Flash!=ViewFlash || !bScoped),true);
 	}
 }
 
@@ -389,19 +393,34 @@ bool AFMCharacter::GetWeaponGripTargets(const USkeletalMeshComponent& PoseMesh, 
 	}
 	}
 
+ // Model-specific contact and finger closure, shared by first-person and replicated full-body meshes.
+ if(bFirearm && bDetailed && Visual.bUseCustomHands)
+ {
+  Targets.Right=Grip(Visual.RightPalm,Visual.RightBoneX,Visual.RightBoneY,Visual.RightFingerBend,
+   bTrigger?Visual.RightIndexFire:Visual.RightIndexIdle,FMath::Clamp(Visual.RightThumb,0.f,1.f),true);
+  Targets.Left=Grip(Visual.LeftPalm,Visual.LeftBoneX,Visual.LeftBoneY,Visual.LeftFingerBend,
+   Visual.LeftIndexBend,FMath::Clamp(Visual.LeftThumb,0.f,1.f),false);
+  Targets.Right.bWeaponGrip=true;Targets.Left.bWeaponGrip=true;Targets.Left.ElbowPole=Visual.LeftElbowPole;
+  Targets.Right.ThumbAlongFrame=FMath::Clamp(Visual.RightThumbAlong,0.f,1.f);
+  Targets.Left.ThumbAlongFrame=FMath::Clamp(Visual.LeftThumbAlong,0.f,1.f);
+ }
+
 	Targets.Right.Wrist *= WeaponInMesh;
 	if (bFirearm)
 	{
 		Targets.Left.Wrist *= WeaponInMesh;
-		if (IsReloading() && Magazine && Magazine->GetStaticMesh())
+		if (IsReloading())
 		{
 			const float Progress = Age / GetReloadDuration();
 			const float Reach = Phase(Progress, 0.04f, 0.25f) * (1.f - Phase(Progress, 0.74f, 0.96f));
 			// Wrap across the magazine. Aligning the fingers up its length leaves a gap under the palm.
-			FFMHandTarget MagazineHand = Grip(WeaponSlot == EFMWeaponSlot::Primary ? FVector(-2.6, -1.9, -0.9) : FVector(-2.0, -1.35, -2.8),
+			const bool bSeparateMagazine=Magazine && Magazine->GetStaticMesh();
+   const FVector ReloadContact=bSeparateMagazine?(Visual.bUseCustomHands?Visual.MagazineHand:(WeaponSlot==EFMWeaponSlot::Primary?FVector(-2.6,-1.9,-.9):FVector(-2,-1.35,-2.8))):Visual.ReloadPalm;
+   FFMHandTarget MagazineHand = Grip(ReloadContact,
 				FVector(0.97, 0.04, 0.23), FVector(0, -1, 0),
 				FVector2D(68, 121), FVector2D(60, 110), 0.76f, false);
-			MagazineHand.Wrist *= Magazine->GetComponentTransform().GetRelativeTransform(MeshTransform);
+			MagazineHand.bWeaponGrip=Visual.bUseCustomHands;MagazineHand.ElbowPole=Visual.LeftElbowPole;
+   MagazineHand.Wrist *= bSeparateMagazine?Magazine->GetComponentTransform().GetRelativeTransform(MeshTransform):WeaponInMesh;
 			Targets.Left = BlendHands(Targets.Left, MagazineHand, Reach);
 		}
 	}
@@ -487,4 +506,10 @@ void AFMCharacter::PlayReloadInsert()
  const auto Category=GetWeaponData(WeaponSlot).Category;
  auto* S=Category==EFMWeaponCategory::Pistol?PistolReloadIn.Get():Category==EFMWeaponCategory::Shotgun?ShotgunReloadIn.Get():RifleReloadIn.Get();
  if(S){if(IsLocallyControlled())UGameplayStatics::PlaySound2D(this,S,.6f);else {const auto* PC=GetWorld()->GetFirstPlayerController();const APawn* P=PC?PC->GetPawn():nullptr;const float D=P?FVector::Distance(P->GetActorLocation(),GetActorLocation()):0;const float V=.45f*(1.f-FMath::Clamp(D/1800.f,0.f,1.f));if(V>0)UGameplayStatics::PlaySoundAtLocation(this,S,GetActorLocation(),V);}}
+}
+
+bool AFMCharacter::IsScopeViewActive() const
+{
+ return bAiming && ADSAlpha>.92f && WeaponSlot==EFMWeaponSlot::Primary && Health>0 &&
+  (GetWeaponData(WeaponSlot).Category==EFMWeaponCategory::Sniper || GetWeaponVisualData().bScopeOverlay);
 }

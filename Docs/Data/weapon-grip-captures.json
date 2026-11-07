@@ -1,0 +1,187 @@
+[
+  {
+    "id": "Glock",
+    "measure": {
+      "r_palm_cm": 1.8506258959221831e-06,
+      "r_bend_deg": 11.380522451160182,
+      "l_palm_cm": 3.990146097508933e-06,
+      "l_bend_deg": 42.362957009498835,
+      "helper_cm": 2.980899358011824e-05
+    },
+    "capture": "D:/UnReal/FieldMaker/Saved/VibeUE/Captures/capture-game-20261107-100054-623.png"
+  },
+  {
+    "id": "Pistol",
+    "measure": {
+      "r_palm_cm": 1.8506258959221831e-06,
+      "r_bend_deg": 13.317241963581735,
+      "l_palm_cm": 3.990146097508933e-06,
+      "l_bend_deg": 42.13680509777016,
+      "helper_cm": 2.980899358011824e-05
+    },
+    "capture": "D:/UnReal/FieldMaker/Saved/VibeUE/Captures/capture-game-20261107-100056-190.png"
+  },
+  {
+    "id": "P250",
+    "measure": {
+      "r_palm_cm": 1.8506256020495023e-06,
+      "r_bend_deg": 10.722534738764699,
+      "l_palm_cm": 3.990146349930488e-06,
+      "l_bend_deg": 41.77500591693246,
+      "helper_cm": 2.980899358011824e-05
+    },
+    "capture": "D:/UnReal/FieldMaker/Saved/VibeUE/Captures/capture-game-20261107-100057-763.png"
+  },
+  {
+    "id": "FiveSeven",
+    "measure": {
+      "r_palm_cm": 1.8506258959221831e-06,
+      "r_bend_deg": 13.209906945865715,
+      "l_palm_cm": 3.990146097508933e-06,
+      "l_bend_deg": 43.47185486166567,
+      "helper_cm": 2.980899358011824e-05
+    },
+    "capture": "D:/UnReal/FieldMaker/Saved/VibeUE/Captures/capture-game-20261107-100059-331.png"
+  },
+  {
+    "id": "Deagle",
+    "measure": {
+      "r_palm_cm": 1.8506258959221831e-06,
+      "r_bend_deg": 10.547534508395739,
+      "l_palm_cm": 3.990146097508933e-06,
+      "l_bend_deg": 42.37924950294651,
+      "helper_cm": 2.980899358011824e-05
+    },
+    "capture": "D:/UnReal/FieldMaker/Saved/VibeUE/Captures/capture-game-20261107-100100-887.png"
+  },
+  {
+    "id": "MAC10",
+    "measure": {
+      "r_palm_cm": 1.8506252946241817e-06,
+      "r_bend_deg": 21.521039020994145,
+      "l_palm_cm": 3.990146016069807e-06,
+      "l_bend_deg": 10.232248726697325
+    },
+    "capture": "D:/UnReal/FieldMaker/Saved/VibeUE/Captures/capture-game-20261107-094258-070.png"
+  },
+  {
+    "id": "UMP45",
+    "measure": {
+      "r_palm_cm": 1.8506252962053508e-06,
+      "r_bend_deg": 25.08987026321038,
+      "l_palm_cm": 3.990145834114147e-06,
+      "l_bend_deg": 30.739779400526743
+    },
+    "capture": "D:/UnReal/FieldMaker/Saved/VibeUE/Captures/capture-game-20261107-094259-990.png"
+  },
+  {
+    "id": "MP5SD",
+    "measure": {
+      "r_palm_cm": 1.8506252962053508e-06,
+      "r_bend_deg": 23.44041633198302,
+      "l_palm_cm": 3.990145834114147e-06,
+      "l_bend_deg": 28.107735854571214
+    },
+    "capture": "D:/UnReal/FieldMaker/Saved/VibeUE/Captures/capture-game-20261107-094301-833.png"
+  },
+  {
+    "id": "MP7",
+    "measure": {
+      "r_palm_cm": 1.8506252962053508e-06,
+      "r_bend_deg": 23.25049949277823,
+      "l_palm_cm": 3.990145834114147e-06,
+      "l_bend_deg": 29.65103758351204
+    },
+    "capture": "D:/UnReal/FieldMaker/Saved/VibeUE/Captures/capture-game-20261107-094303-679.png"
+  },
+  {
+    "id": "P90",
+    "measure": {
+      "r_palm_cm": 1.8506252962053508e-06,
+      "r_bend_deg": 24.5932093446113,
+      "l_palm_cm": 3.990145834114147e-06,
+      "l_bend_deg": 26.888823319753612
+    },
+    "capture": "D:/UnReal/FieldMaker/Saved/VibeUE/Captures/capture-game-20261107-094305-559.png"
+  },
+  {
+    "id": "M4",
+    "measure": {
+      "r_palm_cm": 1.85062530704346e-06,
+      "r_bend_deg": 25.69246653628889,
+      "l_palm_cm": 3.990145955757887e-06,
+      "l_bend_deg": 28.143859088695983
+    },
+    "capture": "D:/UnReal/FieldMaker/Saved/VibeUE/Captures/capture-game-20261107-094307-375.png"
+  },
+  {
+    "id": "AK47",
+    "measure": {
+      "r_palm_cm": 1.8506256780804966e-06,
+      "r_bend_deg": 24.7657404520585,
+      "l_palm_cm": 3.9901457509629895e-06,
+      "l_bend_deg": 15.955765467771098
+    },
+    "capture": "D:/UnReal/FieldMaker/Saved/VibeUE/Captures/capture-game-20261107-094309-194.png"
+  },
+  {
+    "id": "AR70",
+    "measure": {
+      "r_palm_cm": 1.8506252930430128e-06,
+      "r_bend_deg": 23.595806686570903,
+      "l_palm_cm": 3.9901460238886535e-06,
+      "l_bend_deg": 20.787414888694165
+    },
+    "capture": "D:/UnReal/FieldMaker/Saved/VibeUE/Captures/capture-game-20261107-094311-043.png"
+  },
+  {
+    "id": "AWP",
+    "measure": {
+      "r_palm_cm": 1.8506254443619536e-06,
+      "r_bend_deg": 10.996309390915314,
+      "l_palm_cm": 3.99014626019205e-06,
+      "l_bend_deg": 23.561154121330265
+    },
+    "capture": "D:/UnReal/FieldMaker/Saved/VibeUE/Captures/capture-game-20261107-094312-912.png"
+  },
+  {
+    "id": "SSG08",
+    "measure": {
+      "r_palm_cm": 1.8506252946241817e-06,
+      "r_bend_deg": 27.046919144560793,
+      "l_palm_cm": 3.990146061867544e-06,
+      "l_bend_deg": 25.882654083161416
+    },
+    "capture": "D:/UnReal/FieldMaker/Saved/VibeUE/Captures/capture-game-20261107-094314-757.png"
+  },
+  {
+    "id": "Nova",
+    "measure": {
+      "r_palm_cm": 1.8506252946241817e-06,
+      "r_bend_deg": 15.64108205532604,
+      "l_palm_cm": 3.990145710117733e-06,
+      "l_bend_deg": 20.453313582285475
+    },
+    "capture": "D:/UnReal/FieldMaker/Saved/VibeUE/Captures/capture-game-20261107-094316-588.png"
+  },
+  {
+    "id": "Negev",
+    "measure": {
+      "r_palm_cm": 1.8506252977865197e-06,
+      "r_bend_deg": 19.352565772682986,
+      "l_palm_cm": 3.990146117267044e-06,
+      "l_bend_deg": 21.220616471627196
+    },
+    "capture": "D:/UnReal/FieldMaker/Saved/VibeUE/Captures/capture-game-20261107-094318-419.png"
+  },
+  {
+    "id": "M249",
+    "measure": {
+      "r_palm_cm": 1.8506252977865197e-06,
+      "r_bend_deg": 19.084188436171928,
+      "l_palm_cm": 3.990146117267044e-06,
+      "l_bend_deg": 18.592652477420035
+    },
+    "capture": "D:/UnReal/FieldMaker/Saved/VibeUE/Captures/capture-game-20261107-094320-335.png"
+  }
+]

@@ -1,0 +1,4877 @@
+[
+  {
+    "Name": "M4",
+    "Mesh": "/Game/FieldMaker/Weapons/Realistic/SM_FM_AR15.SM_FM_AR15",
+    "MagazineMesh": "/Game/FieldMaker/Weapons/Realistic/SM_FM_AR15_Mag.SM_FM_AR15_Mag",
+    "AccessoryMesh": "None",
+    "MagazineLocation": {
+      "X": 17.82703582747963,
+      "Y": -0.17145396832024018,
+      "Z": -0.17373853389351623
+    },
+    "MagazineRotation": {
+      "Pitch": 0,
+      "Yaw": 0,
+      "Roll": 0
+    },
+    "AccessoryLocation": {
+      "X": 0,
+      "Y": 0,
+      "Z": 0
+    },
+    "AccessoryScale": {
+      "X": 1,
+      "Y": 1,
+      "Z": 1
+    },
+    "Muzzle": {
+      "X": 57.5,
+      "Y": 0,
+      "Z": 13.8
+    },
+    "RightPalm": {
+      "X": -0.2993492512579181,
+      "Y": 1.025883059007015,
+      "Z": 0.49999661821725594
+    },
+    "LeftPalm": {
+      "X": 23.963714199456938,
+      "Y": -1.6987392968664268,
+      "Z": 10.266785756603333
+    },
+    "LeftBoneX": {
+      "X": 0.6987901543041334,
+      "Y": 0.7153267227271785,
+      "Z": 0
+    },
+    "LeftBoneY": {
+      "X": 0,
+      "Y": 0,
+      "Z": -1
+    },
+    "bUseCustomHands": true,
+    "bScopeOverlay": true,
+    "LeftElbowPole": {
+      "X": 22,
+      "Y": -8,
+      "Z": -18
+    },
+    "RightBoneX": {
+      "X": -0.866,
+      "Y": 0,
+      "Z": -0.5
+    },
+    "RightBoneY": {
+      "X": 0,
+      "Y": -1,
+      "Z": 0
+    },
+    "RightFingerBend": {
+      "X": 80,
+      "Y": 150
+    },
+    "RightIndexIdle": {
+      "X": 8,
+      "Y": 27
+    },
+    "RightIndexFire": {
+      "X": 29,
+      "Y": 68
+    },
+    "RightThumb": 0.7,
+    "RightThumbAlong": 0.8,
+    "LeftFingerBend": {
+      "X": 68,
+      "Y": 138
+    },
+    "LeftIndexBend": {
+      "X": 65,
+      "Y": 133
+    },
+    "LeftThumb": 0.57,
+    "LeftThumbAlong": 0.62,
+    "MagazineHand": {
+      "X": -1.2,
+      "Y": -1.25,
+      "Z": -1
+    },
+    "ReloadPalm": {
+      "X": 8,
+      "Y": -2.4,
+      "Z": -4
+    },
+    "ArmOffset": {
+      "X": 12,
+      "Y": 0,
+      "Z": 0
+    },
+    "ADSArmOffset": {
+      "X": 14,
+      "Y": 0,
+      "Z": 0
+    },
+    "ViewOffset": {
+      "X": 5,
+      "Y": 3,
+      "Z": 3
+    },
+    "ADSOffset": {
+      "X": 0,
+      "Y": 0,
+      "Z": -5.2
+    },
+    "ModelLabel": "NSLOCTEXT(\"DT_FMWeaponVisuals [E0ABB118AC3E94099A5BCC42A94D2672]\", \"M4_ModelLabel\", \"AR15 · Fab / 개별 그립\")",
+    "bAvailable": true,
+    "bRepresentative": false
+  },
+  {
+    "Name": "AK47",
+    "Mesh": "/Game/FieldMaker/Weapons/Realistic/SM_FM_KA47.SM_FM_KA47",
+    "MagazineMesh": "/Game/FPS_Weapon_Bundle/Weapons/Meshes/Ka47/SM_KA47_Mag.SM_KA47_Mag",
+    "AccessoryMesh": "None",
+    "MagazineLocation": {
+      "X": 16.68,
+      "Y": 0,
+      "Z": -1.62
+    },
+    "MagazineRotation": {
+      "Pitch": 0,
+      "Yaw": 0,
+      "Roll": 0
+    },
+    "AccessoryLocation": {
+      "X": 0,
+      "Y": 0,
+      "Z": 0
+    },
+    "AccessoryScale": {
+      "X": 1,
+      "Y": 1,
+      "Z": 1
+    },
+    "Muzzle": {
+      "X": 61.85,
+      "Y": 0,
+      "Z": 8.18
+    },
+    "RightPalm": {
+      "X": -0.30000000000000004,
+      "Y": 1.3844716548919678,
+      "Z": 0.19999999999999996
+    },
+    "LeftPalm": {
+      "X": 26.612300418376417,
+      "Y": -1.4004247730057005,
+      "Z": 5.9251646553143615
+    },
+    "LeftBoneX": {
+      "X": 0.6849435334045959,
+      "Y": 0.7285961542907203,
+      "Z": 0
+    },
+    "LeftBoneY": {
+      "X": 0,
+      "Y": 0,
+      "Z": -1
+    },
+    "bUseCustomHands": true,
+    "bScopeOverlay": false,
+    "LeftElbowPole": {
+      "X": 22,
+      "Y": -8,
+      "Z": -18
+    },
+    "RightBoneX": {
+      "X": -0.866,
+      "Y": 0,
+      "Z": -0.5
+    },
+    "RightBoneY": {
+      "X": 0,
+      "Y": -1,
+      "Z": 0
+    },
+    "RightFingerBend": {
+      "X": 80,
+      "Y": 150
+    },
+    "RightIndexIdle": {
+      "X": 8,
+      "Y": 27
+    },
+    "RightIndexFire": {
+      "X": 29,
+      "Y": 68
+    },
+    "RightThumb": 0.7,
+    "RightThumbAlong": 0.8,
+    "LeftFingerBend": {
+      "X": 68,
+      "Y": 138
+    },
+    "LeftIndexBend": {
+      "X": 65,
+      "Y": 133
+    },
+    "LeftThumb": 0.57,
+    "LeftThumbAlong": 0.62,
+    "MagazineHand": {
+      "X": -1.2,
+      "Y": -1.25,
+      "Z": -1
+    },
+    "ReloadPalm": {
+      "X": 8,
+      "Y": -2.4,
+      "Z": -4
+    },
+    "ArmOffset": {
+      "X": 10,
+      "Y": 0,
+      "Z": 0
+    },
+    "ADSArmOffset": {
+      "X": 12,
+      "Y": 0,
+      "Z": 0
+    },
+    "ViewOffset": {
+      "X": 4,
+      "Y": 0,
+      "Z": 4
+    },
+    "ADSOffset": {
+      "X": 0,
+      "Y": 0,
+      "Z": 3
+    },
+    "ModelLabel": "NSLOCTEXT(\"DT_FMWeaponVisuals [E0ABB118AC3E94099A5BCC42A94D2672]\", \"AK47_ModelLabel\", \"KA47 · Fab\")",
+    "bAvailable": true,
+    "bRepresentative": false
+  },
+  {
+    "Name": "M4A1S",
+    "Mesh": "/Game/FieldMaker/Weapons/Realistic/SM_FM_AR4.SM_FM_AR4",
+    "MagazineMesh": "/Game/FPS_Weapon_Bundle/Weapons/Meshes/AR4/SM_AR4_Mag.SM_AR4_Mag",
+    "AccessoryMesh": "/Game/FPS_Weapon_Bundle/Weapons/Meshes/Accessories/SM_Suppressor5.SM_Suppressor5",
+    "MagazineLocation": {
+      "X": 14,
+      "Y": 0,
+      "Z": -1
+    },
+    "MagazineRotation": {
+      "Pitch": 0,
+      "Yaw": 0,
+      "Roll": 0
+    },
+    "AccessoryLocation": {
+      "X": 59.46,
+      "Y": 0,
+      "Z": 10.58
+    },
+    "AccessoryScale": {
+      "X": 1,
+      "Y": 1,
+      "Z": 1
+    },
+    "Muzzle": {
+      "X": 59.46,
+      "Y": 0,
+      "Z": 10.58
+    },
+    "RightPalm": {
+      "X": -0.43482756194765776,
+      "Y": 1.4245271313195103,
+      "Z": 0.2251783949030554
+    },
+    "LeftPalm": {
+      "X": 25.97234916585642,
+      "Y": -0.776926000006475,
+      "Z": 7.93223422430925
+    },
+    "LeftBoneX": {
+      "X": 0.6987901543041334,
+      "Y": 0.7153267227271785,
+      "Z": 0
+    },
+    "LeftBoneY": {
+      "X": 0,
+      "Y": 0,
+      "Z": -1
+    },
+    "bUseCustomHands": true,
+    "bScopeOverlay": false,
+    "LeftElbowPole": {
+      "X": 22,
+      "Y": -8,
+      "Z": -18
+    },
+    "RightBoneX": {
+      "X": -0.866,
+      "Y": 0,
+      "Z": -0.5
+    },
+    "RightBoneY": {
+      "X": 0,
+      "Y": -1,
+      "Z": 0
+    },
+    "RightFingerBend": {
+      "X": 80,
+      "Y": 150
+    },
+    "RightIndexIdle": {
+      "X": 8,
+      "Y": 27
+    },
+    "RightIndexFire": {
+      "X": 29,
+      "Y": 68
+    },
+    "RightThumb": 0.7,
+    "RightThumbAlong": 0.8,
+    "LeftFingerBend": {
+      "X": 68,
+      "Y": 138
+    },
+    "LeftIndexBend": {
+      "X": 65,
+      "Y": 133
+    },
+    "LeftThumb": 0.57,
+    "LeftThumbAlong": 0.62,
+    "MagazineHand": {
+      "X": -1.2,
+      "Y": -1.25,
+      "Z": -1
+    },
+    "ReloadPalm": {
+      "X": 8,
+      "Y": -2.4,
+      "Z": -4
+    },
+    "ArmOffset": {
+      "X": 10,
+      "Y": 0,
+      "Z": 0
+    },
+    "ADSArmOffset": {
+      "X": 12,
+      "Y": 0,
+      "Z": 0
+    },
+    "ViewOffset": {
+      "X": 4,
+      "Y": 0,
+      "Z": 4
+    },
+    "ADSOffset": {
+      "X": 0,
+      "Y": 0,
+      "Z": 0
+    },
+    "ModelLabel": "NSLOCTEXT(\"DT_FMWeaponVisuals [E0ABB118AC3E94099A5BCC42A94D2672]\", \"M4A1S_ModelLabel\", \"AR4 · Fab\")",
+    "bAvailable": true,
+    "bRepresentative": true
+  },
+  {
+    "Name": "FAMAS",
+    "Mesh": "/Game/FieldMaker/Weapons/Realistic/SM_FM_AR4.SM_FM_AR4",
+    "MagazineMesh": "/Game/FPS_Weapon_Bundle/Weapons/Meshes/AR4/SM_AR4_Mag.SM_AR4_Mag",
+    "AccessoryMesh": "None",
+    "MagazineLocation": {
+      "X": 14,
+      "Y": 0,
+      "Z": -1
+    },
+    "MagazineRotation": {
+      "Pitch": 0,
+      "Yaw": 0,
+      "Roll": 0
+    },
+    "AccessoryLocation": {
+      "X": 0,
+      "Y": 0,
+      "Z": 0
+    },
+    "AccessoryScale": {
+      "X": 1,
+      "Y": 1,
+      "Z": 1
+    },
+    "Muzzle": {
+      "X": 59.46,
+      "Y": 0,
+      "Z": 10.58
+    },
+    "RightPalm": {
+      "X": -0.43482756194765776,
+      "Y": 1.4245271313195103,
+      "Z": 0.2251783949030554
+    },
+    "LeftPalm": {
+      "X": 25.97234916585642,
+      "Y": -0.776926000006475,
+      "Z": 7.93223422430925
+    },
+    "LeftBoneX": {
+      "X": 0.6987901543041334,
+      "Y": 0.7153267227271785,
+      "Z": 0
+    },
+    "LeftBoneY": {
+      "X": 0,
+      "Y": 0,
+      "Z": -1
+    },
+    "bUseCustomHands": true,
+    "bScopeOverlay": false,
+    "LeftElbowPole": {
+      "X": 22,
+      "Y": -8,
+      "Z": -18
+    },
+    "RightBoneX": {
+      "X": -0.866,
+      "Y": 0,
+      "Z": -0.5
+    },
+    "RightBoneY": {
+      "X": 0,
+      "Y": -1,
+      "Z": 0
+    },
+    "RightFingerBend": {
+      "X": 80,
+      "Y": 150
+    },
+    "RightIndexIdle": {
+      "X": 8,
+      "Y": 27
+    },
+    "RightIndexFire": {
+      "X": 29,
+      "Y": 68
+    },
+    "RightThumb": 0.7,
+    "RightThumbAlong": 0.8,
+    "LeftFingerBend": {
+      "X": 68,
+      "Y": 138
+    },
+    "LeftIndexBend": {
+      "X": 65,
+      "Y": 133
+    },
+    "LeftThumb": 0.57,
+    "LeftThumbAlong": 0.62,
+    "MagazineHand": {
+      "X": -1.2,
+      "Y": -1.25,
+      "Z": -1
+    },
+    "ReloadPalm": {
+      "X": 8,
+      "Y": -2.4,
+      "Z": -4
+    },
+    "ArmOffset": {
+      "X": 10,
+      "Y": 0,
+      "Z": 0
+    },
+    "ADSArmOffset": {
+      "X": 12,
+      "Y": 0,
+      "Z": 0
+    },
+    "ViewOffset": {
+      "X": 4,
+      "Y": 0,
+      "Z": 4
+    },
+    "ADSOffset": {
+      "X": 0,
+      "Y": 0,
+      "Z": 0
+    },
+    "ModelLabel": "NSLOCTEXT(\"DT_FMWeaponVisuals [E0ABB118AC3E94099A5BCC42A94D2672]\", \"FAMAS_ModelLabel\", \"AR4 · Fab\")",
+    "bAvailable": true,
+    "bRepresentative": true
+  },
+  {
+    "Name": "Galil",
+    "Mesh": "/Game/FieldMaker/Weapons/Realistic/SM_FM_KA47.SM_FM_KA47",
+    "MagazineMesh": "/Game/FPS_Weapon_Bundle/Weapons/Meshes/Ka47/SM_KA47_Mag.SM_KA47_Mag",
+    "AccessoryMesh": "None",
+    "MagazineLocation": {
+      "X": 16.68,
+      "Y": 0,
+      "Z": -1.62
+    },
+    "MagazineRotation": {
+      "Pitch": 0,
+      "Yaw": 0,
+      "Roll": 0
+    },
+    "AccessoryLocation": {
+      "X": 0,
+      "Y": 0,
+      "Z": 0
+    },
+    "AccessoryScale": {
+      "X": 1,
+      "Y": 1,
+      "Z": 1
+    },
+    "Muzzle": {
+      "X": 61.85,
+      "Y": 0,
+      "Z": 8.18
+    },
+    "RightPalm": {
+      "X": -0.30000000000000004,
+      "Y": 1.3844716548919678,
+      "Z": 0.19999999999999996
+    },
+    "LeftPalm": {
+      "X": 26.612300418376417,
+      "Y": -1.4004247730057005,
+      "Z": 5.9251646553143615
+    },
+    "LeftBoneX": {
+      "X": 0.6849435334045959,
+      "Y": 0.7285961542907203,
+      "Z": 0
+    },
+    "LeftBoneY": {
+      "X": 0,
+      "Y": 0,
+      "Z": -1
+    },
+    "bUseCustomHands": true,
+    "bScopeOverlay": false,
+    "LeftElbowPole": {
+      "X": 22,
+      "Y": -8,
+      "Z": -18
+    },
+    "RightBoneX": {
+      "X": -0.866,
+      "Y": 0,
+      "Z": -0.5
+    },
+    "RightBoneY": {
+      "X": 0,
+      "Y": -1,
+      "Z": 0
+    },
+    "RightFingerBend": {
+      "X": 80,
+      "Y": 150
+    },
+    "RightIndexIdle": {
+      "X": 8,
+      "Y": 27
+    },
+    "RightIndexFire": {
+      "X": 29,
+      "Y": 68
+    },
+    "RightThumb": 0.7,
+    "RightThumbAlong": 0.8,
+    "LeftFingerBend": {
+      "X": 68,
+      "Y": 138
+    },
+    "LeftIndexBend": {
+      "X": 65,
+      "Y": 133
+    },
+    "LeftThumb": 0.57,
+    "LeftThumbAlong": 0.62,
+    "MagazineHand": {
+      "X": -1.2,
+      "Y": -1.25,
+      "Z": -1
+    },
+    "ReloadPalm": {
+      "X": 8,
+      "Y": -2.4,
+      "Z": -4
+    },
+    "ArmOffset": {
+      "X": 10,
+      "Y": 0,
+      "Z": 0
+    },
+    "ADSArmOffset": {
+      "X": 12,
+      "Y": 0,
+      "Z": 0
+    },
+    "ViewOffset": {
+      "X": 4,
+      "Y": 0,
+      "Z": 4
+    },
+    "ADSOffset": {
+      "X": 0,
+      "Y": 0,
+      "Z": 3
+    },
+    "ModelLabel": "NSLOCTEXT(\"DT_FMWeaponVisuals [E0ABB118AC3E94099A5BCC42A94D2672]\", \"Galil_ModelLabel\", \"KA47 · Fab\")",
+    "bAvailable": true,
+    "bRepresentative": true
+  },
+  {
+    "Name": "AUG",
+    "Mesh": "/Game/FieldMaker/Weapons/Realistic/SM_FM_AR4.SM_FM_AR4",
+    "MagazineMesh": "/Game/FPS_Weapon_Bundle/Weapons/Meshes/AR4/SM_AR4_Mag.SM_AR4_Mag",
+    "AccessoryMesh": "/Game/FPS_Weapon_Bundle/Weapons/Meshes/Accessories/SM_T4_Sight.SM_T4_Sight",
+    "MagazineLocation": {
+      "X": 14,
+      "Y": 0,
+      "Z": -1
+    },
+    "MagazineRotation": {
+      "Pitch": 0,
+      "Yaw": 0,
+      "Roll": 0
+    },
+    "AccessoryLocation": {
+      "X": 17,
+      "Y": 0,
+      "Z": 14.5
+    },
+    "AccessoryScale": {
+      "X": 1,
+      "Y": 1,
+      "Z": 1
+    },
+    "Muzzle": {
+      "X": 59.46,
+      "Y": 0,
+      "Z": 10.58
+    },
+    "RightPalm": {
+      "X": -0.43482756194765776,
+      "Y": 1.4245271313195103,
+      "Z": 0.2251783949030554
+    },
+    "LeftPalm": {
+      "X": 25.97234916585642,
+      "Y": -0.776926000006475,
+      "Z": 7.93223422430925
+    },
+    "LeftBoneX": {
+      "X": 0.6987901543041334,
+      "Y": 0.7153267227271785,
+      "Z": 0
+    },
+    "LeftBoneY": {
+      "X": 0,
+      "Y": 0,
+      "Z": -1
+    },
+    "bUseCustomHands": true,
+    "bScopeOverlay": false,
+    "LeftElbowPole": {
+      "X": 22,
+      "Y": -8,
+      "Z": -18
+    },
+    "RightBoneX": {
+      "X": -0.866,
+      "Y": 0,
+      "Z": -0.5
+    },
+    "RightBoneY": {
+      "X": 0,
+      "Y": -1,
+      "Z": 0
+    },
+    "RightFingerBend": {
+      "X": 80,
+      "Y": 150
+    },
+    "RightIndexIdle": {
+      "X": 8,
+      "Y": 27
+    },
+    "RightIndexFire": {
+      "X": 29,
+      "Y": 68
+    },
+    "RightThumb": 0.7,
+    "RightThumbAlong": 0.8,
+    "LeftFingerBend": {
+      "X": 68,
+      "Y": 138
+    },
+    "LeftIndexBend": {
+      "X": 65,
+      "Y": 133
+    },
+    "LeftThumb": 0.57,
+    "LeftThumbAlong": 0.62,
+    "MagazineHand": {
+      "X": -1.2,
+      "Y": -1.25,
+      "Z": -1
+    },
+    "ReloadPalm": {
+      "X": 8,
+      "Y": -2.4,
+      "Z": -4
+    },
+    "ArmOffset": {
+      "X": 10,
+      "Y": 0,
+      "Z": 0
+    },
+    "ADSArmOffset": {
+      "X": 12,
+      "Y": 0,
+      "Z": 0
+    },
+    "ViewOffset": {
+      "X": 4,
+      "Y": 0,
+      "Z": 4
+    },
+    "ADSOffset": {
+      "X": 0,
+      "Y": 0,
+      "Z": 0
+    },
+    "ModelLabel": "NSLOCTEXT(\"DT_FMWeaponVisuals [E0ABB118AC3E94099A5BCC42A94D2672]\", \"AUG_ModelLabel\", \"AR4 · Fab\")",
+    "bAvailable": true,
+    "bRepresentative": true
+  },
+  {
+    "Name": "SG553",
+    "Mesh": "/Game/FieldMaker/Weapons/Realistic/SM_FM_AR4.SM_FM_AR4",
+    "MagazineMesh": "/Game/FPS_Weapon_Bundle/Weapons/Meshes/AR4/SM_AR4_Mag.SM_AR4_Mag",
+    "AccessoryMesh": "/Game/FPS_Weapon_Bundle/Weapons/Meshes/Accessories/SM_T4_Sight.SM_T4_Sight",
+    "MagazineLocation": {
+      "X": 14,
+      "Y": 0,
+      "Z": -1
+    },
+    "MagazineRotation": {
+      "Pitch": 0,
+      "Yaw": 0,
+      "Roll": 0
+    },
+    "AccessoryLocation": {
+      "X": 17,
+      "Y": 0,
+      "Z": 14.5
+    },
+    "AccessoryScale": {
+      "X": 1,
+      "Y": 1,
+      "Z": 1
+    },
+    "Muzzle": {
+      "X": 59.46,
+      "Y": 0,
+      "Z": 10.58
+    },
+    "RightPalm": {
+      "X": -0.43482756194765776,
+      "Y": 1.4245271313195103,
+      "Z": 0.2251783949030554
+    },
+    "LeftPalm": {
+      "X": 25.97234916585642,
+      "Y": -0.776926000006475,
+      "Z": 7.93223422430925
+    },
+    "LeftBoneX": {
+      "X": 0.6987901543041334,
+      "Y": 0.7153267227271785,
+      "Z": 0
+    },
+    "LeftBoneY": {
+      "X": 0,
+      "Y": 0,
+      "Z": -1
+    },
+    "bUseCustomHands": true,
+    "bScopeOverlay": false,
+    "LeftElbowPole": {
+      "X": 22,
+      "Y": -8,
+      "Z": -18
+    },
+    "RightBoneX": {
+      "X": -0.866,
+      "Y": 0,
+      "Z": -0.5
+    },
+    "RightBoneY": {
+      "X": 0,
+      "Y": -1,
+      "Z": 0
+    },
+    "RightFingerBend": {
+      "X": 80,
+      "Y": 150
+    },
+    "RightIndexIdle": {
+      "X": 8,
+      "Y": 27
+    },
+    "RightIndexFire": {
+      "X": 29,
+      "Y": 68
+    },
+    "RightThumb": 0.7,
+    "RightThumbAlong": 0.8,
+    "LeftFingerBend": {
+      "X": 68,
+      "Y": 138
+    },
+    "LeftIndexBend": {
+      "X": 65,
+      "Y": 133
+    },
+    "LeftThumb": 0.57,
+    "LeftThumbAlong": 0.62,
+    "MagazineHand": {
+      "X": -1.2,
+      "Y": -1.25,
+      "Z": -1
+    },
+    "ReloadPalm": {
+      "X": 8,
+      "Y": -2.4,
+      "Z": -4
+    },
+    "ArmOffset": {
+      "X": 10,
+      "Y": 0,
+      "Z": 0
+    },
+    "ADSArmOffset": {
+      "X": 12,
+      "Y": 0,
+      "Z": 0
+    },
+    "ViewOffset": {
+      "X": 4,
+      "Y": 0,
+      "Z": 4
+    },
+    "ADSOffset": {
+      "X": 0,
+      "Y": 0,
+      "Z": 0
+    },
+    "ModelLabel": "NSLOCTEXT(\"DT_FMWeaponVisuals [E0ABB118AC3E94099A5BCC42A94D2672]\", \"SG553_ModelLabel\", \"AR4 · Fab\")",
+    "bAvailable": true,
+    "bRepresentative": true
+  },
+  {
+    "Name": "AWP",
+    "Mesh": "/Game/FieldMaker/Weapons/Realistic/SM_FM_AWP.SM_FM_AWP",
+    "MagazineMesh": "None",
+    "AccessoryMesh": "None",
+    "MagazineLocation": {
+      "X": 11,
+      "Y": 0,
+      "Z": -3
+    },
+    "MagazineRotation": {
+      "Pitch": 0,
+      "Yaw": 0,
+      "Roll": 0
+    },
+    "AccessoryLocation": {
+      "X": 0,
+      "Y": 0,
+      "Z": 0
+    },
+    "AccessoryScale": {
+      "X": 1,
+      "Y": 1,
+      "Z": 1
+    },
+    "Muzzle": {
+      "X": 76.8,
+      "Y": 0,
+      "Z": 13.2
+    },
+    "RightPalm": {
+      "X": -3.83,
+      "Y": 0.8,
+      "Z": 2.93
+    },
+    "LeftPalm": {
+      "X": 25.51131465599555,
+      "Y": -1.9959218981264701,
+      "Z": 7.7012995392124655
+    },
+    "LeftBoneX": {
+      "X": 0.7202187241067731,
+      "Y": 0.6937470644593834,
+      "Z": 0
+    },
+    "LeftBoneY": {
+      "X": 0,
+      "Y": 0,
+      "Z": -1
+    },
+    "bUseCustomHands": true,
+    "bScopeOverlay": false,
+    "LeftElbowPole": {
+      "X": 22,
+      "Y": -8,
+      "Z": -18
+    },
+    "RightBoneX": {
+      "X": -0.6,
+      "Y": 0,
+      "Z": -0.8
+    },
+    "RightBoneY": {
+      "X": 0,
+      "Y": -1,
+      "Z": 0
+    },
+    "RightFingerBend": {
+      "X": 80,
+      "Y": 150
+    },
+    "RightIndexIdle": {
+      "X": 8,
+      "Y": 27
+    },
+    "RightIndexFire": {
+      "X": 29,
+      "Y": 68
+    },
+    "RightThumb": 0.6,
+    "RightThumbAlong": 0.5,
+    "LeftFingerBend": {
+      "X": 66,
+      "Y": 134
+    },
+    "LeftIndexBend": {
+      "X": 65,
+      "Y": 133
+    },
+    "LeftThumb": 0.57,
+    "LeftThumbAlong": 0.62,
+    "MagazineHand": {
+      "X": -1.2,
+      "Y": -1.25,
+      "Z": -1
+    },
+    "ReloadPalm": {
+      "X": 8,
+      "Y": -2.4,
+      "Z": -4
+    },
+    "ArmOffset": {
+      "X": 12,
+      "Y": 0,
+      "Z": 0
+    },
+    "ADSArmOffset": {
+      "X": 14,
+      "Y": 0,
+      "Z": 0
+    },
+    "ViewOffset": {
+      "X": 4,
+      "Y": 2,
+      "Z": 3
+    },
+    "ADSOffset": {
+      "X": -2,
+      "Y": 0,
+      "Z": -6.5
+    },
+    "ModelLabel": "NSLOCTEXT(\"DT_FMWeaponVisuals [E0ABB118AC3E94099A5BCC42A94D2672]\", \"AWP_ModelLabel\", \"AWP · Fab / 개별 그립\")",
+    "bAvailable": true,
+    "bRepresentative": false
+  },
+  {
+    "Name": "SSG08",
+    "Mesh": "/Game/FieldMaker/Weapons/Realistic/SM_FM_Ghoul.SM_FM_Ghoul",
+    "MagazineMesh": "None",
+    "AccessoryMesh": "None",
+    "MagazineLocation": {
+      "X": 11,
+      "Y": 0,
+      "Z": -3
+    },
+    "MagazineRotation": {
+      "Pitch": 0,
+      "Yaw": 0,
+      "Roll": 0
+    },
+    "AccessoryLocation": {
+      "X": 0,
+      "Y": 0,
+      "Z": 0
+    },
+    "AccessoryScale": {
+      "X": 1,
+      "Y": 1,
+      "Z": 1
+    },
+    "Muzzle": {
+      "X": 114.8,
+      "Y": 0,
+      "Z": 12
+    },
+    "RightPalm": {
+      "X": 0.9000001298733115,
+      "Y": 0.9667593914019832,
+      "Z": 0.9999999582639001
+    },
+    "LeftPalm": {
+      "X": 27.000000252357214,
+      "Y": -2.228872473211287,
+      "Z": 9.129212832800306
+    },
+    "LeftBoneX": {
+      "X": 0.7293217253632868,
+      "Y": 0.684170900370016,
+      "Z": 0
+    },
+    "LeftBoneY": {
+      "X": 0,
+      "Y": 0,
+      "Z": -1
+    },
+    "bUseCustomHands": true,
+    "bScopeOverlay": false,
+    "LeftElbowPole": {
+      "X": 22,
+      "Y": -8,
+      "Z": -18
+    },
+    "RightBoneX": {
+      "X": -0.866,
+      "Y": 0,
+      "Z": -0.5
+    },
+    "RightBoneY": {
+      "X": 0,
+      "Y": -1,
+      "Z": 0
+    },
+    "RightFingerBend": {
+      "X": 80,
+      "Y": 150
+    },
+    "RightIndexIdle": {
+      "X": 8,
+      "Y": 27
+    },
+    "RightIndexFire": {
+      "X": 29,
+      "Y": 68
+    },
+    "RightThumb": 0.7,
+    "RightThumbAlong": 0.8,
+    "LeftFingerBend": {
+      "X": 68,
+      "Y": 138
+    },
+    "LeftIndexBend": {
+      "X": 65,
+      "Y": 133
+    },
+    "LeftThumb": 0.57,
+    "LeftThumbAlong": 0.62,
+    "MagazineHand": {
+      "X": -1.2,
+      "Y": -1.25,
+      "Z": -1
+    },
+    "ReloadPalm": {
+      "X": 8,
+      "Y": -2.4,
+      "Z": -4
+    },
+    "ArmOffset": {
+      "X": 12,
+      "Y": 0,
+      "Z": 0
+    },
+    "ADSArmOffset": {
+      "X": 14,
+      "Y": 0,
+      "Z": 0
+    },
+    "ViewOffset": {
+      "X": 4,
+      "Y": 2,
+      "Z": 3
+    },
+    "ADSOffset": {
+      "X": -2,
+      "Y": 0,
+      "Z": -1.8
+    },
+    "ModelLabel": "NSLOCTEXT(\"DT_FMWeaponVisuals [E0ABB118AC3E94099A5BCC42A94D2672]\", \"SSG08_ModelLabel\", \"Ghoul · Fab / 개별 그립\")",
+    "bAvailable": true,
+    "bRepresentative": false
+  },
+  {
+    "Name": "G3SG1",
+    "Mesh": "/Game/FieldMaker/Weapons/Realistic/SM_FM_M107.SM_FM_M107",
+    "MagazineMesh": "None",
+    "AccessoryMesh": "None",
+    "MagazineLocation": {
+      "X": 11,
+      "Y": 0,
+      "Z": -3
+    },
+    "MagazineRotation": {
+      "Pitch": 0,
+      "Yaw": 0,
+      "Roll": 0
+    },
+    "AccessoryLocation": {
+      "X": 0,
+      "Y": 0,
+      "Z": 0
+    },
+    "AccessoryScale": {
+      "X": 1,
+      "Y": 1,
+      "Z": 1
+    },
+    "Muzzle": {
+      "X": 100,
+      "Y": 2,
+      "Z": 11
+    },
+    "RightPalm": {
+      "X": -0.5,
+      "Y": 1.4,
+      "Z": 0
+    },
+    "LeftPalm": {
+      "X": 26,
+      "Y": -2.4,
+      "Z": 3.8
+    },
+    "LeftBoneX": {
+      "X": 1,
+      "Y": 0.12,
+      "Z": 0.19
+    },
+    "LeftBoneY": {
+      "X": 0,
+      "Y": -0.4,
+      "Z": -0.91
+    },
+    "bUseCustomHands": false,
+    "bScopeOverlay": false,
+    "LeftElbowPole": {
+      "X": 22,
+      "Y": -8,
+      "Z": -18
+    },
+    "RightBoneX": {
+      "X": -1,
+      "Y": 0,
+      "Z": 0.05999999865889549
+    },
+    "RightBoneY": {
+      "X": 0,
+      "Y": -1,
+      "Z": 0
+    },
+    "RightFingerBend": {
+      "X": 74,
+      "Y": 130
+    },
+    "RightIndexIdle": {
+      "X": 8,
+      "Y": 28
+    },
+    "RightIndexFire": {
+      "X": 28,
+      "Y": 67
+    },
+    "RightThumb": 0.8,
+    "RightThumbAlong": 0.85,
+    "LeftFingerBend": {
+      "X": 51,
+      "Y": 105
+    },
+    "LeftIndexBend": {
+      "X": 46,
+      "Y": 96
+    },
+    "LeftThumb": 0.54,
+    "LeftThumbAlong": 0,
+    "MagazineHand": {
+      "X": -2.5999999046325684,
+      "Y": -1.899999976158142,
+      "Z": -0.8999999761581421
+    },
+    "ReloadPalm": {
+      "X": 7,
+      "Y": -2,
+      "Z": -4
+    },
+    "ArmOffset": {
+      "X": 5,
+      "Y": 0,
+      "Z": 0
+    },
+    "ADSArmOffset": {
+      "X": 7,
+      "Y": 0,
+      "Z": 0
+    },
+    "ViewOffset": {
+      "X": 0,
+      "Y": 1,
+      "Z": -3
+    },
+    "ADSOffset": {
+      "X": 0,
+      "Y": 0,
+      "Z": -1
+    },
+    "ModelLabel": "NSLOCTEXT(\"DT_FMWeaponVisuals [E0ABB118AC3E94099A5BCC42A94D2672]\", \"G3SG1_ModelLabel\", \"M107 · 로컬 PBR 보정\")",
+    "bAvailable": true,
+    "bRepresentative": true
+  },
+  {
+    "Name": "SCAR20",
+    "Mesh": "/Game/FieldMaker/Weapons/Realistic/SM_FM_M107.SM_FM_M107",
+    "MagazineMesh": "None",
+    "AccessoryMesh": "None",
+    "MagazineLocation": {
+      "X": 11,
+      "Y": 0,
+      "Z": -3
+    },
+    "MagazineRotation": {
+      "Pitch": 0,
+      "Yaw": 0,
+      "Roll": 0
+    },
+    "AccessoryLocation": {
+      "X": 0,
+      "Y": 0,
+      "Z": 0
+    },
+    "AccessoryScale": {
+      "X": 1,
+      "Y": 1,
+      "Z": 1
+    },
+    "Muzzle": {
+      "X": 100,
+      "Y": 2,
+      "Z": 11
+    },
+    "RightPalm": {
+      "X": -0.5,
+      "Y": 1.4,
+      "Z": 0
+    },
+    "LeftPalm": {
+      "X": 26,
+      "Y": -2.4,
+      "Z": 3.8
+    },
+    "LeftBoneX": {
+      "X": 1,
+      "Y": 0.12,
+      "Z": 0.19
+    },
+    "LeftBoneY": {
+      "X": 0,
+      "Y": -0.4,
+      "Z": -0.91
+    },
+    "bUseCustomHands": false,
+    "bScopeOverlay": false,
+    "LeftElbowPole": {
+      "X": 22,
+      "Y": -8,
+      "Z": -18
+    },
+    "RightBoneX": {
+      "X": -1,
+      "Y": 0,
+      "Z": 0.05999999865889549
+    },
+    "RightBoneY": {
+      "X": 0,
+      "Y": -1,
+      "Z": 0
+    },
+    "RightFingerBend": {
+      "X": 74,
+      "Y": 130
+    },
+    "RightIndexIdle": {
+      "X": 8,
+      "Y": 28
+    },
+    "RightIndexFire": {
+      "X": 28,
+      "Y": 67
+    },
+    "RightThumb": 0.8,
+    "RightThumbAlong": 0.85,
+    "LeftFingerBend": {
+      "X": 51,
+      "Y": 105
+    },
+    "LeftIndexBend": {
+      "X": 46,
+      "Y": 96
+    },
+    "LeftThumb": 0.54,
+    "LeftThumbAlong": 0,
+    "MagazineHand": {
+      "X": -2.5999999046325684,
+      "Y": -1.899999976158142,
+      "Z": -0.8999999761581421
+    },
+    "ReloadPalm": {
+      "X": 7,
+      "Y": -2,
+      "Z": -4
+    },
+    "ArmOffset": {
+      "X": 5,
+      "Y": 0,
+      "Z": 0
+    },
+    "ADSArmOffset": {
+      "X": 7,
+      "Y": 0,
+      "Z": 0
+    },
+    "ViewOffset": {
+      "X": 0,
+      "Y": 1,
+      "Z": -3
+    },
+    "ADSOffset": {
+      "X": 0,
+      "Y": 0,
+      "Z": -1
+    },
+    "ModelLabel": "NSLOCTEXT(\"DT_FMWeaponVisuals [E0ABB118AC3E94099A5BCC42A94D2672]\", \"SCAR20_ModelLabel\", \"M107 · 로컬 PBR 보정\")",
+    "bAvailable": true,
+    "bRepresentative": true
+  },
+  {
+    "Name": "Pistol",
+    "Mesh": "/Game/FieldMaker/Weapons/Realistic/SM_FM_PolicePistol.SM_FM_PolicePistol",
+    "MagazineMesh": "None",
+    "AccessoryMesh": "/Game/FPS_Weapon_Bundle/Weapons/Meshes/Accessories/SM_Suppressor5.SM_Suppressor5",
+    "MagazineLocation": {
+      "X": 11,
+      "Y": 0,
+      "Z": -3
+    },
+    "MagazineRotation": {
+      "Pitch": 0,
+      "Yaw": 0,
+      "Roll": 0
+    },
+    "AccessoryLocation": {
+      "X": 16.65,
+      "Y": 0.06,
+      "Z": 10.9
+    },
+    "AccessoryScale": {
+      "X": 0.55,
+      "Y": 0.55,
+      "Z": 0.55
+    },
+    "Muzzle": {
+      "X": 25.9285,
+      "Y": 0.06,
+      "Z": 10.9
+    },
+    "RightPalm": {
+      "X": -0.5000065924715139,
+      "Y": 1.1350921956824804,
+      "Z": 2.199823115185964
+    },
+    "LeftPalm": {
+      "X": -0.5,
+      "Y": -2.6,
+      "Z": 0
+    },
+    "LeftBoneX": {
+      "X": 0.6,
+      "Y": 0.43,
+      "Z": 0.67
+    },
+    "LeftBoneY": {
+      "X": 0,
+      "Y": -0.96,
+      "Z": -0.28
+    },
+    "bUseCustomHands": true,
+    "bScopeOverlay": false,
+    "LeftElbowPole": {
+      "X": 22,
+      "Y": -8,
+      "Z": -8
+    },
+    "RightBoneX": {
+      "X": -0.9,
+      "Y": 0,
+      "Z": -0.435
+    },
+    "RightBoneY": {
+      "X": 0,
+      "Y": -1,
+      "Z": 0
+    },
+    "RightFingerBend": {
+      "X": 79,
+      "Y": 145
+    },
+    "RightIndexIdle": {
+      "X": 7,
+      "Y": 22
+    },
+    "RightIndexFire": {
+      "X": 29,
+      "Y": 68
+    },
+    "RightThumb": 0.34,
+    "RightThumbAlong": 1,
+    "LeftFingerBend": {
+      "X": 70,
+      "Y": 135
+    },
+    "LeftIndexBend": {
+      "X": 66,
+      "Y": 127
+    },
+    "LeftThumb": 0.4,
+    "LeftThumbAlong": 0.8,
+    "MagazineHand": {
+      "X": -1.2,
+      "Y": -1.25,
+      "Z": -1
+    },
+    "ReloadPalm": {
+      "X": -0.8,
+      "Y": -1.5,
+      "Z": -0.3
+    },
+    "ArmOffset": {
+      "X": -4,
+      "Y": 0,
+      "Z": 0
+    },
+    "ADSArmOffset": {
+      "X": -10,
+      "Y": 0,
+      "Z": 0
+    },
+    "ViewOffset": {
+      "X": 5,
+      "Y": 0,
+      "Z": 2
+    },
+    "ADSOffset": {
+      "X": 0,
+      "Y": 0,
+      "Z": -2
+    },
+    "ModelLabel": "NSLOCTEXT(\"DT_FMWeaponVisuals [E0ABB118AC3E94099A5BCC42A94D2672]\", \"Pistol_ModelLabel\", \"PolicePistol · Fab / 개별 그립\")",
+    "bAvailable": true,
+    "bRepresentative": true
+  },
+  {
+    "Name": "Glock",
+    "Mesh": "/Game/FieldMaker/Weapons/Realistic/SM_FM_PolicePistol.SM_FM_PolicePistol",
+    "MagazineMesh": "None",
+    "AccessoryMesh": "None",
+    "MagazineLocation": {
+      "X": 11,
+      "Y": 0,
+      "Z": -3
+    },
+    "MagazineRotation": {
+      "Pitch": 0,
+      "Yaw": 0,
+      "Roll": 0
+    },
+    "AccessoryLocation": {
+      "X": 0,
+      "Y": 0,
+      "Z": 0
+    },
+    "AccessoryScale": {
+      "X": 1,
+      "Y": 1,
+      "Z": 1
+    },
+    "Muzzle": {
+      "X": 16.65,
+      "Y": 0.06,
+      "Z": 10.9
+    },
+    "RightPalm": {
+      "X": -0.5000065924715139,
+      "Y": 1.1350921956824804,
+      "Z": 2.199823115185964
+    },
+    "LeftPalm": {
+      "X": -0.5,
+      "Y": -2.6,
+      "Z": 0
+    },
+    "LeftBoneX": {
+      "X": 0.6,
+      "Y": 0.43,
+      "Z": 0.67
+    },
+    "LeftBoneY": {
+      "X": 0,
+      "Y": -0.96,
+      "Z": -0.28
+    },
+    "bUseCustomHands": true,
+    "bScopeOverlay": false,
+    "LeftElbowPole": {
+      "X": 22,
+      "Y": -8,
+      "Z": -8
+    },
+    "RightBoneX": {
+      "X": -0.9,
+      "Y": 0,
+      "Z": -0.435
+    },
+    "RightBoneY": {
+      "X": 0,
+      "Y": -1,
+      "Z": 0
+    },
+    "RightFingerBend": {
+      "X": 79,
+      "Y": 145
+    },
+    "RightIndexIdle": {
+      "X": 7,
+      "Y": 22
+    },
+    "RightIndexFire": {
+      "X": 29,
+      "Y": 68
+    },
+    "RightThumb": 0.34,
+    "RightThumbAlong": 1,
+    "LeftFingerBend": {
+      "X": 70,
+      "Y": 135
+    },
+    "LeftIndexBend": {
+      "X": 66,
+      "Y": 127
+    },
+    "LeftThumb": 0.4,
+    "LeftThumbAlong": 0.8,
+    "MagazineHand": {
+      "X": -1.2,
+      "Y": -1.25,
+      "Z": -1
+    },
+    "ReloadPalm": {
+      "X": -0.8,
+      "Y": -1.5,
+      "Z": -0.3
+    },
+    "ArmOffset": {
+      "X": -4,
+      "Y": 0,
+      "Z": 0
+    },
+    "ADSArmOffset": {
+      "X": -10,
+      "Y": 0,
+      "Z": 0
+    },
+    "ViewOffset": {
+      "X": 5,
+      "Y": 0,
+      "Z": 2
+    },
+    "ADSOffset": {
+      "X": 0,
+      "Y": 0,
+      "Z": -2
+    },
+    "ModelLabel": "NSLOCTEXT(\"DT_FMWeaponVisuals [E0ABB118AC3E94099A5BCC42A94D2672]\", \"Glock_ModelLabel\", \"PolicePistol · Fab / 개별 그립\")",
+    "bAvailable": true,
+    "bRepresentative": true
+  },
+  {
+    "Name": "P2000",
+    "Mesh": "/Game/FieldMaker/Weapons/Realistic/SM_FM_PolicePistol.SM_FM_PolicePistol",
+    "MagazineMesh": "None",
+    "AccessoryMesh": "None",
+    "MagazineLocation": {
+      "X": 11,
+      "Y": 0,
+      "Z": -3
+    },
+    "MagazineRotation": {
+      "Pitch": 0,
+      "Yaw": 0,
+      "Roll": 0
+    },
+    "AccessoryLocation": {
+      "X": 0,
+      "Y": 0,
+      "Z": 0
+    },
+    "AccessoryScale": {
+      "X": 1,
+      "Y": 1,
+      "Z": 1
+    },
+    "Muzzle": {
+      "X": 16.65,
+      "Y": 0.06,
+      "Z": 10.9
+    },
+    "RightPalm": {
+      "X": -0.5000065924715139,
+      "Y": 1.1350921956824804,
+      "Z": 2.199823115185964
+    },
+    "LeftPalm": {
+      "X": -0.5,
+      "Y": -2.6,
+      "Z": 0
+    },
+    "LeftBoneX": {
+      "X": 0.6,
+      "Y": 0.43,
+      "Z": 0.67
+    },
+    "LeftBoneY": {
+      "X": 0,
+      "Y": -0.96,
+      "Z": -0.28
+    },
+    "bUseCustomHands": true,
+    "bScopeOverlay": false,
+    "LeftElbowPole": {
+      "X": 22,
+      "Y": -8,
+      "Z": -8
+    },
+    "RightBoneX": {
+      "X": -0.9,
+      "Y": 0,
+      "Z": -0.435
+    },
+    "RightBoneY": {
+      "X": 0,
+      "Y": -1,
+      "Z": 0
+    },
+    "RightFingerBend": {
+      "X": 79,
+      "Y": 145
+    },
+    "RightIndexIdle": {
+      "X": 7,
+      "Y": 22
+    },
+    "RightIndexFire": {
+      "X": 29,
+      "Y": 68
+    },
+    "RightThumb": 0.34,
+    "RightThumbAlong": 1,
+    "LeftFingerBend": {
+      "X": 70,
+      "Y": 135
+    },
+    "LeftIndexBend": {
+      "X": 66,
+      "Y": 127
+    },
+    "LeftThumb": 0.4,
+    "LeftThumbAlong": 0.8,
+    "MagazineHand": {
+      "X": -1.2,
+      "Y": -1.25,
+      "Z": -1
+    },
+    "ReloadPalm": {
+      "X": -0.8,
+      "Y": -1.5,
+      "Z": -0.3
+    },
+    "ArmOffset": {
+      "X": -4,
+      "Y": 0,
+      "Z": 0
+    },
+    "ADSArmOffset": {
+      "X": -10,
+      "Y": 0,
+      "Z": 0
+    },
+    "ViewOffset": {
+      "X": 5,
+      "Y": 0,
+      "Z": 2
+    },
+    "ADSOffset": {
+      "X": 0,
+      "Y": 0,
+      "Z": -2
+    },
+    "ModelLabel": "NSLOCTEXT(\"DT_FMWeaponVisuals [E0ABB118AC3E94099A5BCC42A94D2672]\", \"P2000_ModelLabel\", \"PolicePistol · Fab / 개별 그립\")",
+    "bAvailable": true,
+    "bRepresentative": true
+  },
+  {
+    "Name": "P250",
+    "Mesh": "/Game/FieldMaker/Weapons/Realistic/SM_FM_PolicePistol.SM_FM_PolicePistol",
+    "MagazineMesh": "None",
+    "AccessoryMesh": "None",
+    "MagazineLocation": {
+      "X": 11,
+      "Y": 0,
+      "Z": -3
+    },
+    "MagazineRotation": {
+      "Pitch": 0,
+      "Yaw": 0,
+      "Roll": 0
+    },
+    "AccessoryLocation": {
+      "X": 0,
+      "Y": 0,
+      "Z": 0
+    },
+    "AccessoryScale": {
+      "X": 1,
+      "Y": 1,
+      "Z": 1
+    },
+    "Muzzle": {
+      "X": 16.65,
+      "Y": 0.06,
+      "Z": 10.9
+    },
+    "RightPalm": {
+      "X": -0.5000065924715139,
+      "Y": 1.1350921956824804,
+      "Z": 2.199823115185964
+    },
+    "LeftPalm": {
+      "X": -0.5,
+      "Y": -2.6,
+      "Z": 0
+    },
+    "LeftBoneX": {
+      "X": 0.6,
+      "Y": 0.43,
+      "Z": 0.67
+    },
+    "LeftBoneY": {
+      "X": 0,
+      "Y": -0.96,
+      "Z": -0.28
+    },
+    "bUseCustomHands": true,
+    "bScopeOverlay": false,
+    "LeftElbowPole": {
+      "X": 22,
+      "Y": -8,
+      "Z": -8
+    },
+    "RightBoneX": {
+      "X": -0.9,
+      "Y": 0,
+      "Z": -0.435
+    },
+    "RightBoneY": {
+      "X": 0,
+      "Y": -1,
+      "Z": 0
+    },
+    "RightFingerBend": {
+      "X": 79,
+      "Y": 145
+    },
+    "RightIndexIdle": {
+      "X": 7,
+      "Y": 22
+    },
+    "RightIndexFire": {
+      "X": 29,
+      "Y": 68
+    },
+    "RightThumb": 0.34,
+    "RightThumbAlong": 1,
+    "LeftFingerBend": {
+      "X": 70,
+      "Y": 135
+    },
+    "LeftIndexBend": {
+      "X": 66,
+      "Y": 127
+    },
+    "LeftThumb": 0.4,
+    "LeftThumbAlong": 0.8,
+    "MagazineHand": {
+      "X": -1.2,
+      "Y": -1.25,
+      "Z": -1
+    },
+    "ReloadPalm": {
+      "X": -0.8,
+      "Y": -1.5,
+      "Z": -0.3
+    },
+    "ArmOffset": {
+      "X": -4,
+      "Y": 0,
+      "Z": 0
+    },
+    "ADSArmOffset": {
+      "X": -10,
+      "Y": 0,
+      "Z": 0
+    },
+    "ViewOffset": {
+      "X": 5,
+      "Y": 0,
+      "Z": 2
+    },
+    "ADSOffset": {
+      "X": 0,
+      "Y": 0,
+      "Z": -2
+    },
+    "ModelLabel": "NSLOCTEXT(\"DT_FMWeaponVisuals [E0ABB118AC3E94099A5BCC42A94D2672]\", \"P250_ModelLabel\", \"PolicePistol · Fab / 개별 그립\")",
+    "bAvailable": true,
+    "bRepresentative": true
+  },
+  {
+    "Name": "FiveSeven",
+    "Mesh": "/Game/FieldMaker/Weapons/Realistic/SM_FM_PolicePistol.SM_FM_PolicePistol",
+    "MagazineMesh": "None",
+    "AccessoryMesh": "None",
+    "MagazineLocation": {
+      "X": 11,
+      "Y": 0,
+      "Z": -3
+    },
+    "MagazineRotation": {
+      "Pitch": 0,
+      "Yaw": 0,
+      "Roll": 0
+    },
+    "AccessoryLocation": {
+      "X": 0,
+      "Y": 0,
+      "Z": 0
+    },
+    "AccessoryScale": {
+      "X": 1,
+      "Y": 1,
+      "Z": 1
+    },
+    "Muzzle": {
+      "X": 16.65,
+      "Y": 0.06,
+      "Z": 10.9
+    },
+    "RightPalm": {
+      "X": -0.5000065924715139,
+      "Y": 1.1350921956824804,
+      "Z": 2.199823115185964
+    },
+    "LeftPalm": {
+      "X": -0.5,
+      "Y": -2.6,
+      "Z": 0
+    },
+    "LeftBoneX": {
+      "X": 0.6,
+      "Y": 0.43,
+      "Z": 0.67
+    },
+    "LeftBoneY": {
+      "X": 0,
+      "Y": -0.96,
+      "Z": -0.28
+    },
+    "bUseCustomHands": true,
+    "bScopeOverlay": false,
+    "LeftElbowPole": {
+      "X": 22,
+      "Y": -8,
+      "Z": -8
+    },
+    "RightBoneX": {
+      "X": -0.9,
+      "Y": 0,
+      "Z": -0.435
+    },
+    "RightBoneY": {
+      "X": 0,
+      "Y": -1,
+      "Z": 0
+    },
+    "RightFingerBend": {
+      "X": 79,
+      "Y": 145
+    },
+    "RightIndexIdle": {
+      "X": 7,
+      "Y": 22
+    },
+    "RightIndexFire": {
+      "X": 29,
+      "Y": 68
+    },
+    "RightThumb": 0.34,
+    "RightThumbAlong": 1,
+    "LeftFingerBend": {
+      "X": 70,
+      "Y": 135
+    },
+    "LeftIndexBend": {
+      "X": 66,
+      "Y": 127
+    },
+    "LeftThumb": 0.4,
+    "LeftThumbAlong": 0.8,
+    "MagazineHand": {
+      "X": -1.2,
+      "Y": -1.25,
+      "Z": -1
+    },
+    "ReloadPalm": {
+      "X": -0.8,
+      "Y": -1.5,
+      "Z": -0.3
+    },
+    "ArmOffset": {
+      "X": -4,
+      "Y": 0,
+      "Z": 0
+    },
+    "ADSArmOffset": {
+      "X": -10,
+      "Y": 0,
+      "Z": 0
+    },
+    "ViewOffset": {
+      "X": 5,
+      "Y": 0,
+      "Z": 2
+    },
+    "ADSOffset": {
+      "X": 0,
+      "Y": 0,
+      "Z": -2
+    },
+    "ModelLabel": "NSLOCTEXT(\"DT_FMWeaponVisuals [E0ABB118AC3E94099A5BCC42A94D2672]\", \"FiveSeven_ModelLabel\", \"PolicePistol · Fab / 개별 그립\")",
+    "bAvailable": true,
+    "bRepresentative": true
+  },
+  {
+    "Name": "Tec9",
+    "Mesh": "/Game/FieldMaker/Weapons/Realistic/SM_FM_PolicePistol.SM_FM_PolicePistol",
+    "MagazineMesh": "None",
+    "AccessoryMesh": "None",
+    "MagazineLocation": {
+      "X": 11,
+      "Y": 0,
+      "Z": -3
+    },
+    "MagazineRotation": {
+      "Pitch": 0,
+      "Yaw": 0,
+      "Roll": 0
+    },
+    "AccessoryLocation": {
+      "X": 0,
+      "Y": 0,
+      "Z": 0
+    },
+    "AccessoryScale": {
+      "X": 1,
+      "Y": 1,
+      "Z": 1
+    },
+    "Muzzle": {
+      "X": 16.65,
+      "Y": 0.06,
+      "Z": 10.9
+    },
+    "RightPalm": {
+      "X": -0.5000065924715139,
+      "Y": 1.1350921956824804,
+      "Z": 2.199823115185964
+    },
+    "LeftPalm": {
+      "X": -0.5,
+      "Y": -2.6,
+      "Z": 0
+    },
+    "LeftBoneX": {
+      "X": 0.6,
+      "Y": 0.43,
+      "Z": 0.67
+    },
+    "LeftBoneY": {
+      "X": 0,
+      "Y": -0.96,
+      "Z": -0.28
+    },
+    "bUseCustomHands": true,
+    "bScopeOverlay": false,
+    "LeftElbowPole": {
+      "X": 22,
+      "Y": -8,
+      "Z": -8
+    },
+    "RightBoneX": {
+      "X": -0.9,
+      "Y": 0,
+      "Z": -0.435
+    },
+    "RightBoneY": {
+      "X": 0,
+      "Y": -1,
+      "Z": 0
+    },
+    "RightFingerBend": {
+      "X": 79,
+      "Y": 145
+    },
+    "RightIndexIdle": {
+      "X": 7,
+      "Y": 22
+    },
+    "RightIndexFire": {
+      "X": 29,
+      "Y": 68
+    },
+    "RightThumb": 0.34,
+    "RightThumbAlong": 1,
+    "LeftFingerBend": {
+      "X": 70,
+      "Y": 135
+    },
+    "LeftIndexBend": {
+      "X": 66,
+      "Y": 127
+    },
+    "LeftThumb": 0.4,
+    "LeftThumbAlong": 0.8,
+    "MagazineHand": {
+      "X": -1.2,
+      "Y": -1.25,
+      "Z": -1
+    },
+    "ReloadPalm": {
+      "X": -0.8,
+      "Y": -1.5,
+      "Z": -0.3
+    },
+    "ArmOffset": {
+      "X": -4,
+      "Y": 0,
+      "Z": 0
+    },
+    "ADSArmOffset": {
+      "X": -10,
+      "Y": 0,
+      "Z": 0
+    },
+    "ViewOffset": {
+      "X": 5,
+      "Y": 0,
+      "Z": 2
+    },
+    "ADSOffset": {
+      "X": 0,
+      "Y": 0,
+      "Z": -2
+    },
+    "ModelLabel": "NSLOCTEXT(\"DT_FMWeaponVisuals [E0ABB118AC3E94099A5BCC42A94D2672]\", \"Tec9_ModelLabel\", \"PolicePistol · Fab / 개별 그립\")",
+    "bAvailable": true,
+    "bRepresentative": true
+  },
+  {
+    "Name": "CZ75",
+    "Mesh": "/Game/FieldMaker/Weapons/Realistic/SM_FM_PolicePistol.SM_FM_PolicePistol",
+    "MagazineMesh": "None",
+    "AccessoryMesh": "None",
+    "MagazineLocation": {
+      "X": 11,
+      "Y": 0,
+      "Z": -3
+    },
+    "MagazineRotation": {
+      "Pitch": 0,
+      "Yaw": 0,
+      "Roll": 0
+    },
+    "AccessoryLocation": {
+      "X": 0,
+      "Y": 0,
+      "Z": 0
+    },
+    "AccessoryScale": {
+      "X": 1,
+      "Y": 1,
+      "Z": 1
+    },
+    "Muzzle": {
+      "X": 16.65,
+      "Y": 0.06,
+      "Z": 10.9
+    },
+    "RightPalm": {
+      "X": -0.5000065924715139,
+      "Y": 1.1350921956824804,
+      "Z": 2.199823115185964
+    },
+    "LeftPalm": {
+      "X": -0.5,
+      "Y": -2.6,
+      "Z": 0
+    },
+    "LeftBoneX": {
+      "X": 0.6,
+      "Y": 0.43,
+      "Z": 0.67
+    },
+    "LeftBoneY": {
+      "X": 0,
+      "Y": -0.96,
+      "Z": -0.28
+    },
+    "bUseCustomHands": true,
+    "bScopeOverlay": false,
+    "LeftElbowPole": {
+      "X": 22,
+      "Y": -8,
+      "Z": -8
+    },
+    "RightBoneX": {
+      "X": -0.9,
+      "Y": 0,
+      "Z": -0.435
+    },
+    "RightBoneY": {
+      "X": 0,
+      "Y": -1,
+      "Z": 0
+    },
+    "RightFingerBend": {
+      "X": 79,
+      "Y": 145
+    },
+    "RightIndexIdle": {
+      "X": 7,
+      "Y": 22
+    },
+    "RightIndexFire": {
+      "X": 29,
+      "Y": 68
+    },
+    "RightThumb": 0.34,
+    "RightThumbAlong": 1,
+    "LeftFingerBend": {
+      "X": 70,
+      "Y": 135
+    },
+    "LeftIndexBend": {
+      "X": 66,
+      "Y": 127
+    },
+    "LeftThumb": 0.4,
+    "LeftThumbAlong": 0.8,
+    "MagazineHand": {
+      "X": -1.2,
+      "Y": -1.25,
+      "Z": -1
+    },
+    "ReloadPalm": {
+      "X": -0.8,
+      "Y": -1.5,
+      "Z": -0.3
+    },
+    "ArmOffset": {
+      "X": -4,
+      "Y": 0,
+      "Z": 0
+    },
+    "ADSArmOffset": {
+      "X": -10,
+      "Y": 0,
+      "Z": 0
+    },
+    "ViewOffset": {
+      "X": 5,
+      "Y": 0,
+      "Z": 2
+    },
+    "ADSOffset": {
+      "X": 0,
+      "Y": 0,
+      "Z": -2
+    },
+    "ModelLabel": "NSLOCTEXT(\"DT_FMWeaponVisuals [E0ABB118AC3E94099A5BCC42A94D2672]\", \"CZ75_ModelLabel\", \"PolicePistol · Fab / 개별 그립\")",
+    "bAvailable": true,
+    "bRepresentative": true
+  },
+  {
+    "Name": "DualBerettas",
+    "Mesh": "/Game/FieldMaker/Weapons/Realistic/SM_FM_PolicePistol.SM_FM_PolicePistol",
+    "MagazineMesh": "None",
+    "AccessoryMesh": "None",
+    "MagazineLocation": {
+      "X": 11,
+      "Y": 0,
+      "Z": -3
+    },
+    "MagazineRotation": {
+      "Pitch": 0,
+      "Yaw": 0,
+      "Roll": 0
+    },
+    "AccessoryLocation": {
+      "X": 0,
+      "Y": 0,
+      "Z": 0
+    },
+    "AccessoryScale": {
+      "X": 1,
+      "Y": 1,
+      "Z": 1
+    },
+    "Muzzle": {
+      "X": 16.65,
+      "Y": 0.06,
+      "Z": 10.9
+    },
+    "RightPalm": {
+      "X": -0.5000065924715139,
+      "Y": 1.1350921956824804,
+      "Z": 2.199823115185964
+    },
+    "LeftPalm": {
+      "X": -0.5,
+      "Y": -2.6,
+      "Z": 0
+    },
+    "LeftBoneX": {
+      "X": 0.6,
+      "Y": 0.43,
+      "Z": 0.67
+    },
+    "LeftBoneY": {
+      "X": 0,
+      "Y": -0.96,
+      "Z": -0.28
+    },
+    "bUseCustomHands": true,
+    "bScopeOverlay": false,
+    "LeftElbowPole": {
+      "X": 22,
+      "Y": -8,
+      "Z": -8
+    },
+    "RightBoneX": {
+      "X": -0.9,
+      "Y": 0,
+      "Z": -0.435
+    },
+    "RightBoneY": {
+      "X": 0,
+      "Y": -1,
+      "Z": 0
+    },
+    "RightFingerBend": {
+      "X": 79,
+      "Y": 145
+    },
+    "RightIndexIdle": {
+      "X": 7,
+      "Y": 22
+    },
+    "RightIndexFire": {
+      "X": 29,
+      "Y": 68
+    },
+    "RightThumb": 0.34,
+    "RightThumbAlong": 1,
+    "LeftFingerBend": {
+      "X": 70,
+      "Y": 135
+    },
+    "LeftIndexBend": {
+      "X": 66,
+      "Y": 127
+    },
+    "LeftThumb": 0.4,
+    "LeftThumbAlong": 0.8,
+    "MagazineHand": {
+      "X": -1.2,
+      "Y": -1.25,
+      "Z": -1
+    },
+    "ReloadPalm": {
+      "X": -0.8,
+      "Y": -1.5,
+      "Z": -0.3
+    },
+    "ArmOffset": {
+      "X": -4,
+      "Y": 0,
+      "Z": 0
+    },
+    "ADSArmOffset": {
+      "X": -10,
+      "Y": 0,
+      "Z": 0
+    },
+    "ViewOffset": {
+      "X": 5,
+      "Y": 0,
+      "Z": 2
+    },
+    "ADSOffset": {
+      "X": 0,
+      "Y": 0,
+      "Z": -2
+    },
+    "ModelLabel": "NSLOCTEXT(\"DT_FMWeaponVisuals [E0ABB118AC3E94099A5BCC42A94D2672]\", \"DualBerettas_ModelLabel\", \"PolicePistol · Fab / 개별 그립\")",
+    "bAvailable": true,
+    "bRepresentative": true
+  },
+  {
+    "Name": "Deagle",
+    "Mesh": "/Game/FieldMaker/Weapons/Realistic/SM_FM_PolicePistol.SM_FM_PolicePistol",
+    "MagazineMesh": "None",
+    "AccessoryMesh": "None",
+    "MagazineLocation": {
+      "X": 11,
+      "Y": 0,
+      "Z": -3
+    },
+    "MagazineRotation": {
+      "Pitch": 0,
+      "Yaw": 0,
+      "Roll": 0
+    },
+    "AccessoryLocation": {
+      "X": 0,
+      "Y": 0,
+      "Z": 0
+    },
+    "AccessoryScale": {
+      "X": 1,
+      "Y": 1,
+      "Z": 1
+    },
+    "Muzzle": {
+      "X": 16.65,
+      "Y": 0.06,
+      "Z": 10.9
+    },
+    "RightPalm": {
+      "X": -0.5000065924715139,
+      "Y": 1.1350921956824804,
+      "Z": 2.199823115185964
+    },
+    "LeftPalm": {
+      "X": -0.5,
+      "Y": -2.6,
+      "Z": 0
+    },
+    "LeftBoneX": {
+      "X": 0.6,
+      "Y": 0.43,
+      "Z": 0.67
+    },
+    "LeftBoneY": {
+      "X": 0,
+      "Y": -0.96,
+      "Z": -0.28
+    },
+    "bUseCustomHands": true,
+    "bScopeOverlay": false,
+    "LeftElbowPole": {
+      "X": 22,
+      "Y": -8,
+      "Z": -8
+    },
+    "RightBoneX": {
+      "X": -0.9,
+      "Y": 0,
+      "Z": -0.435
+    },
+    "RightBoneY": {
+      "X": 0,
+      "Y": -1,
+      "Z": 0
+    },
+    "RightFingerBend": {
+      "X": 79,
+      "Y": 145
+    },
+    "RightIndexIdle": {
+      "X": 7,
+      "Y": 22
+    },
+    "RightIndexFire": {
+      "X": 29,
+      "Y": 68
+    },
+    "RightThumb": 0.34,
+    "RightThumbAlong": 1,
+    "LeftFingerBend": {
+      "X": 70,
+      "Y": 135
+    },
+    "LeftIndexBend": {
+      "X": 66,
+      "Y": 127
+    },
+    "LeftThumb": 0.4,
+    "LeftThumbAlong": 0.8,
+    "MagazineHand": {
+      "X": -1.2,
+      "Y": -1.25,
+      "Z": -1
+    },
+    "ReloadPalm": {
+      "X": -0.8,
+      "Y": -1.5,
+      "Z": -0.3
+    },
+    "ArmOffset": {
+      "X": -4,
+      "Y": 0,
+      "Z": 0
+    },
+    "ADSArmOffset": {
+      "X": -10,
+      "Y": 0,
+      "Z": 0
+    },
+    "ViewOffset": {
+      "X": 5,
+      "Y": 0,
+      "Z": 2
+    },
+    "ADSOffset": {
+      "X": 0,
+      "Y": 0,
+      "Z": -2
+    },
+    "ModelLabel": "NSLOCTEXT(\"DT_FMWeaponVisuals [E0ABB118AC3E94099A5BCC42A94D2672]\", \"Deagle_ModelLabel\", \"PolicePistol · Fab / 개별 그립\")",
+    "bAvailable": true,
+    "bRepresentative": true
+  },
+  {
+    "Name": "R8",
+    "Mesh": "/Game/FieldMaker/Weapons/Realistic/SM_FM_PolicePistol.SM_FM_PolicePistol",
+    "MagazineMesh": "None",
+    "AccessoryMesh": "None",
+    "MagazineLocation": {
+      "X": 11,
+      "Y": 0,
+      "Z": -3
+    },
+    "MagazineRotation": {
+      "Pitch": 0,
+      "Yaw": 0,
+      "Roll": 0
+    },
+    "AccessoryLocation": {
+      "X": 0,
+      "Y": 0,
+      "Z": 0
+    },
+    "AccessoryScale": {
+      "X": 1,
+      "Y": 1,
+      "Z": 1
+    },
+    "Muzzle": {
+      "X": 16.65,
+      "Y": 0.06,
+      "Z": 10.9
+    },
+    "RightPalm": {
+      "X": -0.5000065924715139,
+      "Y": 1.1350921956824804,
+      "Z": 2.199823115185964
+    },
+    "LeftPalm": {
+      "X": -0.5,
+      "Y": -2.6,
+      "Z": 0
+    },
+    "LeftBoneX": {
+      "X": 0.6,
+      "Y": 0.43,
+      "Z": 0.67
+    },
+    "LeftBoneY": {
+      "X": 0,
+      "Y": -0.96,
+      "Z": -0.28
+    },
+    "bUseCustomHands": true,
+    "bScopeOverlay": false,
+    "LeftElbowPole": {
+      "X": 22,
+      "Y": -8,
+      "Z": -8
+    },
+    "RightBoneX": {
+      "X": -0.9,
+      "Y": 0,
+      "Z": -0.435
+    },
+    "RightBoneY": {
+      "X": 0,
+      "Y": -1,
+      "Z": 0
+    },
+    "RightFingerBend": {
+      "X": 79,
+      "Y": 145
+    },
+    "RightIndexIdle": {
+      "X": 7,
+      "Y": 22
+    },
+    "RightIndexFire": {
+      "X": 29,
+      "Y": 68
+    },
+    "RightThumb": 0.34,
+    "RightThumbAlong": 1,
+    "LeftFingerBend": {
+      "X": 70,
+      "Y": 135
+    },
+    "LeftIndexBend": {
+      "X": 66,
+      "Y": 127
+    },
+    "LeftThumb": 0.4,
+    "LeftThumbAlong": 0.8,
+    "MagazineHand": {
+      "X": -1.2,
+      "Y": -1.25,
+      "Z": -1
+    },
+    "ReloadPalm": {
+      "X": -0.8,
+      "Y": -1.5,
+      "Z": -0.3
+    },
+    "ArmOffset": {
+      "X": -4,
+      "Y": 0,
+      "Z": 0
+    },
+    "ADSArmOffset": {
+      "X": -10,
+      "Y": 0,
+      "Z": 0
+    },
+    "ViewOffset": {
+      "X": 5,
+      "Y": 0,
+      "Z": 2
+    },
+    "ADSOffset": {
+      "X": 0,
+      "Y": 0,
+      "Z": -2
+    },
+    "ModelLabel": "NSLOCTEXT(\"DT_FMWeaponVisuals [E0ABB118AC3E94099A5BCC42A94D2672]\", \"R8_ModelLabel\", \"PolicePistol · Fab / 개별 그립\")",
+    "bAvailable": true,
+    "bRepresentative": true
+  },
+  {
+    "Name": "MAC10",
+    "Mesh": "/Game/FieldMaker/Weapons/Realistic/SM_FM_SMG11.SM_FM_SMG11",
+    "MagazineMesh": "/Game/FPS_Weapon_Bundle/Weapons/Meshes/SMG11/SM_SMG11_Mag_X.SM_SMG11_Mag_X",
+    "AccessoryMesh": "None",
+    "MagazineLocation": {
+      "X": 0,
+      "Y": 0,
+      "Z": -5.61
+    },
+    "MagazineRotation": {
+      "Pitch": 0,
+      "Yaw": 0,
+      "Roll": 0
+    },
+    "AccessoryLocation": {
+      "X": 0,
+      "Y": 0,
+      "Z": 0
+    },
+    "AccessoryScale": {
+      "X": 1,
+      "Y": 1,
+      "Z": 1
+    },
+    "Muzzle": {
+      "X": 19.48,
+      "Y": 0,
+      "Z": 8.03
+    },
+    "RightPalm": {
+      "X": -0.3999999999999999,
+      "Y": 1.5824577808380127,
+      "Z": 0.5
+    },
+    "LeftPalm": {
+      "X": 12,
+      "Y": -1.5999999999999965,
+      "Z": 4.532852649688721
+    },
+    "LeftBoneX": {
+      "X": 0.4021337862809844,
+      "Y": 0.9155809182870291,
+      "Z": 0
+    },
+    "LeftBoneY": {
+      "X": 0,
+      "Y": 0,
+      "Z": -1
+    },
+    "bUseCustomHands": true,
+    "bScopeOverlay": false,
+    "LeftElbowPole": {
+      "X": 22,
+      "Y": -8,
+      "Z": -3
+    },
+    "RightBoneX": {
+      "X": -0.866,
+      "Y": 0,
+      "Z": -0.5
+    },
+    "RightBoneY": {
+      "X": 0,
+      "Y": -1,
+      "Z": 0
+    },
+    "RightFingerBend": {
+      "X": 80,
+      "Y": 150
+    },
+    "RightIndexIdle": {
+      "X": 8,
+      "Y": 27
+    },
+    "RightIndexFire": {
+      "X": 29,
+      "Y": 68
+    },
+    "RightThumb": 0.58,
+    "RightThumbAlong": 0.65,
+    "LeftFingerBend": {
+      "X": 75,
+      "Y": 148
+    },
+    "LeftIndexBend": {
+      "X": 71,
+      "Y": 143
+    },
+    "LeftThumb": 0.65,
+    "LeftThumbAlong": 0.4,
+    "MagazineHand": {
+      "X": 0,
+      "Y": -1.25,
+      "Z": -1.5
+    },
+    "ReloadPalm": {
+      "X": 8,
+      "Y": -2.4,
+      "Z": -4
+    },
+    "ArmOffset": {
+      "X": 9,
+      "Y": 0,
+      "Z": 0
+    },
+    "ADSArmOffset": {
+      "X": 11,
+      "Y": 0,
+      "Z": 0
+    },
+    "ViewOffset": {
+      "X": 7,
+      "Y": 0,
+      "Z": 5
+    },
+    "ADSOffset": {
+      "X": 0,
+      "Y": 0,
+      "Z": 1.8
+    },
+    "ModelLabel": "NSLOCTEXT(\"DT_FMWeaponVisuals [E0ABB118AC3E94099A5BCC42A94D2672]\", \"MAC10_ModelLabel\", \"SMG11 · Fab\")",
+    "bAvailable": true,
+    "bRepresentative": true
+  },
+  {
+    "Name": "MP9",
+    "Mesh": "/Game/FieldMaker/Weapons/Realistic/SM_FM_MP5.SM_FM_MP5",
+    "MagazineMesh": "/Game/FieldMaker/Weapons/Realistic/SM_FM_MP5_Mag.SM_FM_MP5_Mag",
+    "AccessoryMesh": "None",
+    "MagazineLocation": {
+      "X": 15.131226375524939,
+      "Y": 0.034592674432205484,
+      "Z": -0.5907227687269714
+    },
+    "MagazineRotation": {
+      "Pitch": 0,
+      "Yaw": 0,
+      "Roll": 0
+    },
+    "AccessoryLocation": {
+      "X": 0,
+      "Y": 0,
+      "Z": 0
+    },
+    "AccessoryScale": {
+      "X": 1,
+      "Y": 1,
+      "Z": 1
+    },
+    "Muzzle": {
+      "X": 38.4,
+      "Y": 0.04,
+      "Z": 9.7
+    },
+    "RightPalm": {
+      "X": -0.17316783798214885,
+      "Y": 1.5669047783848067,
+      "Z": 0.3810392039648267
+    },
+    "LeftPalm": {
+      "X": 22.01777418864783,
+      "Y": -1.2391257270451932,
+      "Z": 7.207108376675863
+    },
+    "LeftBoneX": {
+      "X": 0.7219121376387828,
+      "Y": 0.6919847292605547,
+      "Z": 0
+    },
+    "LeftBoneY": {
+      "X": 0,
+      "Y": 0,
+      "Z": -1
+    },
+    "bUseCustomHands": true,
+    "bScopeOverlay": false,
+    "LeftElbowPole": {
+      "X": 22,
+      "Y": -8,
+      "Z": -18
+    },
+    "RightBoneX": {
+      "X": -0.866,
+      "Y": 0,
+      "Z": -0.5
+    },
+    "RightBoneY": {
+      "X": 0,
+      "Y": -1,
+      "Z": 0
+    },
+    "RightFingerBend": {
+      "X": 80,
+      "Y": 150
+    },
+    "RightIndexIdle": {
+      "X": 8,
+      "Y": 27
+    },
+    "RightIndexFire": {
+      "X": 29,
+      "Y": 68
+    },
+    "RightThumb": 0.7,
+    "RightThumbAlong": 0.8,
+    "LeftFingerBend": {
+      "X": 68,
+      "Y": 138
+    },
+    "LeftIndexBend": {
+      "X": 65,
+      "Y": 133
+    },
+    "LeftThumb": 0.57,
+    "LeftThumbAlong": 0.62,
+    "MagazineHand": {
+      "X": -1.2,
+      "Y": -1.25,
+      "Z": -1
+    },
+    "ReloadPalm": {
+      "X": 8,
+      "Y": -2.4,
+      "Z": -4
+    },
+    "ArmOffset": {
+      "X": 10,
+      "Y": 0,
+      "Z": 0
+    },
+    "ADSArmOffset": {
+      "X": 12,
+      "Y": 0,
+      "Z": 0
+    },
+    "ViewOffset": {
+      "X": 5,
+      "Y": 0,
+      "Z": 4
+    },
+    "ADSOffset": {
+      "X": 0,
+      "Y": 0,
+      "Z": 3.2
+    },
+    "ModelLabel": "NSLOCTEXT(\"DT_FMWeaponVisuals [E0ABB118AC3E94099A5BCC42A94D2672]\", \"MP9_ModelLabel\", \"MP5 · 방향/그립 보정 / 대체 외형\")",
+    "bAvailable": true,
+    "bRepresentative": true
+  },
+  {
+    "Name": "MP7",
+    "Mesh": "/Game/FieldMaker/Weapons/Realistic/SM_FM_MP5.SM_FM_MP5",
+    "MagazineMesh": "/Game/FieldMaker/Weapons/Realistic/SM_FM_MP5_Mag.SM_FM_MP5_Mag",
+    "AccessoryMesh": "None",
+    "MagazineLocation": {
+      "X": 15.131226375524939,
+      "Y": 0.034592674432205484,
+      "Z": -0.5907227687269714
+    },
+    "MagazineRotation": {
+      "Pitch": 0,
+      "Yaw": 0,
+      "Roll": 0
+    },
+    "AccessoryLocation": {
+      "X": 0,
+      "Y": 0,
+      "Z": 0
+    },
+    "AccessoryScale": {
+      "X": 1,
+      "Y": 1,
+      "Z": 1
+    },
+    "Muzzle": {
+      "X": 38.4,
+      "Y": 0.04,
+      "Z": 9.7
+    },
+    "RightPalm": {
+      "X": -0.17316783798214885,
+      "Y": 1.5669047783848067,
+      "Z": 0.3810392039648267
+    },
+    "LeftPalm": {
+      "X": 22.01777418864783,
+      "Y": -1.2391257270451932,
+      "Z": 7.207108376675863
+    },
+    "LeftBoneX": {
+      "X": 0.7219121376387828,
+      "Y": 0.6919847292605547,
+      "Z": 0
+    },
+    "LeftBoneY": {
+      "X": 0,
+      "Y": 0,
+      "Z": -1
+    },
+    "bUseCustomHands": true,
+    "bScopeOverlay": false,
+    "LeftElbowPole": {
+      "X": 22,
+      "Y": -8,
+      "Z": -18
+    },
+    "RightBoneX": {
+      "X": -0.866,
+      "Y": 0,
+      "Z": -0.5
+    },
+    "RightBoneY": {
+      "X": 0,
+      "Y": -1,
+      "Z": 0
+    },
+    "RightFingerBend": {
+      "X": 80,
+      "Y": 150
+    },
+    "RightIndexIdle": {
+      "X": 8,
+      "Y": 27
+    },
+    "RightIndexFire": {
+      "X": 29,
+      "Y": 68
+    },
+    "RightThumb": 0.7,
+    "RightThumbAlong": 0.8,
+    "LeftFingerBend": {
+      "X": 68,
+      "Y": 138
+    },
+    "LeftIndexBend": {
+      "X": 65,
+      "Y": 133
+    },
+    "LeftThumb": 0.57,
+    "LeftThumbAlong": 0.62,
+    "MagazineHand": {
+      "X": -1.2,
+      "Y": -1.25,
+      "Z": -1
+    },
+    "ReloadPalm": {
+      "X": 8,
+      "Y": -2.4,
+      "Z": -4
+    },
+    "ArmOffset": {
+      "X": 10,
+      "Y": 0,
+      "Z": 0
+    },
+    "ADSArmOffset": {
+      "X": 12,
+      "Y": 0,
+      "Z": 0
+    },
+    "ViewOffset": {
+      "X": 5,
+      "Y": 0,
+      "Z": 4
+    },
+    "ADSOffset": {
+      "X": 0,
+      "Y": 0,
+      "Z": 3.2
+    },
+    "ModelLabel": "NSLOCTEXT(\"DT_FMWeaponVisuals [E0ABB118AC3E94099A5BCC42A94D2672]\", \"MP7_ModelLabel\", \"MP5 · 방향/그립 보정 / 대체 외형\")",
+    "bAvailable": true,
+    "bRepresentative": true
+  },
+  {
+    "Name": "MP5SD",
+    "Mesh": "/Game/FieldMaker/Weapons/Realistic/SM_FM_MP5.SM_FM_MP5",
+    "MagazineMesh": "/Game/FieldMaker/Weapons/Realistic/SM_FM_MP5_Mag.SM_FM_MP5_Mag",
+    "AccessoryMesh": "/Game/FPS_Weapon_Bundle/Weapons/Meshes/Accessories/SM_Suppressor5.SM_Suppressor5",
+    "MagazineLocation": {
+      "X": 15.131226375524939,
+      "Y": 0.034592674432205484,
+      "Z": -0.5907227687269714
+    },
+    "MagazineRotation": {
+      "Pitch": 0,
+      "Yaw": 0,
+      "Roll": 0
+    },
+    "AccessoryLocation": {
+      "X": 38.4,
+      "Y": 0.04,
+      "Z": 9.7
+    },
+    "AccessoryScale": {
+      "X": 1,
+      "Y": 1,
+      "Z": 1
+    },
+    "Muzzle": {
+      "X": 55.269999999999996,
+      "Y": 0.04,
+      "Z": 9.7
+    },
+    "RightPalm": {
+      "X": -0.17316783798214885,
+      "Y": 1.5669047783848067,
+      "Z": 0.3810392039648267
+    },
+    "LeftPalm": {
+      "X": 22.01777418864783,
+      "Y": -1.2391257270451932,
+      "Z": 7.207108376675863
+    },
+    "LeftBoneX": {
+      "X": 0.7219121376387828,
+      "Y": 0.6919847292605547,
+      "Z": 0
+    },
+    "LeftBoneY": {
+      "X": 0,
+      "Y": 0,
+      "Z": -1
+    },
+    "bUseCustomHands": true,
+    "bScopeOverlay": false,
+    "LeftElbowPole": {
+      "X": 22,
+      "Y": -8,
+      "Z": -18
+    },
+    "RightBoneX": {
+      "X": -0.866,
+      "Y": 0,
+      "Z": -0.5
+    },
+    "RightBoneY": {
+      "X": 0,
+      "Y": -1,
+      "Z": 0
+    },
+    "RightFingerBend": {
+      "X": 80,
+      "Y": 150
+    },
+    "RightIndexIdle": {
+      "X": 8,
+      "Y": 27
+    },
+    "RightIndexFire": {
+      "X": 29,
+      "Y": 68
+    },
+    "RightThumb": 0.7,
+    "RightThumbAlong": 0.8,
+    "LeftFingerBend": {
+      "X": 68,
+      "Y": 138
+    },
+    "LeftIndexBend": {
+      "X": 65,
+      "Y": 133
+    },
+    "LeftThumb": 0.57,
+    "LeftThumbAlong": 0.62,
+    "MagazineHand": {
+      "X": -1.2,
+      "Y": -1.25,
+      "Z": -1
+    },
+    "ReloadPalm": {
+      "X": 8,
+      "Y": -2.4,
+      "Z": -4
+    },
+    "ArmOffset": {
+      "X": 10,
+      "Y": 0,
+      "Z": 0
+    },
+    "ADSArmOffset": {
+      "X": 12,
+      "Y": 0,
+      "Z": 0
+    },
+    "ViewOffset": {
+      "X": 5,
+      "Y": 0,
+      "Z": 4
+    },
+    "ADSOffset": {
+      "X": 0,
+      "Y": 0,
+      "Z": 3.2
+    },
+    "ModelLabel": "NSLOCTEXT(\"DT_FMWeaponVisuals [E0ABB118AC3E94099A5BCC42A94D2672]\", \"MP5SD_ModelLabel\", \"MP5 · 방향/그립 보정\")",
+    "bAvailable": true,
+    "bRepresentative": false
+  },
+  {
+    "Name": "UMP45",
+    "Mesh": "/Game/FieldMaker/Weapons/Realistic/SM_FM_MP5.SM_FM_MP5",
+    "MagazineMesh": "/Game/FieldMaker/Weapons/Realistic/SM_FM_MP5_Mag.SM_FM_MP5_Mag",
+    "AccessoryMesh": "None",
+    "MagazineLocation": {
+      "X": 15.131226375524939,
+      "Y": 0.034592674432205484,
+      "Z": -0.5907227687269714
+    },
+    "MagazineRotation": {
+      "Pitch": 0,
+      "Yaw": 0,
+      "Roll": 0
+    },
+    "AccessoryLocation": {
+      "X": 0,
+      "Y": 0,
+      "Z": 0
+    },
+    "AccessoryScale": {
+      "X": 1,
+      "Y": 1,
+      "Z": 1
+    },
+    "Muzzle": {
+      "X": 38.4,
+      "Y": 0.04,
+      "Z": 9.7
+    },
+    "RightPalm": {
+      "X": -0.17316783798214885,
+      "Y": 1.5669047783848067,
+      "Z": 0.3810392039648267
+    },
+    "LeftPalm": {
+      "X": 22.01777418864783,
+      "Y": -1.2391257270451932,
+      "Z": 7.207108376675863
+    },
+    "LeftBoneX": {
+      "X": 0.7219121376387828,
+      "Y": 0.6919847292605547,
+      "Z": 0
+    },
+    "LeftBoneY": {
+      "X": 0,
+      "Y": 0,
+      "Z": -1
+    },
+    "bUseCustomHands": true,
+    "bScopeOverlay": false,
+    "LeftElbowPole": {
+      "X": 22,
+      "Y": -8,
+      "Z": -18
+    },
+    "RightBoneX": {
+      "X": -0.866,
+      "Y": 0,
+      "Z": -0.5
+    },
+    "RightBoneY": {
+      "X": 0,
+      "Y": -1,
+      "Z": 0
+    },
+    "RightFingerBend": {
+      "X": 80,
+      "Y": 150
+    },
+    "RightIndexIdle": {
+      "X": 8,
+      "Y": 27
+    },
+    "RightIndexFire": {
+      "X": 29,
+      "Y": 68
+    },
+    "RightThumb": 0.7,
+    "RightThumbAlong": 0.8,
+    "LeftFingerBend": {
+      "X": 68,
+      "Y": 138
+    },
+    "LeftIndexBend": {
+      "X": 65,
+      "Y": 133
+    },
+    "LeftThumb": 0.57,
+    "LeftThumbAlong": 0.62,
+    "MagazineHand": {
+      "X": -1.2,
+      "Y": -1.25,
+      "Z": -1
+    },
+    "ReloadPalm": {
+      "X": 8,
+      "Y": -2.4,
+      "Z": -4
+    },
+    "ArmOffset": {
+      "X": 10,
+      "Y": 0,
+      "Z": 0
+    },
+    "ADSArmOffset": {
+      "X": 12,
+      "Y": 0,
+      "Z": 0
+    },
+    "ViewOffset": {
+      "X": 5,
+      "Y": 0,
+      "Z": 4
+    },
+    "ADSOffset": {
+      "X": 0,
+      "Y": 0,
+      "Z": 3.2
+    },
+    "ModelLabel": "NSLOCTEXT(\"DT_FMWeaponVisuals [E0ABB118AC3E94099A5BCC42A94D2672]\", \"UMP45_ModelLabel\", \"MP5 · 방향/그립 보정 / 대체 외형\")",
+    "bAvailable": true,
+    "bRepresentative": true
+  },
+  {
+    "Name": "P90",
+    "Mesh": "/Game/FieldMaker/Weapons/Realistic/SM_FM_MP5.SM_FM_MP5",
+    "MagazineMesh": "/Game/FieldMaker/Weapons/Realistic/SM_FM_MP5_Mag.SM_FM_MP5_Mag",
+    "AccessoryMesh": "None",
+    "MagazineLocation": {
+      "X": 15.131226375524939,
+      "Y": 0.034592674432205484,
+      "Z": -0.5907227687269714
+    },
+    "MagazineRotation": {
+      "Pitch": 0,
+      "Yaw": 0,
+      "Roll": 0
+    },
+    "AccessoryLocation": {
+      "X": 0,
+      "Y": 0,
+      "Z": 0
+    },
+    "AccessoryScale": {
+      "X": 1,
+      "Y": 1,
+      "Z": 1
+    },
+    "Muzzle": {
+      "X": 38.4,
+      "Y": 0.04,
+      "Z": 9.7
+    },
+    "RightPalm": {
+      "X": -0.17316783798214885,
+      "Y": 1.5669047783848067,
+      "Z": 0.3810392039648267
+    },
+    "LeftPalm": {
+      "X": 22.01777418864783,
+      "Y": -1.2391257270451932,
+      "Z": 7.207108376675863
+    },
+    "LeftBoneX": {
+      "X": 0.7219121376387828,
+      "Y": 0.6919847292605547,
+      "Z": 0
+    },
+    "LeftBoneY": {
+      "X": 0,
+      "Y": 0,
+      "Z": -1
+    },
+    "bUseCustomHands": true,
+    "bScopeOverlay": false,
+    "LeftElbowPole": {
+      "X": 22,
+      "Y": -8,
+      "Z": -18
+    },
+    "RightBoneX": {
+      "X": -0.866,
+      "Y": 0,
+      "Z": -0.5
+    },
+    "RightBoneY": {
+      "X": 0,
+      "Y": -1,
+      "Z": 0
+    },
+    "RightFingerBend": {
+      "X": 80,
+      "Y": 150
+    },
+    "RightIndexIdle": {
+      "X": 8,
+      "Y": 27
+    },
+    "RightIndexFire": {
+      "X": 29,
+      "Y": 68
+    },
+    "RightThumb": 0.7,
+    "RightThumbAlong": 0.8,
+    "LeftFingerBend": {
+      "X": 68,
+      "Y": 138
+    },
+    "LeftIndexBend": {
+      "X": 65,
+      "Y": 133
+    },
+    "LeftThumb": 0.57,
+    "LeftThumbAlong": 0.62,
+    "MagazineHand": {
+      "X": -1.2,
+      "Y": -1.25,
+      "Z": -1
+    },
+    "ReloadPalm": {
+      "X": 8,
+      "Y": -2.4,
+      "Z": -4
+    },
+    "ArmOffset": {
+      "X": 10,
+      "Y": 0,
+      "Z": 0
+    },
+    "ADSArmOffset": {
+      "X": 12,
+      "Y": 0,
+      "Z": 0
+    },
+    "ViewOffset": {
+      "X": 5,
+      "Y": 0,
+      "Z": 4
+    },
+    "ADSOffset": {
+      "X": 0,
+      "Y": 0,
+      "Z": 3.2
+    },
+    "ModelLabel": "NSLOCTEXT(\"DT_FMWeaponVisuals [E0ABB118AC3E94099A5BCC42A94D2672]\", \"P90_ModelLabel\", \"MP5 · 방향/그립 보정 / 대체 외형\")",
+    "bAvailable": true,
+    "bRepresentative": true
+  },
+  {
+    "Name": "Bizon",
+    "Mesh": "/Game/FieldMaker/Weapons/Realistic/SM_FM_MP5.SM_FM_MP5",
+    "MagazineMesh": "/Game/FieldMaker/Weapons/Realistic/SM_FM_MP5_Mag.SM_FM_MP5_Mag",
+    "AccessoryMesh": "None",
+    "MagazineLocation": {
+      "X": 15.131226375524939,
+      "Y": 0.034592674432205484,
+      "Z": -0.5907227687269714
+    },
+    "MagazineRotation": {
+      "Pitch": 0,
+      "Yaw": 0,
+      "Roll": 0
+    },
+    "AccessoryLocation": {
+      "X": 0,
+      "Y": 0,
+      "Z": 0
+    },
+    "AccessoryScale": {
+      "X": 1,
+      "Y": 1,
+      "Z": 1
+    },
+    "Muzzle": {
+      "X": 38.4,
+      "Y": 0.04,
+      "Z": 9.7
+    },
+    "RightPalm": {
+      "X": -0.17316783798214885,
+      "Y": 1.5669047783848067,
+      "Z": 0.3810392039648267
+    },
+    "LeftPalm": {
+      "X": 22.01777418864783,
+      "Y": -1.2391257270451932,
+      "Z": 7.207108376675863
+    },
+    "LeftBoneX": {
+      "X": 0.7219121376387828,
+      "Y": 0.6919847292605547,
+      "Z": 0
+    },
+    "LeftBoneY": {
+      "X": 0,
+      "Y": 0,
+      "Z": -1
+    },
+    "bUseCustomHands": true,
+    "bScopeOverlay": false,
+    "LeftElbowPole": {
+      "X": 22,
+      "Y": -8,
+      "Z": -18
+    },
+    "RightBoneX": {
+      "X": -0.866,
+      "Y": 0,
+      "Z": -0.5
+    },
+    "RightBoneY": {
+      "X": 0,
+      "Y": -1,
+      "Z": 0
+    },
+    "RightFingerBend": {
+      "X": 80,
+      "Y": 150
+    },
+    "RightIndexIdle": {
+      "X": 8,
+      "Y": 27
+    },
+    "RightIndexFire": {
+      "X": 29,
+      "Y": 68
+    },
+    "RightThumb": 0.7,
+    "RightThumbAlong": 0.8,
+    "LeftFingerBend": {
+      "X": 68,
+      "Y": 138
+    },
+    "LeftIndexBend": {
+      "X": 65,
+      "Y": 133
+    },
+    "LeftThumb": 0.57,
+    "LeftThumbAlong": 0.62,
+    "MagazineHand": {
+      "X": -1.2,
+      "Y": -1.25,
+      "Z": -1
+    },
+    "ReloadPalm": {
+      "X": 8,
+      "Y": -2.4,
+      "Z": -4
+    },
+    "ArmOffset": {
+      "X": 10,
+      "Y": 0,
+      "Z": 0
+    },
+    "ADSArmOffset": {
+      "X": 12,
+      "Y": 0,
+      "Z": 0
+    },
+    "ViewOffset": {
+      "X": 5,
+      "Y": 0,
+      "Z": 4
+    },
+    "ADSOffset": {
+      "X": 0,
+      "Y": 0,
+      "Z": 3.2
+    },
+    "ModelLabel": "NSLOCTEXT(\"DT_FMWeaponVisuals [E0ABB118AC3E94099A5BCC42A94D2672]\", \"Bizon_ModelLabel\", \"MP5 · 방향/그립 보정 / 대체 외형\")",
+    "bAvailable": true,
+    "bRepresentative": true
+  },
+  {
+    "Name": "Nova",
+    "Mesh": "/Game/FieldMaker/Weapons/Realistic/SM_FM_Shotgun.SM_FM_Shotgun",
+    "MagazineMesh": "None",
+    "AccessoryMesh": "None",
+    "MagazineLocation": {
+      "X": 11,
+      "Y": 0,
+      "Z": -3
+    },
+    "MagazineRotation": {
+      "Pitch": 0,
+      "Yaw": 0,
+      "Roll": 0
+    },
+    "AccessoryLocation": {
+      "X": 0,
+      "Y": 0,
+      "Z": 0
+    },
+    "AccessoryScale": {
+      "X": 1,
+      "Y": 1,
+      "Z": 1
+    },
+    "Muzzle": {
+      "X": 69,
+      "Y": 0,
+      "Z": 10
+    },
+    "RightPalm": {
+      "X": 4.66,
+      "Y": 1.16,
+      "Z": -0.84
+    },
+    "LeftPalm": {
+      "X": 24.500000000000004,
+      "Y": -0.6833992592651218,
+      "Z": 5.975022974850748
+    },
+    "LeftBoneX": {
+      "X": 0.7233209286553508,
+      "Y": 0.6905120087074236,
+      "Z": 0
+    },
+    "LeftBoneY": {
+      "X": 0,
+      "Y": 0,
+      "Z": -1
+    },
+    "bUseCustomHands": true,
+    "bScopeOverlay": false,
+    "LeftElbowPole": {
+      "X": 22,
+      "Y": -8,
+      "Z": -18
+    },
+    "RightBoneX": {
+      "X": -0.866,
+      "Y": 0,
+      "Z": -0.5
+    },
+    "RightBoneY": {
+      "X": 0,
+      "Y": -1,
+      "Z": 0
+    },
+    "RightFingerBend": {
+      "X": 80,
+      "Y": 150
+    },
+    "RightIndexIdle": {
+      "X": 8,
+      "Y": 27
+    },
+    "RightIndexFire": {
+      "X": 29,
+      "Y": 68
+    },
+    "RightThumb": 0.7,
+    "RightThumbAlong": 0.8,
+    "LeftFingerBend": {
+      "X": 68,
+      "Y": 138
+    },
+    "LeftIndexBend": {
+      "X": 65,
+      "Y": 133
+    },
+    "LeftThumb": 0.57,
+    "LeftThumbAlong": 0.62,
+    "MagazineHand": {
+      "X": -1.2,
+      "Y": -1.25,
+      "Z": -1
+    },
+    "ReloadPalm": {
+      "X": 13,
+      "Y": -1.6,
+      "Z": 4.5
+    },
+    "ArmOffset": {
+      "X": 11,
+      "Y": 0,
+      "Z": 0
+    },
+    "ADSArmOffset": {
+      "X": 13,
+      "Y": 0,
+      "Z": 0
+    },
+    "ViewOffset": {
+      "X": 5,
+      "Y": 1,
+      "Z": 4
+    },
+    "ADSOffset": {
+      "X": 0,
+      "Y": 0,
+      "Z": 1
+    },
+    "ModelLabel": "NSLOCTEXT(\"DT_FMWeaponVisuals [E0ABB118AC3E94099A5BCC42A94D2672]\", \"Nova_ModelLabel\", \"Shotgun · 로컬 PBR 보정\")",
+    "bAvailable": true,
+    "bRepresentative": true
+  },
+  {
+    "Name": "XM1014",
+    "Mesh": "/Game/FieldMaker/Weapons/Realistic/SM_FM_Shotgun.SM_FM_Shotgun",
+    "MagazineMesh": "None",
+    "AccessoryMesh": "None",
+    "MagazineLocation": {
+      "X": 11,
+      "Y": 0,
+      "Z": -3
+    },
+    "MagazineRotation": {
+      "Pitch": 0,
+      "Yaw": 0,
+      "Roll": 0
+    },
+    "AccessoryLocation": {
+      "X": 0,
+      "Y": 0,
+      "Z": 0
+    },
+    "AccessoryScale": {
+      "X": 1,
+      "Y": 1,
+      "Z": 1
+    },
+    "Muzzle": {
+      "X": 69,
+      "Y": 0,
+      "Z": 10
+    },
+    "RightPalm": {
+      "X": 4.66,
+      "Y": 1.16,
+      "Z": -0.84
+    },
+    "LeftPalm": {
+      "X": 24.500000000000004,
+      "Y": -0.6833992592651218,
+      "Z": 5.975022974850748
+    },
+    "LeftBoneX": {
+      "X": 0.7233209286553508,
+      "Y": 0.6905120087074236,
+      "Z": 0
+    },
+    "LeftBoneY": {
+      "X": 0,
+      "Y": 0,
+      "Z": -1
+    },
+    "bUseCustomHands": true,
+    "bScopeOverlay": false,
+    "LeftElbowPole": {
+      "X": 22,
+      "Y": -8,
+      "Z": -18
+    },
+    "RightBoneX": {
+      "X": -0.866,
+      "Y": 0,
+      "Z": -0.5
+    },
+    "RightBoneY": {
+      "X": 0,
+      "Y": -1,
+      "Z": 0
+    },
+    "RightFingerBend": {
+      "X": 80,
+      "Y": 150
+    },
+    "RightIndexIdle": {
+      "X": 8,
+      "Y": 27
+    },
+    "RightIndexFire": {
+      "X": 29,
+      "Y": 68
+    },
+    "RightThumb": 0.7,
+    "RightThumbAlong": 0.8,
+    "LeftFingerBend": {
+      "X": 68,
+      "Y": 138
+    },
+    "LeftIndexBend": {
+      "X": 65,
+      "Y": 133
+    },
+    "LeftThumb": 0.57,
+    "LeftThumbAlong": 0.62,
+    "MagazineHand": {
+      "X": -1.2,
+      "Y": -1.25,
+      "Z": -1
+    },
+    "ReloadPalm": {
+      "X": 13,
+      "Y": -1.6,
+      "Z": 4.5
+    },
+    "ArmOffset": {
+      "X": 11,
+      "Y": 0,
+      "Z": 0
+    },
+    "ADSArmOffset": {
+      "X": 13,
+      "Y": 0,
+      "Z": 0
+    },
+    "ViewOffset": {
+      "X": 5,
+      "Y": 1,
+      "Z": 4
+    },
+    "ADSOffset": {
+      "X": 0,
+      "Y": 0,
+      "Z": 1
+    },
+    "ModelLabel": "NSLOCTEXT(\"DT_FMWeaponVisuals [E0ABB118AC3E94099A5BCC42A94D2672]\", \"XM1014_ModelLabel\", \"Shotgun · 로컬 PBR 보정\")",
+    "bAvailable": true,
+    "bRepresentative": true
+  },
+  {
+    "Name": "MAG7",
+    "Mesh": "/Game/FieldMaker/Weapons/Realistic/SM_FM_Shotgun.SM_FM_Shotgun",
+    "MagazineMesh": "None",
+    "AccessoryMesh": "None",
+    "MagazineLocation": {
+      "X": 11,
+      "Y": 0,
+      "Z": -3
+    },
+    "MagazineRotation": {
+      "Pitch": 0,
+      "Yaw": 0,
+      "Roll": 0
+    },
+    "AccessoryLocation": {
+      "X": 0,
+      "Y": 0,
+      "Z": 0
+    },
+    "AccessoryScale": {
+      "X": 1,
+      "Y": 1,
+      "Z": 1
+    },
+    "Muzzle": {
+      "X": 69,
+      "Y": 0,
+      "Z": 10
+    },
+    "RightPalm": {
+      "X": 4.66,
+      "Y": 1.16,
+      "Z": -0.84
+    },
+    "LeftPalm": {
+      "X": 24.500000000000004,
+      "Y": -0.6833992592651218,
+      "Z": 5.975022974850748
+    },
+    "LeftBoneX": {
+      "X": 0.7233209286553508,
+      "Y": 0.6905120087074236,
+      "Z": 0
+    },
+    "LeftBoneY": {
+      "X": 0,
+      "Y": 0,
+      "Z": -1
+    },
+    "bUseCustomHands": true,
+    "bScopeOverlay": false,
+    "LeftElbowPole": {
+      "X": 22,
+      "Y": -8,
+      "Z": -18
+    },
+    "RightBoneX": {
+      "X": -0.866,
+      "Y": 0,
+      "Z": -0.5
+    },
+    "RightBoneY": {
+      "X": 0,
+      "Y": -1,
+      "Z": 0
+    },
+    "RightFingerBend": {
+      "X": 80,
+      "Y": 150
+    },
+    "RightIndexIdle": {
+      "X": 8,
+      "Y": 27
+    },
+    "RightIndexFire": {
+      "X": 29,
+      "Y": 68
+    },
+    "RightThumb": 0.7,
+    "RightThumbAlong": 0.8,
+    "LeftFingerBend": {
+      "X": 68,
+      "Y": 138
+    },
+    "LeftIndexBend": {
+      "X": 65,
+      "Y": 133
+    },
+    "LeftThumb": 0.57,
+    "LeftThumbAlong": 0.62,
+    "MagazineHand": {
+      "X": -1.2,
+      "Y": -1.25,
+      "Z": -1
+    },
+    "ReloadPalm": {
+      "X": 13,
+      "Y": -1.6,
+      "Z": 4.5
+    },
+    "ArmOffset": {
+      "X": 11,
+      "Y": 0,
+      "Z": 0
+    },
+    "ADSArmOffset": {
+      "X": 13,
+      "Y": 0,
+      "Z": 0
+    },
+    "ViewOffset": {
+      "X": 5,
+      "Y": 1,
+      "Z": 4
+    },
+    "ADSOffset": {
+      "X": 0,
+      "Y": 0,
+      "Z": 1
+    },
+    "ModelLabel": "NSLOCTEXT(\"DT_FMWeaponVisuals [E0ABB118AC3E94099A5BCC42A94D2672]\", \"MAG7_ModelLabel\", \"Shotgun · 로컬 PBR 보정\")",
+    "bAvailable": true,
+    "bRepresentative": true
+  },
+  {
+    "Name": "SawedOff",
+    "Mesh": "/Game/FieldMaker/Weapons/Realistic/SM_FM_Shotgun.SM_FM_Shotgun",
+    "MagazineMesh": "None",
+    "AccessoryMesh": "None",
+    "MagazineLocation": {
+      "X": 11,
+      "Y": 0,
+      "Z": -3
+    },
+    "MagazineRotation": {
+      "Pitch": 0,
+      "Yaw": 0,
+      "Roll": 0
+    },
+    "AccessoryLocation": {
+      "X": 0,
+      "Y": 0,
+      "Z": 0
+    },
+    "AccessoryScale": {
+      "X": 1,
+      "Y": 1,
+      "Z": 1
+    },
+    "Muzzle": {
+      "X": 69,
+      "Y": 0,
+      "Z": 10
+    },
+    "RightPalm": {
+      "X": 4.66,
+      "Y": 1.16,
+      "Z": -0.84
+    },
+    "LeftPalm": {
+      "X": 24.500000000000004,
+      "Y": -0.6833992592651218,
+      "Z": 5.975022974850748
+    },
+    "LeftBoneX": {
+      "X": 0.7233209286553508,
+      "Y": 0.6905120087074236,
+      "Z": 0
+    },
+    "LeftBoneY": {
+      "X": 0,
+      "Y": 0,
+      "Z": -1
+    },
+    "bUseCustomHands": true,
+    "bScopeOverlay": false,
+    "LeftElbowPole": {
+      "X": 22,
+      "Y": -8,
+      "Z": -18
+    },
+    "RightBoneX": {
+      "X": -0.866,
+      "Y": 0,
+      "Z": -0.5
+    },
+    "RightBoneY": {
+      "X": 0,
+      "Y": -1,
+      "Z": 0
+    },
+    "RightFingerBend": {
+      "X": 80,
+      "Y": 150
+    },
+    "RightIndexIdle": {
+      "X": 8,
+      "Y": 27
+    },
+    "RightIndexFire": {
+      "X": 29,
+      "Y": 68
+    },
+    "RightThumb": 0.7,
+    "RightThumbAlong": 0.8,
+    "LeftFingerBend": {
+      "X": 68,
+      "Y": 138
+    },
+    "LeftIndexBend": {
+      "X": 65,
+      "Y": 133
+    },
+    "LeftThumb": 0.57,
+    "LeftThumbAlong": 0.62,
+    "MagazineHand": {
+      "X": -1.2,
+      "Y": -1.25,
+      "Z": -1
+    },
+    "ReloadPalm": {
+      "X": 13,
+      "Y": -1.6,
+      "Z": 4.5
+    },
+    "ArmOffset": {
+      "X": 11,
+      "Y": 0,
+      "Z": 0
+    },
+    "ADSArmOffset": {
+      "X": 13,
+      "Y": 0,
+      "Z": 0
+    },
+    "ViewOffset": {
+      "X": 5,
+      "Y": 1,
+      "Z": 4
+    },
+    "ADSOffset": {
+      "X": 0,
+      "Y": 0,
+      "Z": 1
+    },
+    "ModelLabel": "NSLOCTEXT(\"DT_FMWeaponVisuals [E0ABB118AC3E94099A5BCC42A94D2672]\", \"SawedOff_ModelLabel\", \"Shotgun · 로컬 PBR 보정\")",
+    "bAvailable": true,
+    "bRepresentative": true
+  },
+  {
+    "Name": "M249",
+    "Mesh": "/Game/FieldMaker/Weapons/Realistic/SM_FM_M249.SM_FM_M249",
+    "MagazineMesh": "None",
+    "AccessoryMesh": "None",
+    "MagazineLocation": {
+      "X": 11,
+      "Y": 0,
+      "Z": -3
+    },
+    "MagazineRotation": {
+      "Pitch": 0,
+      "Yaw": 0,
+      "Roll": 0
+    },
+    "AccessoryLocation": {
+      "X": 0,
+      "Y": 0,
+      "Z": 0
+    },
+    "AccessoryScale": {
+      "X": 1,
+      "Y": 1,
+      "Z": 1
+    },
+    "Muzzle": {
+      "X": 72.7,
+      "Y": 1,
+      "Z": 9
+    },
+    "RightPalm": {
+      "X": 3.09,
+      "Y": 1.73,
+      "Z": -0.06
+    },
+    "LeftPalm": {
+      "X": 25,
+      "Y": -2.6526949405670166,
+      "Z": 3.5
+    },
+    "LeftBoneX": {
+      "X": 0.5784307396540287,
+      "Y": 0.815731499589965,
+      "Z": 0
+    },
+    "LeftBoneY": {
+      "X": 0,
+      "Y": 0,
+      "Z": -1
+    },
+    "bUseCustomHands": true,
+    "bScopeOverlay": false,
+    "LeftElbowPole": {
+      "X": 22,
+      "Y": -8,
+      "Z": -18
+    },
+    "RightBoneX": {
+      "X": -0.866,
+      "Y": 0,
+      "Z": -0.5
+    },
+    "RightBoneY": {
+      "X": 0,
+      "Y": -1,
+      "Z": 0
+    },
+    "RightFingerBend": {
+      "X": 76,
+      "Y": 142
+    },
+    "RightIndexIdle": {
+      "X": 8,
+      "Y": 27
+    },
+    "RightIndexFire": {
+      "X": 29,
+      "Y": 68
+    },
+    "RightThumb": 0.7,
+    "RightThumbAlong": 0.8,
+    "LeftFingerBend": {
+      "X": 61,
+      "Y": 124
+    },
+    "LeftIndexBend": {
+      "X": 57,
+      "Y": 117
+    },
+    "LeftThumb": 0.57,
+    "LeftThumbAlong": 0.45,
+    "MagazineHand": {
+      "X": -1.2,
+      "Y": -1.25,
+      "Z": -1
+    },
+    "ReloadPalm": {
+      "X": 8,
+      "Y": -2.4,
+      "Z": -4
+    },
+    "ArmOffset": {
+      "X": 11,
+      "Y": 0,
+      "Z": 0
+    },
+    "ADSArmOffset": {
+      "X": 13,
+      "Y": 0,
+      "Z": 0
+    },
+    "ViewOffset": {
+      "X": 4,
+      "Y": 2,
+      "Z": 3
+    },
+    "ADSOffset": {
+      "X": 0,
+      "Y": 0,
+      "Z": 1
+    },
+    "ModelLabel": "NSLOCTEXT(\"DT_FMWeaponVisuals [E0ABB118AC3E94099A5BCC42A94D2672]\", \"M249_ModelLabel\", \"M249 · 로컬 PBR 보정\")",
+    "bAvailable": true,
+    "bRepresentative": false
+  },
+  {
+    "Name": "Negev",
+    "Mesh": "/Game/FieldMaker/Weapons/Realistic/SM_FM_M249.SM_FM_M249",
+    "MagazineMesh": "None",
+    "AccessoryMesh": "None",
+    "MagazineLocation": {
+      "X": 11,
+      "Y": 0,
+      "Z": -3
+    },
+    "MagazineRotation": {
+      "Pitch": 0,
+      "Yaw": 0,
+      "Roll": 0
+    },
+    "AccessoryLocation": {
+      "X": 0,
+      "Y": 0,
+      "Z": 0
+    },
+    "AccessoryScale": {
+      "X": 1,
+      "Y": 1,
+      "Z": 1
+    },
+    "Muzzle": {
+      "X": 72.7,
+      "Y": 1,
+      "Z": 9
+    },
+    "RightPalm": {
+      "X": 3.09,
+      "Y": 1.73,
+      "Z": -0.06
+    },
+    "LeftPalm": {
+      "X": 25,
+      "Y": -2.6526949405670166,
+      "Z": 3.5
+    },
+    "LeftBoneX": {
+      "X": 0.5784307396540287,
+      "Y": 0.815731499589965,
+      "Z": 0
+    },
+    "LeftBoneY": {
+      "X": 0,
+      "Y": 0,
+      "Z": -1
+    },
+    "bUseCustomHands": true,
+    "bScopeOverlay": false,
+    "LeftElbowPole": {
+      "X": 22,
+      "Y": -8,
+      "Z": -18
+    },
+    "RightBoneX": {
+      "X": -0.866,
+      "Y": 0,
+      "Z": -0.5
+    },
+    "RightBoneY": {
+      "X": 0,
+      "Y": -1,
+      "Z": 0
+    },
+    "RightFingerBend": {
+      "X": 76,
+      "Y": 142
+    },
+    "RightIndexIdle": {
+      "X": 8,
+      "Y": 27
+    },
+    "RightIndexFire": {
+      "X": 29,
+      "Y": 68
+    },
+    "RightThumb": 0.7,
+    "RightThumbAlong": 0.8,
+    "LeftFingerBend": {
+      "X": 61,
+      "Y": 124
+    },
+    "LeftIndexBend": {
+      "X": 57,
+      "Y": 117
+    },
+    "LeftThumb": 0.57,
+    "LeftThumbAlong": 0.45,
+    "MagazineHand": {
+      "X": -1.2,
+      "Y": -1.25,
+      "Z": -1
+    },
+    "ReloadPalm": {
+      "X": 8,
+      "Y": -2.4,
+      "Z": -4
+    },
+    "ArmOffset": {
+      "X": 11,
+      "Y": 0,
+      "Z": 0
+    },
+    "ADSArmOffset": {
+      "X": 13,
+      "Y": 0,
+      "Z": 0
+    },
+    "ViewOffset": {
+      "X": 4,
+      "Y": 2,
+      "Z": 3
+    },
+    "ADSOffset": {
+      "X": 0,
+      "Y": 0,
+      "Z": 1
+    },
+    "ModelLabel": "NSLOCTEXT(\"DT_FMWeaponVisuals [E0ABB118AC3E94099A5BCC42A94D2672]\", \"Negev_ModelLabel\", \"M249 · 로컬 PBR 보정\")",
+    "bAvailable": true,
+    "bRepresentative": true
+  },
+  {
+    "Name": "Knife",
+    "Mesh": "/Game/FieldMaker/Weapons/Realistic/SM_FM_M9.SM_FM_M9",
+    "MagazineMesh": "None",
+    "AccessoryMesh": "None",
+    "MagazineLocation": {
+      "X": 11,
+      "Y": 0,
+      "Z": -3
+    },
+    "MagazineRotation": {
+      "Pitch": 0,
+      "Yaw": 0,
+      "Roll": 0
+    },
+    "AccessoryLocation": {
+      "X": 0,
+      "Y": 0,
+      "Z": 0
+    },
+    "AccessoryScale": {
+      "X": 1,
+      "Y": 1,
+      "Z": 1
+    },
+    "Muzzle": {
+      "X": 26,
+      "Y": 0,
+      "Z": 0
+    },
+    "RightPalm": {
+      "X": -1,
+      "Y": 0.7,
+      "Z": -0.4
+    },
+    "LeftPalm": {
+      "X": 21,
+      "Y": -1.1,
+      "Z": 4
+    },
+    "LeftBoneX": {
+      "X": 1,
+      "Y": 0.12,
+      "Z": 0.19
+    },
+    "LeftBoneY": {
+      "X": 0,
+      "Y": -0.4,
+      "Z": -0.91
+    },
+    "bUseCustomHands": false,
+    "bScopeOverlay": false,
+    "LeftElbowPole": {
+      "X": 22,
+      "Y": -8,
+      "Z": -18
+    },
+    "RightBoneX": {
+      "X": -1,
+      "Y": 0,
+      "Z": 0.05999999865889549
+    },
+    "RightBoneY": {
+      "X": 0,
+      "Y": -1,
+      "Z": 0
+    },
+    "RightFingerBend": {
+      "X": 74,
+      "Y": 130
+    },
+    "RightIndexIdle": {
+      "X": 8,
+      "Y": 28
+    },
+    "RightIndexFire": {
+      "X": 28,
+      "Y": 67
+    },
+    "RightThumb": 0.8,
+    "RightThumbAlong": 0.85,
+    "LeftFingerBend": {
+      "X": 51,
+      "Y": 105
+    },
+    "LeftIndexBend": {
+      "X": 46,
+      "Y": 96
+    },
+    "LeftThumb": 0.54,
+    "LeftThumbAlong": 0,
+    "MagazineHand": {
+      "X": -2.5999999046325684,
+      "Y": -1.899999976158142,
+      "Z": -0.8999999761581421
+    },
+    "ReloadPalm": {
+      "X": 7,
+      "Y": -2,
+      "Z": -4
+    },
+    "ArmOffset": {
+      "X": 0,
+      "Y": 0,
+      "Z": 0
+    },
+    "ADSArmOffset": {
+      "X": 0,
+      "Y": 0,
+      "Z": 0
+    },
+    "ViewOffset": {
+      "X": 0,
+      "Y": 0,
+      "Z": 0
+    },
+    "ADSOffset": {
+      "X": 0,
+      "Y": 0,
+      "Z": 0
+    },
+    "ModelLabel": "NSLOCTEXT(\"DT_FMWeaponVisuals [E0ABB118AC3E94099A5BCC42A94D2672]\", \"Knife_ModelLabel\", \"M9 Knife · Fab\")",
+    "bAvailable": true,
+    "bRepresentative": false
+  },
+  {
+    "Name": "Grenade",
+    "Mesh": "/Game/FieldMaker/Weapons/Realistic/SM_FM_G67.SM_FM_G67",
+    "MagazineMesh": "None",
+    "AccessoryMesh": "None",
+    "MagazineLocation": {
+      "X": 11,
+      "Y": 0,
+      "Z": -3
+    },
+    "MagazineRotation": {
+      "Pitch": 0,
+      "Yaw": 0,
+      "Roll": 0
+    },
+    "AccessoryLocation": {
+      "X": 0,
+      "Y": 0,
+      "Z": 0
+    },
+    "AccessoryScale": {
+      "X": 1,
+      "Y": 1,
+      "Z": 1
+    },
+    "Muzzle": {
+      "X": 0,
+      "Y": 0,
+      "Z": 4.5
+    },
+    "RightPalm": {
+      "X": -1,
+      "Y": 0.7,
+      "Z": -0.4
+    },
+    "LeftPalm": {
+      "X": 21,
+      "Y": -1.1,
+      "Z": 4
+    },
+    "LeftBoneX": {
+      "X": 1,
+      "Y": 0.12,
+      "Z": 0.19
+    },
+    "LeftBoneY": {
+      "X": 0,
+      "Y": -0.4,
+      "Z": -0.91
+    },
+    "bUseCustomHands": false,
+    "bScopeOverlay": false,
+    "LeftElbowPole": {
+      "X": 22,
+      "Y": -8,
+      "Z": -18
+    },
+    "RightBoneX": {
+      "X": -1,
+      "Y": 0,
+      "Z": 0.05999999865889549
+    },
+    "RightBoneY": {
+      "X": 0,
+      "Y": -1,
+      "Z": 0
+    },
+    "RightFingerBend": {
+      "X": 74,
+      "Y": 130
+    },
+    "RightIndexIdle": {
+      "X": 8,
+      "Y": 28
+    },
+    "RightIndexFire": {
+      "X": 28,
+      "Y": 67
+    },
+    "RightThumb": 0.8,
+    "RightThumbAlong": 0.85,
+    "LeftFingerBend": {
+      "X": 51,
+      "Y": 105
+    },
+    "LeftIndexBend": {
+      "X": 46,
+      "Y": 96
+    },
+    "LeftThumb": 0.54,
+    "LeftThumbAlong": 0,
+    "MagazineHand": {
+      "X": -2.5999999046325684,
+      "Y": -1.899999976158142,
+      "Z": -0.8999999761581421
+    },
+    "ReloadPalm": {
+      "X": 7,
+      "Y": -2,
+      "Z": -4
+    },
+    "ArmOffset": {
+      "X": 0,
+      "Y": 0,
+      "Z": 0
+    },
+    "ADSArmOffset": {
+      "X": 0,
+      "Y": 0,
+      "Z": 0
+    },
+    "ViewOffset": {
+      "X": 0,
+      "Y": 0,
+      "Z": 0
+    },
+    "ADSOffset": {
+      "X": 0,
+      "Y": 0,
+      "Z": 0
+    },
+    "ModelLabel": "NSLOCTEXT(\"DT_FMWeaponVisuals [E0ABB118AC3E94099A5BCC42A94D2672]\", \"Grenade_ModelLabel\", \"G67 · Fab\")",
+    "bAvailable": true,
+    "bRepresentative": false
+  },
+  {
+    "Name": "AKS74U",
+    "Mesh": "/Game/FieldMaker/Weapons/Realistic/SM_FM_KA74U.SM_FM_KA74U",
+    "MagazineMesh": "/Game/FPS_Weapon_Bundle/Weapons/Meshes/KA74U/SM_KA74U_Mag_X.SM_KA74U_Mag_X",
+    "AccessoryMesh": "None",
+    "MagazineLocation": {
+      "X": 16.26,
+      "Y": 0,
+      "Z": -2.12
+    },
+    "MagazineRotation": {
+      "Pitch": 0,
+      "Yaw": 0,
+      "Roll": 0
+    },
+    "AccessoryLocation": {
+      "X": 0,
+      "Y": 0,
+      "Z": 0
+    },
+    "AccessoryScale": {
+      "X": 1,
+      "Y": 1,
+      "Z": 1
+    },
+    "Muzzle": {
+      "X": 46.3,
+      "Y": 0,
+      "Z": 7.68
+    },
+    "RightPalm": {
+      "X": -0.3,
+      "Y": 1.2,
+      "Z": 0.1
+    },
+    "LeftPalm": {
+      "X": 24,
+      "Y": -1.8,
+      "Z": 4.2
+    },
+    "LeftBoneX": {
+      "X": 1,
+      "Y": 0.12,
+      "Z": 0.19
+    },
+    "LeftBoneY": {
+      "X": 0,
+      "Y": -0.4,
+      "Z": -0.91
+    },
+    "bUseCustomHands": false,
+    "bScopeOverlay": false,
+    "LeftElbowPole": {
+      "X": 22,
+      "Y": -8,
+      "Z": -18
+    },
+    "RightBoneX": {
+      "X": -1,
+      "Y": 0,
+      "Z": 0.05999999865889549
+    },
+    "RightBoneY": {
+      "X": 0,
+      "Y": -1,
+      "Z": 0
+    },
+    "RightFingerBend": {
+      "X": 74,
+      "Y": 130
+    },
+    "RightIndexIdle": {
+      "X": 8,
+      "Y": 28
+    },
+    "RightIndexFire": {
+      "X": 28,
+      "Y": 67
+    },
+    "RightThumb": 0.8,
+    "RightThumbAlong": 0.85,
+    "LeftFingerBend": {
+      "X": 51,
+      "Y": 105
+    },
+    "LeftIndexBend": {
+      "X": 46,
+      "Y": 96
+    },
+    "LeftThumb": 0.54,
+    "LeftThumbAlong": 0,
+    "MagazineHand": {
+      "X": -2.5999999046325684,
+      "Y": -1.899999976158142,
+      "Z": -0.8999999761581421
+    },
+    "ReloadPalm": {
+      "X": 7,
+      "Y": -2,
+      "Z": -4
+    },
+    "ArmOffset": {
+      "X": 5,
+      "Y": 0,
+      "Z": 0
+    },
+    "ADSArmOffset": {
+      "X": 7,
+      "Y": 0,
+      "Z": 0
+    },
+    "ViewOffset": {
+      "X": 0,
+      "Y": 0,
+      "Z": -1
+    },
+    "ADSOffset": {
+      "X": 0,
+      "Y": 0,
+      "Z": 3
+    },
+    "ModelLabel": "NSLOCTEXT(\"DT_FMWeaponVisuals [E0ABB118AC3E94099A5BCC42A94D2672]\", \"AKS74U_ModelLabel\", \"KA74U · Fab\")",
+    "bAvailable": true,
+    "bRepresentative": false
+  },
+  {
+    "Name": "ASVAL",
+    "Mesh": "/Game/FieldMaker/Weapons/Realistic/SM_FM_ASVAL.SM_FM_ASVAL",
+    "MagazineMesh": "/Game/FPS_Weapon_Bundle/Weapons/Meshes/KA_Val/SM_KA_Val_Mag_X.SM_KA_Val_Mag_X",
+    "AccessoryMesh": "None",
+    "MagazineLocation": {
+      "X": 15.85,
+      "Y": 0,
+      "Z": -1.04
+    },
+    "MagazineRotation": {
+      "Pitch": 0,
+      "Yaw": 0,
+      "Roll": 0
+    },
+    "AccessoryLocation": {
+      "X": 0,
+      "Y": 0,
+      "Z": 0
+    },
+    "AccessoryScale": {
+      "X": 1,
+      "Y": 1,
+      "Z": 1
+    },
+    "Muzzle": {
+      "X": 64.88,
+      "Y": 0,
+      "Z": 9.09
+    },
+    "RightPalm": {
+      "X": -0.3,
+      "Y": 1.2,
+      "Z": 0.1
+    },
+    "LeftPalm": {
+      "X": 27,
+      "Y": -1.8,
+      "Z": 4.5
+    },
+    "LeftBoneX": {
+      "X": 1,
+      "Y": 0.12,
+      "Z": 0.19
+    },
+    "LeftBoneY": {
+      "X": 0,
+      "Y": -0.4,
+      "Z": -0.91
+    },
+    "bUseCustomHands": false,
+    "bScopeOverlay": false,
+    "LeftElbowPole": {
+      "X": 22,
+      "Y": -8,
+      "Z": -18
+    },
+    "RightBoneX": {
+      "X": -1,
+      "Y": 0,
+      "Z": 0.05999999865889549
+    },
+    "RightBoneY": {
+      "X": 0,
+      "Y": -1,
+      "Z": 0
+    },
+    "RightFingerBend": {
+      "X": 74,
+      "Y": 130
+    },
+    "RightIndexIdle": {
+      "X": 8,
+      "Y": 28
+    },
+    "RightIndexFire": {
+      "X": 28,
+      "Y": 67
+    },
+    "RightThumb": 0.8,
+    "RightThumbAlong": 0.85,
+    "LeftFingerBend": {
+      "X": 51,
+      "Y": 105
+    },
+    "LeftIndexBend": {
+      "X": 46,
+      "Y": 96
+    },
+    "LeftThumb": 0.54,
+    "LeftThumbAlong": 0,
+    "MagazineHand": {
+      "X": -2.5999999046325684,
+      "Y": -1.899999976158142,
+      "Z": -0.8999999761581421
+    },
+    "ReloadPalm": {
+      "X": 7,
+      "Y": -2,
+      "Z": -4
+    },
+    "ArmOffset": {
+      "X": 5,
+      "Y": 0,
+      "Z": 0
+    },
+    "ADSArmOffset": {
+      "X": 7,
+      "Y": 0,
+      "Z": 0
+    },
+    "ViewOffset": {
+      "X": 0,
+      "Y": 0,
+      "Z": -1
+    },
+    "ADSOffset": {
+      "X": 0,
+      "Y": 0,
+      "Z": 3
+    },
+    "ModelLabel": "NSLOCTEXT(\"DT_FMWeaponVisuals [E0ABB118AC3E94099A5BCC42A94D2672]\", \"ASVAL_ModelLabel\", \"ASVAL · Fab\")",
+    "bAvailable": true,
+    "bRepresentative": false
+  },
+  {
+    "Name": "AR70",
+    "Mesh": "/Game/FieldMaker/Weapons/Realistic/SM_FM_AR70.SM_FM_AR70",
+    "MagazineMesh": "/Game/FieldMaker/Weapons/Realistic/SM_FM_AR70_Mag.SM_FM_AR70_Mag",
+    "AccessoryMesh": "None",
+    "MagazineLocation": {
+      "X": 15.259087616885472,
+      "Y": 0.2128226494267107,
+      "Z": 0.04533351676463848
+    },
+    "MagazineRotation": {
+      "Pitch": 0,
+      "Yaw": 0,
+      "Roll": 0
+    },
+    "AccessoryLocation": {
+      "X": 0,
+      "Y": 0,
+      "Z": 0
+    },
+    "AccessoryScale": {
+      "X": 1,
+      "Y": 1,
+      "Z": 1
+    },
+    "Muzzle": {
+      "X": 63.8,
+      "Y": -0.2,
+      "Z": 9.7
+    },
+    "RightPalm": {
+      "X": -0.01060244996781573,
+      "Y": 1.3963962144901556,
+      "Z": 0.4148354815189857
+    },
+    "LeftPalm": {
+      "X": 24.47806506380757,
+      "Y": -1.1817232757600067,
+      "Z": 6.962146851908535
+    },
+    "LeftBoneX": {
+      "X": 0.6720457731108737,
+      "Y": 0.740509607529712,
+      "Z": 0
+    },
+    "LeftBoneY": {
+      "X": 0,
+      "Y": 0,
+      "Z": -1
+    },
+    "bUseCustomHands": true,
+    "bScopeOverlay": false,
+    "LeftElbowPole": {
+      "X": 22,
+      "Y": -8,
+      "Z": -18
+    },
+    "RightBoneX": {
+      "X": -0.866,
+      "Y": 0,
+      "Z": -0.5
+    },
+    "RightBoneY": {
+      "X": 0,
+      "Y": -1,
+      "Z": 0
+    },
+    "RightFingerBend": {
+      "X": 80,
+      "Y": 150
+    },
+    "RightIndexIdle": {
+      "X": 8,
+      "Y": 27
+    },
+    "RightIndexFire": {
+      "X": 29,
+      "Y": 68
+    },
+    "RightThumb": 0.7,
+    "RightThumbAlong": 0.8,
+    "LeftFingerBend": {
+      "X": 68,
+      "Y": 138
+    },
+    "LeftIndexBend": {
+      "X": 65,
+      "Y": 133
+    },
+    "LeftThumb": 0.57,
+    "LeftThumbAlong": 0.62,
+    "MagazineHand": {
+      "X": -1.2,
+      "Y": -1.25,
+      "Z": -1
+    },
+    "ReloadPalm": {
+      "X": 8,
+      "Y": -2.4,
+      "Z": -4
+    },
+    "ArmOffset": {
+      "X": 10,
+      "Y": 0,
+      "Z": 0
+    },
+    "ADSArmOffset": {
+      "X": 12,
+      "Y": 0,
+      "Z": 0
+    },
+    "ViewOffset": {
+      "X": 5,
+      "Y": 0,
+      "Z": 4
+    },
+    "ADSOffset": {
+      "X": 0,
+      "Y": 0,
+      "Z": 3.7
+    },
+    "ModelLabel": "NSLOCTEXT(\"DT_FMWeaponVisuals [E0ABB118AC3E94099A5BCC42A94D2672]\", \"AR70_ModelLabel\", \"AR70 · Fab / 개별 그립\")",
+    "bAvailable": true,
+    "bRepresentative": false
+  }
+]

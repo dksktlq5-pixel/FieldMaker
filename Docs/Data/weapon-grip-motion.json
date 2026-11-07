@@ -1,0 +1,52 @@
+[
+  {
+    "r_palm_cm": 1.8506259754583266e-06,
+    "r_bend_deg": 11.33869067510799,
+    "l_palm_cm": 3.990145872810655e-06,
+    "l_bend_deg": 41.96765790302076,
+    "helper_cm": 2.980899358011824e-05,
+    "label": "walk",
+    "speed": 250.0,
+    "falling": false
+  },
+  {
+    "r_palm_cm": 1.8506252247423904e-06,
+    "r_bend_deg": 30.34320841224936,
+    "l_palm_cm": 3.990145624665375e-06,
+    "l_bend_deg": 52.809590343285016,
+    "helper_cm": 2.980899358011824e-05,
+    "label": "sprint",
+    "speed": 550.0,
+    "falling": false
+  },
+  {
+    "r_palm_cm": 1.8506256673035331e-06,
+    "r_bend_deg": 12.40094835755786,
+    "l_palm_cm": 3.990145972037317e-06,
+    "l_bend_deg": 40.96308599824619,
+    "helper_cm": 2.980899358011824e-05,
+    "label": "jump",
+    "speed": 156.41420297324657,
+    "falling": true
+  },
+  {
+    "r_palm_cm": 1.85062530704346e-06,
+    "r_bend_deg": 25.623157569267136,
+    "l_palm_cm": 3.990145955757887e-06,
+    "l_bend_deg": 28.44590775840884,
+    "helper_cm": 2.980899358011824e-05,
+    "label": "switch-rifle",
+    "speed": 0.0,
+    "falling": false
+  },
+  {
+    "r_palm_cm": 1.8506259865763417e-06,
+    "r_bend_deg": 11.66239366298511,
+    "l_palm_cm": 3.990145890310456e-06,
+    "l_bend_deg": 42.730242332868336,
+    "helper_cm": 2.980899358011824e-05,
+    "label": "switch-pistol",
+    "speed": 0.0,
+    "falling": false
+  }
+]

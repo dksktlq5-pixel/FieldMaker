@@ -53,6 +53,7 @@ public:
 	UFUNCTION(BlueprintPure, Category="Combat")
 	FFMWeaponRow GetWeaponData(EFMWeaponSlot Slot) const;
  UFUNCTION(BlueprintPure, Category="Presentation") FFMWeaponVisualRow GetWeaponVisualData() const;
+ UFUNCTION(BlueprintPure, Category="Presentation") bool IsScopeViewActive() const;
  UFUNCTION(BlueprintPure, Category="Presentation") FFMWeaponVisualRow GetCatalogWeaponVisual(FName Id) const;
  UFUNCTION(BlueprintPure, Category="Catalog") TArray<FName> GetCatalogWeaponIds() const;
  UFUNCTION(BlueprintPure, Category="Catalog") FFMWeaponRow GetCatalogWeaponData(FName Id) const;

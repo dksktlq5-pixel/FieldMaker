@@ -1,0 +1,506 @@
+[
+  {
+    "id": "Glock",
+    "local": {
+      "r_palm_cm": 1.8506258959221831e-06,
+      "r_bend_deg": 11.380522451160182,
+      "l_palm_cm": 3.990146097508933e-06,
+      "l_bend_deg": 42.362957009498835,
+      "helper_cm": 2.980899358011824e-05
+    },
+    "remote": {
+      "r_palm_cm": 1.8506257923550983e-06,
+      "r_bend_deg": 30.496913915485546,
+      "l_palm_cm": 3.9901459145981616e-06,
+      "l_bend_deg": 47.561904647081484,
+      "helper_cm": 2.980899358011824e-05
+    },
+    "model": "/Game/FieldMaker/Weapons/Realistic/SM_FM_PolicePistol.SM_FM_PolicePistol",
+    "reload_palm_cm": 3.9901460876222195e-06,
+    "separate_magazine": false,
+    "scope": false,
+    "ads": {
+      "r_palm_cm": 1.850625853746967e-06,
+      "r_bend_deg": 21.066032531080626,
+      "l_palm_cm": 3.990146036650264e-06,
+      "l_bend_deg": 30.472630894526112,
+      "helper_cm": 2.980899358011824e-05
+    }
+  },
+  {
+    "id": "Pistol",
+    "local": {
+      "r_palm_cm": 1.8506258959221831e-06,
+      "r_bend_deg": 13.317241963581735,
+      "l_palm_cm": 3.990146097508933e-06,
+      "l_bend_deg": 42.13680509777016,
+      "helper_cm": 2.980899358011824e-05
+    },
+    "remote": {
+      "r_palm_cm": 1.8506257923550983e-06,
+      "r_bend_deg": 29.481529685644595,
+      "l_palm_cm": 3.9901459145981616e-06,
+      "l_bend_deg": 47.62452873016243,
+      "helper_cm": 2.980899358011824e-05
+    },
+    "model": "/Game/FieldMaker/Weapons/Realistic/SM_FM_PolicePistol.SM_FM_PolicePistol",
+    "reload_palm_cm": 3.990146080982814e-06,
+    "separate_magazine": false,
+    "scope": false,
+    "ads": {
+      "r_palm_cm": 1.850625853746967e-06,
+      "r_bend_deg": 21.145343411660615,
+      "l_palm_cm": 3.990146036650264e-06,
+      "l_bend_deg": 31.302343040660677,
+      "helper_cm": 2.980899358011824e-05
+    }
+  },
+  {
+    "id": "P250",
+    "local": {
+      "r_palm_cm": 1.8506256020495023e-06,
+      "r_bend_deg": 10.722534738764699,
+      "l_palm_cm": 3.990146349930488e-06,
+      "l_bend_deg": 41.77500591693246,
+      "helper_cm": 2.980899358011824e-05
+    },
+    "remote": {
+      "r_palm_cm": 1.8506257923550983e-06,
+      "r_bend_deg": 30.00303845793132,
+      "l_palm_cm": 3.9901459145981616e-06,
+      "l_bend_deg": 47.07583985092977,
+      "helper_cm": 2.980899358011824e-05
+    },
+    "model": "/Game/FieldMaker/Weapons/Realistic/SM_FM_PolicePistol.SM_FM_PolicePistol",
+    "reload_palm_cm": 3.9901460937266665e-06,
+    "separate_magazine": false,
+    "scope": false,
+    "ads": {
+      "r_palm_cm": 1.850625853746967e-06,
+      "r_bend_deg": 21.406932549941864,
+      "l_palm_cm": 3.990146036650264e-06,
+      "l_bend_deg": 30.03709298989326,
+      "helper_cm": 2.980899358011824e-05
+    }
+  },
+  {
+    "id": "FiveSeven",
+    "local": {
+      "r_palm_cm": 1.8506258959221831e-06,
+      "r_bend_deg": 13.209906945865715,
+      "l_palm_cm": 3.990146097508933e-06,
+      "l_bend_deg": 43.47185486166567,
+      "helper_cm": 2.980899358011824e-05
+    },
+    "remote": {
+      "r_palm_cm": 1.8506257923550983e-06,
+      "r_bend_deg": 29.902615420392717,
+      "l_palm_cm": 3.9901459145981616e-06,
+      "l_bend_deg": 48.51860044426457,
+      "helper_cm": 2.980899358011824e-05
+    },
+    "model": "/Game/FieldMaker/Weapons/Realistic/SM_FM_PolicePistol.SM_FM_PolicePistol",
+    "reload_palm_cm": 3.99014609061899e-06,
+    "separate_magazine": false,
+    "scope": false,
+    "ads": {
+      "r_palm_cm": 1.850625853746967e-06,
+      "r_bend_deg": 20.280191605384893,
+      "l_palm_cm": 3.990146036650264e-06,
+      "l_bend_deg": 30.890545129380445,
+      "helper_cm": 2.980899358011824e-05
+    }
+  },
+  {
+    "id": "Deagle",
+    "local": {
+      "r_palm_cm": 1.8506258959221831e-06,
+      "r_bend_deg": 10.547534508395739,
+      "l_palm_cm": 3.990146097508933e-06,
+      "l_bend_deg": 42.37924950294651,
+      "helper_cm": 2.980899358011824e-05
+    },
+    "remote": {
+      "r_palm_cm": 1.8506257923550983e-06,
+      "r_bend_deg": 29.495501601958107,
+      "l_palm_cm": 3.9901459145981616e-06,
+      "l_bend_deg": 48.06959749357922,
+      "helper_cm": 2.980899358011824e-05
+    },
+    "model": "/Game/FieldMaker/Weapons/Realistic/SM_FM_PolicePistol.SM_FM_PolicePistol",
+    "reload_palm_cm": 3.990146049189336e-06,
+    "separate_magazine": false,
+    "scope": false,
+    "ads": {
+      "r_palm_cm": 1.850625853746967e-06,
+      "r_bend_deg": 20.178836665693815,
+      "l_palm_cm": 3.990146036650264e-06,
+      "l_bend_deg": 30.21847349136473,
+      "helper_cm": 2.980899358011824e-05
+    }
+  },
+  {
+    "id": "MAC10",
+    "local": {
+      "r_palm_cm": 1.850625531281309e-06,
+      "r_bend_deg": 20.447949307689004,
+      "l_palm_cm": 3.990145740077901e-06,
+      "l_bend_deg": 12.356021955350434,
+      "helper_cm": 2.980899358011824e-05
+    },
+    "remote": {
+      "r_palm_cm": 1.8506256773804872e-06,
+      "r_bend_deg": 30.94944712602215,
+      "l_palm_cm": 3.990145826481513e-06,
+      "l_bend_deg": 27.232905389695752,
+      "helper_cm": 2.980899358011824e-05
+    },
+    "model": "/Game/FieldMaker/Weapons/Realistic/SM_FM_SMG11.SM_FM_SMG11",
+    "reload_palm_cm": 3.990146108915293e-06,
+    "separate_magazine": true,
+    "scope": false,
+    "ads": {
+      "r_palm_cm": 1.8506257595472833e-06,
+      "r_bend_deg": 45.893859904474525,
+      "l_palm_cm": 3.990145866906945e-06,
+      "l_bend_deg": 12.584351364349837,
+      "helper_cm": 2.980899358011824e-05
+    }
+  },
+  {
+    "id": "Nova",
+    "local": {
+      "r_palm_cm": 1.8506257315776436e-06,
+      "r_bend_deg": 18.39180593591534,
+      "l_palm_cm": 3.990146232016694e-06,
+      "l_bend_deg": 23.35290623569049,
+      "helper_cm": 2.980899358011824e-05
+    },
+    "remote": {
+      "r_palm_cm": 1.850625794551957e-06,
+      "r_bend_deg": 28.90588285463341,
+      "l_palm_cm": 3.990145807447686e-06,
+      "l_bend_deg": 28.944728430391063,
+      "helper_cm": 2.980899358011824e-05
+    },
+    "model": "/Game/FieldMaker/Weapons/Realistic/SM_FM_Shotgun.SM_FM_Shotgun",
+    "reload_palm_cm": 3.990146087415769e-06,
+    "separate_magazine": false,
+    "scope": false,
+    "ads": {
+      "r_palm_cm": 1.8506258809620342e-06,
+      "r_bend_deg": 40.2553473503454,
+      "l_palm_cm": 3.990145857371021e-06,
+      "l_bend_deg": 31.09889514623121,
+      "helper_cm": 2.980899358011824e-05
+    }
+  },
+  {
+    "id": "UMP45",
+    "local": {
+      "r_palm_cm": 1.8506257556126827e-06,
+      "r_bend_deg": 22.998924983843217,
+      "l_palm_cm": 3.990146243605045e-06,
+      "l_bend_deg": 29.91529012245148,
+      "helper_cm": 2.980899358011824e-05
+    },
+    "remote": {
+      "r_palm_cm": 1.8506256516406816e-06,
+      "r_bend_deg": 29.815657720030735,
+      "l_palm_cm": 3.990146072761107e-06,
+      "l_bend_deg": 37.17963894182069,
+      "helper_cm": 2.980899358011824e-05
+    },
+    "model": "/Game/FieldMaker/Weapons/Realistic/SM_FM_MP5.SM_FM_MP5",
+    "reload_palm_cm": 3.990146123726874e-06,
+    "separate_magazine": true,
+    "scope": false,
+    "ads": {
+      "r_palm_cm": 1.8506257606081048e-06,
+      "r_bend_deg": 47.56774409337834,
+      "l_palm_cm": 3.990146135121393e-06,
+      "l_bend_deg": 34.14139407524966,
+      "helper_cm": 2.980899358011824e-05
+    }
+  },
+  {
+    "id": "MP5SD",
+    "local": {
+      "r_palm_cm": 1.8506257556126827e-06,
+      "r_bend_deg": 23.844173602603423,
+      "l_palm_cm": 3.990146243605045e-06,
+      "l_bend_deg": 29.297977820946684,
+      "helper_cm": 2.980899358011824e-05
+    },
+    "remote": {
+      "r_palm_cm": 1.8506256516406816e-06,
+      "r_bend_deg": 30.172079521794622,
+      "l_palm_cm": 3.990146072761107e-06,
+      "l_bend_deg": 36.465671396514395,
+      "helper_cm": 2.980899358011824e-05
+    },
+    "model": "/Game/FieldMaker/Weapons/Realistic/SM_FM_MP5.SM_FM_MP5",
+    "reload_palm_cm": 3.990146108156598e-06,
+    "separate_magazine": true,
+    "scope": false,
+    "ads": {
+      "r_palm_cm": 1.8506257606081048e-06,
+      "r_bend_deg": 49.28582806758544,
+      "l_palm_cm": 3.990146135121393e-06,
+      "l_bend_deg": 35.16661106677269,
+      "helper_cm": 2.980899358011824e-05
+    }
+  },
+  {
+    "id": "MP7",
+    "local": {
+      "r_palm_cm": 1.8506257556126827e-06,
+      "r_bend_deg": 25.08860216868353,
+      "l_palm_cm": 3.990146243605045e-06,
+      "l_bend_deg": 30.74325245820219,
+      "helper_cm": 2.980899358011824e-05
+    },
+    "remote": {
+      "r_palm_cm": 1.8506256516406816e-06,
+      "r_bend_deg": 29.860789049401053,
+      "l_palm_cm": 3.990146072761107e-06,
+      "l_bend_deg": 37.72081930950737,
+      "helper_cm": 2.980899358011824e-05
+    },
+    "model": "/Game/FieldMaker/Weapons/Realistic/SM_FM_MP5.SM_FM_MP5",
+    "reload_palm_cm": 3.990146150578206e-06,
+    "separate_magazine": true,
+    "scope": false,
+    "ads": {
+      "r_palm_cm": 1.8506257606081048e-06,
+      "r_bend_deg": 47.61193359204954,
+      "l_palm_cm": 3.990146135121393e-06,
+      "l_bend_deg": 33.89944359191978,
+      "helper_cm": 2.980899358011824e-05
+    }
+  },
+  {
+    "id": "Negev",
+    "local": {
+      "r_palm_cm": 1.8506257556126827e-06,
+      "r_bend_deg": 20.0620345930453,
+      "l_palm_cm": 3.990146068218838e-06,
+      "l_bend_deg": 20.33026973254496,
+      "helper_cm": 2.980899358011824e-05
+    },
+    "remote": {
+      "r_palm_cm": 1.8506257013109245e-06,
+      "r_bend_deg": 28.871781128292035,
+      "l_palm_cm": 3.990145945091179e-06,
+      "l_bend_deg": 21.850944475268165,
+      "helper_cm": 2.980899358011824e-05
+    },
+    "model": "/Game/FieldMaker/Weapons/Realistic/SM_FM_M249.SM_FM_M249",
+    "reload_palm_cm": 3.990146129125478e-06,
+    "separate_magazine": false,
+    "scope": false,
+    "ads": {
+      "r_palm_cm": 1.8506257627297479e-06,
+      "r_bend_deg": 42.67134951080107,
+      "l_palm_cm": 3.9901460154801845e-06,
+      "l_bend_deg": 32.9278515165479,
+      "helper_cm": 2.980899358011824e-05
+    }
+  },
+  {
+    "id": "SSG08",
+    "local": {
+      "r_palm_cm": 1.850625532327914e-06,
+      "r_bend_deg": 26.867115804066167,
+      "l_palm_cm": 3.990145889814787e-06,
+      "l_bend_deg": 22.162103584441173,
+      "helper_cm": 2.980899358011824e-05
+    },
+    "remote": {
+      "r_palm_cm": 1.8506256773804872e-06,
+      "r_bend_deg": 29.743088780618788,
+      "l_palm_cm": 3.990146217994199e-06,
+      "l_bend_deg": 26.437415944731185,
+      "helper_cm": 2.980899358011824e-05
+    },
+    "model": "/Game/FieldMaker/Weapons/Realistic/SM_FM_Ghoul.SM_FM_Ghoul",
+    "reload_palm_cm": 3.9901461020384145e-06,
+    "separate_magazine": false,
+    "scope": true,
+    "ads": {
+      "r_palm_cm": 1.8506257616689263e-06,
+      "r_bend_deg": 50.12631533653258,
+      "l_palm_cm": 3.9901462903559395e-06,
+      "l_bend_deg": 32.387997931200914,
+      "helper_cm": 2.980899358011824e-05
+    }
+  },
+  {
+    "id": "P90",
+    "local": {
+      "r_palm_cm": 1.8506257556126827e-06,
+      "r_bend_deg": 23.26417918522304,
+      "l_palm_cm": 3.990146243605045e-06,
+      "l_bend_deg": 29.629680348534833,
+      "helper_cm": 2.980899358011824e-05
+    },
+    "remote": {
+      "r_palm_cm": 1.8506256516406816e-06,
+      "r_bend_deg": 29.64592398805595,
+      "l_palm_cm": 3.990146072761107e-06,
+      "l_bend_deg": 36.38816672346825,
+      "helper_cm": 2.980899358011824e-05
+    },
+    "model": "/Game/FieldMaker/Weapons/Realistic/SM_FM_MP5.SM_FM_MP5",
+    "reload_palm_cm": 3.9901460939784225e-06,
+    "separate_magazine": true,
+    "scope": false,
+    "ads": {
+      "r_palm_cm": 1.8506257606081048e-06,
+      "r_bend_deg": 47.81100419196328,
+      "l_palm_cm": 3.990146135121393e-06,
+      "l_bend_deg": 34.48075500153119,
+      "helper_cm": 2.980899358011824e-05
+    }
+  },
+  {
+    "id": "AK47",
+    "local": {
+      "r_palm_cm": 1.8506257378572725e-06,
+      "r_bend_deg": 25.292472511283957,
+      "l_palm_cm": 3.990146298934818e-06,
+      "l_bend_deg": 17.370542386001123,
+      "helper_cm": 2.980899358011824e-05
+    },
+    "remote": {
+      "r_palm_cm": 1.8506256773804872e-06,
+      "r_bend_deg": 30.797318321806713,
+      "l_palm_cm": 3.990146001464136e-06,
+      "l_bend_deg": 25.804288897359346,
+      "helper_cm": 2.980899358011824e-05
+    },
+    "model": "/Game/FieldMaker/Weapons/Realistic/SM_FM_KA47.SM_FM_KA47",
+    "reload_palm_cm": 3.9901461209823115e-06,
+    "separate_magazine": true,
+    "scope": false,
+    "ads": {
+      "r_palm_cm": 1.8506257397943606e-06,
+      "r_bend_deg": 49.16923030353793,
+      "l_palm_cm": 3.9901460633036215e-06,
+      "l_bend_deg": 31.963144363982224,
+      "helper_cm": 2.980899358011824e-05
+    }
+  },
+  {
+    "id": "AR70",
+    "local": {
+      "r_palm_cm": 1.85062572425141e-06,
+      "r_bend_deg": 24.968034770331563,
+      "l_palm_cm": 3.990146034722173e-06,
+      "l_bend_deg": 22.242422023284824,
+      "helper_cm": 2.980899358011824e-05
+    },
+    "remote": {
+      "r_palm_cm": 1.8506256773804872e-06,
+      "r_bend_deg": 30.017388335475186,
+      "l_palm_cm": 3.990145889453537e-06,
+      "l_bend_deg": 29.61610240154846,
+      "helper_cm": 2.980899358011824e-05
+    },
+    "model": "/Game/FieldMaker/Weapons/Realistic/SM_FM_AR70.SM_FM_AR70",
+    "reload_palm_cm": 3.990146113443202e-06,
+    "separate_magazine": true,
+    "scope": false,
+    "ads": {
+      "r_palm_cm": 1.850625729186145e-06,
+      "r_bend_deg": 47.77238489339106,
+      "l_palm_cm": 3.990145936941894e-06,
+      "l_bend_deg": 32.95683357686925,
+      "helper_cm": 2.980899358011824e-05
+    }
+  },
+  {
+    "id": "M4",
+    "local": {
+      "r_palm_cm": 1.8506257577058923e-06,
+      "r_bend_deg": 23.677165593569402,
+      "l_palm_cm": 3.990145984935776e-06,
+      "l_bend_deg": 26.904057642938348,
+      "helper_cm": 2.980899358011824e-05
+    },
+    "remote": {
+      "r_palm_cm": 1.8506256516406816e-06,
+      "r_bend_deg": 30.38394579255024,
+      "l_palm_cm": 3.990146162642718e-06,
+      "l_bend_deg": 33.184699051124426,
+      "helper_cm": 2.980899358011824e-05
+    },
+    "model": "/Game/FieldMaker/Weapons/Realistic/SM_FM_AR15.SM_FM_AR15",
+    "reload_palm_cm": 3.990146129531782e-06,
+    "separate_magazine": true,
+    "scope": true,
+    "ads": {
+      "r_palm_cm": 1.8506257450984687e-06,
+      "r_bend_deg": 47.14591532079822,
+      "l_palm_cm": 3.9901462259737664e-06,
+      "l_bend_deg": 32.295610043268795,
+      "helper_cm": 2.980899358011824e-05
+    }
+  },
+  {
+    "id": "AWP",
+    "local": {
+      "r_palm_cm": 1.8506256738516541e-06,
+      "r_bend_deg": 11.62446177520403,
+      "l_palm_cm": 3.99014620409439e-06,
+      "l_bend_deg": 29.886821637839386,
+      "helper_cm": 2.980899358011824e-05
+    },
+    "remote": {
+      "r_palm_cm": 1.8506256960790135e-06,
+      "r_bend_deg": 38.495026789971256,
+      "l_palm_cm": 3.990145918715379e-06,
+      "l_bend_deg": 30.414602824898097,
+      "helper_cm": 2.980899358011824e-05
+    },
+    "model": "/Game/FieldMaker/Weapons/Realistic/SM_FM_AWP.SM_FM_AWP",
+    "reload_palm_cm": 3.990146073298362e-06,
+    "separate_magazine": false,
+    "scope": true,
+    "ads": {
+      "r_palm_cm": 1.850625774698443e-06,
+      "r_bend_deg": 40.307274115875614,
+      "l_palm_cm": 3.990145947889787e-06,
+      "l_bend_deg": 31.671660184762736,
+      "helper_cm": 2.980899358011824e-05
+    }
+  },
+  {
+    "id": "M249",
+    "local": {
+      "r_palm_cm": 1.8506257556126827e-06,
+      "r_bend_deg": 20.401654510615497,
+      "l_palm_cm": 3.990146068218838e-06,
+      "l_bend_deg": 22.412669585801844,
+      "helper_cm": 2.980899358011824e-05
+    },
+    "remote": {
+      "r_palm_cm": 1.8506256516406816e-06,
+      "r_bend_deg": 28.818957908204283,
+      "l_palm_cm": 3.9901459470733895e-06,
+      "l_bend_deg": 23.418496431404247,
+      "helper_cm": 2.980899358011824e-05
+    },
+    "model": "/Game/FieldMaker/Weapons/Realistic/SM_FM_M249.SM_FM_M249",
+    "reload_palm_cm": 3.99014609048159e-06,
+    "separate_magazine": false,
+    "scope": false,
+    "ads": {
+      "r_palm_cm": 1.8506257627297479e-06,
+      "r_bend_deg": 43.64352555641915,
+      "l_palm_cm": 3.9901460154801845e-06,
+      "l_bend_deg": 33.3322316301185,
+      "helper_cm": 2.980899358011824e-05
+    }
+  }
+]

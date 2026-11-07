@@ -10,6 +10,8 @@ struct FFMHandTarget
 	FVector2D IndexBend = FVector2D::ZeroVector;
 	float ThumbOpposition = 0.f;
 	float ThumbAlongFrame = 0.f;
+ bool bWeaponGrip = false;
+ FVector ElbowPole = FVector(22,-8,-18);
 };
 
 struct FFMGripTargets

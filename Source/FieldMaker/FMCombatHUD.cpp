@@ -1,6 +1,8 @@
-﻿#include "FMCombatHUD.h"
+#include "FMCombatHUD.h"
 
 #include "Engine/Canvas.h"
+#include "Engine/Texture2D.h"
+#include "UObject/ConstructorHelpers.h"
 #include "Engine/Engine.h"
 #include "FMCharacter.h"
 #include "FMPlayerState.h"
@@ -29,6 +31,12 @@ const TCHAR* PhaseLabel(EFMMatchPhase Phase)
 }
 }
 
+AFMCombatHUD::AFMCombatHUD()
+{
+ static ConstructorHelpers::FObjectFinder<UTexture2D> Mask(TEXT("/Game/FieldMaker/Weapons/T_FMScopeMask.T_FMScopeMask"));
+ ScopeMask=Mask.Object;
+}
+
 void AFMCombatHUD::DrawHUD()
 {
 	Super::DrawHUD();
@@ -38,6 +46,18 @@ void AFMCombatHUD::DrawHUD()
 	{
 		return;
 	}
+
+ const bool bScoped=Character->IsScopeViewActive();
+ if(bScoped && ScopeMask)
+ {
+  const float W=Canvas->ClipX,H=Canvas->ClipY,D=FMath::Min(W,H)*.94f;
+  const float X=(W-D)*.5f,Y=(H-D)*.5f;
+  DrawRect(FLinearColor::Black,0,0,X,H);DrawRect(FLinearColor::Black,X+D,0,W-X-D,H);
+  DrawRect(FLinearColor::Black,X,0,D,Y);DrawRect(FLinearColor::Black,X,Y+D,D,H-Y-D);
+  DrawTexture(ScopeMask,X,Y,D,D,0,0,1,1,FLinearColor::White,BLEND_Translucent);
+  DrawLine(W*.5f,Y+8,W*.5f,Y+D-8,FLinearColor::Black,1.5f);
+  DrawLine(X+8,H*.5f,X+D-8,H*.5f,FLinearColor::Black,1.5f);
+ }
 
 	const float Scale = FMath::Min(Canvas->ClipX / 960.f, Canvas->ClipY / 540.f);
 	const float Width = Canvas->ClipX / Scale;
@@ -143,7 +163,7 @@ void AFMCombatHUD::DrawHUD()
 	Label(Ammo, White, Width - 156.f, Height - 47.f, 1.25f);
 
 	const float AimY = Height * 0.5f;
-	if (Health > 0.f)
+	if (Health > 0.f && !bScoped)
 	{
 		Box(Ink, Center - 2.f, AimY - 2.f, 4.f, 4.f);
 		Box(White, Center - 1.f, AimY - 1.f, 2.f, 2.f);
@@ -155,7 +175,7 @@ void AFMCombatHUD::DrawHUD()
 			Box(White, Center - 0.5f, AimY + 4.f, 1.f, 5.f);
 		}
 	}
-	else
+	else if(Health<=0.f)
 	{
 		Box(Ink, Center - 80.f, AimY - 17.f, 160.f, 34.f);
 		Label(TEXT("ELIMINATED"), Red, Center, AimY - 10.f, 1.2f, true);

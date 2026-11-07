@@ -47,6 +47,8 @@ void PoseDigit(const FReferenceSkeleton& Skeleton, TArray<FTransform>& Pose, con
 	{
 		return;
 	}
+	const int32 DigitChain[] = {A,B,C};
+ const FTransform DigitPrevious[] = {Pose[A],Pose[B],Pose[C]};
 	const FTransform SecondLocal = Pose[B].GetRelativeTransform(Pose[A]);
 	const FTransform ThirdLocal = Pose[C].GetRelativeTransform(Pose[B]);
 	AimJoint(Pose[A], Pose[B], ProximalDirection);
@@ -55,6 +57,22 @@ void PoseDigit(const FReferenceSkeleton& Skeleton, TArray<FTransform>& Pose, con
 	AimJoint(Pose[B], Pose[C], MiddleDirection);
 	Pose[C] = ThirdLocal * Pose[B];
 	Pose[C].SetRotation(TipBend * Pose[C].GetRotation());
+ // Quantum fingers also skin against half, bulge and joint-correction children.
+ // Rebase every descendant from its nearest driven phalanx, not just the three primary joints.
+ for(int32 Bone=A+1;Bone<Pose.Num();++Bone)
+ {
+  if(Bone==B || Bone==C)continue;
+  for(int32 Parent=Skeleton.GetParentIndex(Bone);Parent>=A;Parent=Skeleton.GetParentIndex(Parent))
+  {
+   const int32* Driven=Algo::Find(DigitChain,Parent);
+   if(Driven)
+   {
+    Pose[Bone]=Pose[Bone].GetRelativeTransform(DigitPrevious[Driven-DigitChain])*Pose[Parent];
+    break;
+   }
+  }
+ }
+
 }
 
 void PoseFingers(const FReferenceSkeleton& Skeleton, TArray<FTransform>& Pose,
@@ -84,11 +102,14 @@ void PoseFingers(const FReferenceSkeleton& Skeleton, TArray<FTransform>& Pose,
 		? FDigit{TEXT("thumb_01_r"), TEXT("thumb_02_r"), TEXT("thumb_03_r")}
 		: FDigit{TEXT("thumb_01_l"), TEXT("thumb_02_l"), TEXT("thumb_03_l")};
 	const float Opposition = Hand.ThumbOpposition;
-	const FVector ThumbBase(-0.70, 0.38 + 0.16 * Opposition, 0.63);
-	const FVector ThumbTip(-0.72, 0.35 + 0.45 * Opposition, 0.35 - 0.42 * Opposition);
+	const bool bSupportThumb=Hand.bWeaponGrip && !bRight;
+ const FVector ThumbBase=bSupportThumb?FVector(-.75,.32,-.50):FVector(-0.70,0.38+0.16*Opposition,0.63);
+	const FVector ThumbTip=bSupportThumb?FVector(-.82,.35,-.30):FVector(-0.72,0.35+0.45*Opposition,0.35-0.42*Opposition);
+ const FVector AlongBase=bSupportThumb?FVector(-.86,.08,-.50):Hand.bWeaponGrip?FVector(-.91,-.10,.36):FVector(-.91,.06,.36);
+ const FVector AlongTip=bSupportThumb?FVector(-.98,.06,-.23):Hand.bWeaponGrip?FVector(-.99,-.10,-.08):FVector(-.99,.08,-.08);
 	PoseDigit(Skeleton, Pose, Thumb,
-		Wrist.TransformVectorNoScale(FMath::Lerp(ThumbBase, FVector(-0.91, 0.06, 0.36), Hand.ThumbAlongFrame) * Side),
-		Wrist.TransformVectorNoScale(FMath::Lerp(ThumbTip, FVector(-0.99, 0.08, -0.08), Hand.ThumbAlongFrame) * Side),
+		Wrist.TransformVectorNoScale(FMath::Lerp(ThumbBase, AlongBase, Hand.ThumbAlongFrame) * Side),
+		Wrist.TransformVectorNoScale(FMath::Lerp(ThumbTip, AlongTip, Hand.ThumbAlongFrame) * Side),
 		FQuat::Identity);
 }
 
@@ -108,7 +129,7 @@ void SolveArm(const FReferenceSkeleton& Skeleton, TArray<FTransform>& Pose, cons
 	// Component +Y is forward and -X is the character's right. Keep the elbows low and outboard.
 	const FVector PoleOffset = bAlignKnifeWrist
 		? FVector(12, 14, Target.Wrist.GetLocation().Z - OldShoulder.GetLocation().Z)
-		: FVector(bRight ? -26 : 26, 5, -46);
+		: Target.bWeaponGrip && !bRight?Target.ElbowPole:FVector(bRight ? -26 : 26,5,-46);
 	const FVector Pole = OldShoulder.GetLocation() + PoleOffset;
 	AnimationCore::SolveTwoBoneIK(Pose[Shoulder], Pose[Elbow], Pose[Wrist], Pole, Target.Wrist.GetLocation(), false, 1.f, 1.f);
 	// Share wrist roll with the forearm without moving the elbow or changing bone lengths.
