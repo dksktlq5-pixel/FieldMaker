@@ -28,6 +28,9 @@ float Phase(float Age, float Start, float End)
 	return FMath::SmoothStep(0.f, 1.f, T);
 }
 
+constexpr float PistolMagazineInsertStart = 0.65f;
+constexpr float PistolMagazineSeated = 0.82f;
+
 FFMHandTarget Grip(const FVector& PalmContact, const FVector& BoneX, const FVector& BoneY,
 	const FVector2D& Fingers, const FVector2D& Index, float Thumb, bool bRight)
 {
@@ -213,6 +216,8 @@ void AFMCharacter::UpdateWeaponPresentation(float DeltaSeconds)
 	FRotator Rotation = FRotator::ZeroRotator;
 	float ReloadTilt = 0.f;
 	float MagazineTravel = 0.f;
+	float PistolMagazineExchange = 0.f;
+	const bool bPistolMagazine = WeaponSlot == EFMWeaponSlot::Secondary && ViewMagazine->GetStaticMesh();
 
 	switch (Motion)
 	{
@@ -239,6 +244,12 @@ void AFMCharacter::UpdateWeaponPresentation(float DeltaSeconds)
 		MagazineTravel = FadeInOut((Progress - 0.15f) / 0.67f, 1.f);
 		Offset += FVector(-5.f, -4.f, -6.f) * ReloadTilt;
 		Rotation = (bPrimary ? FRotator(18, -12, 32) : FRotator(13, -10, 22)) * ReloadTilt;
+		if (bPistolMagazine)
+		{
+			MagazineTravel = Phase(Progress, 0.22f, 0.40f) * (1.f - Phase(Progress, PistolMagazineInsertStart, PistolMagazineSeated));
+			PistolMagazineExchange = Phase(Progress, 0.40f, 0.49f) * (1.f - Phase(Progress, 0.54f, PistolMagazineInsertStart));
+			Rotation = FRotator(18, -16, 26) * ReloadTilt;
+		}
 		break;
 	}
 	case EFMWeaponMotion::Melee:
@@ -275,7 +286,7 @@ void AFMCharacter::UpdateWeaponPresentation(float DeltaSeconds)
 	const FRotator ViewAngle = FMath::Lerp(ViewAngles[Slot], FRotator::ZeroRotator, bFirearm ? ADSAlpha : 0.f)
 		+ FRotator(-12.f, 0.f, 0.f) * SprintPoseAlpha;
 	// Bring the magazine into the player's view during the exchange.
-	const FVector ViewReloadLift = FVector(4.f, 0.f, 20.f) * ReloadTilt;
+	const FVector ViewReloadLift = FVector(4.f, 0.f, bPistolMagazine ? 12.f : 20.f) * ReloadTilt;
 	const FTransform ViewMotion(Rotation + ViewAngle, ViewGrip + Offset + ViewReloadLift);
 	// The character mesh faces local +Y. Convert from actor-facing coordinates to that mesh's frame.
 	const FRotator MeshFacing(0, 90, 0);
@@ -303,10 +314,16 @@ void AFMCharacter::UpdateWeaponPresentation(float DeltaSeconds)
 	}
 
 	const FVector MagBase = bDetailed?Visual.MagazineLocation:(bPrimary ? FVector(11.f, 0.f, -3.f) : FVector(0.f, 0.f, -2.f));
-	const FVector MagOffset = FVector(-3.f, -6.f, -18.f) * MagazineTravel;
+	// The pistol magazine follows the angle of the grip until it clears the well.
+	const FVector MagOffset = bPistolMagazine
+		? FVector(-6.2f, 0.f, -12.f) * MagazineTravel + FVector(-2.f, -5.f, -6.f) * PistolMagazineExchange
+		: FVector(-3.f, -6.f, -18.f) * MagazineTravel;
+	const FRotator MagTurn = bPistolMagazine
+		? FRotator(8.f, -10.f, 10.f) * PistolMagazineExchange
+		: FRotator(15.f, -12.f, 7.f) * MagazineTravel;
 	for (UStaticMeshComponent* Magazine : {ViewMagazine.Get(), WorldMagazine.Get()})
 	{
-		Magazine->SetRelativeLocationAndRotation(MagBase + MagOffset, Visual.MagazineRotation + FRotator(15.f, -12.f, 7.f) * MagazineTravel);
+		Magazine->SetRelativeLocationAndRotation(MagBase + MagOffset, Visual.MagazineRotation + MagTurn);
 		Magazine->SetVisibility(bVisible && bFirearm && Magazine->GetStaticMesh()!=nullptr && (Magazine!=ViewMagazine || !bScoped));
 	}
 
@@ -412,14 +429,25 @@ bool AFMCharacter::GetWeaponGripTargets(const USkeletalMeshComponent& PoseMesh, 
 		if (IsReloading())
 		{
 			const float Progress = Age / GetReloadDuration();
-			const float Reach = Phase(Progress, 0.04f, 0.25f) * (1.f - Phase(Progress, 0.74f, 0.96f));
 			// Wrap across the magazine. Aligning the fingers up its length leaves a gap under the palm.
 			const bool bSeparateMagazine=Magazine && Magazine->GetStaticMesh();
+			const bool bPistolMagazine = WeaponSlot == EFMWeaponSlot::Secondary && bSeparateMagazine;
+			const float Reach = bPistolMagazine
+				? Phase(Progress, 0.06f, 0.22f) * (1.f - Phase(Progress, PistolMagazineSeated, 0.97f))
+				: Phase(Progress, 0.04f, 0.25f) * (1.f - Phase(Progress, 0.74f, 0.96f));
    const FVector ReloadContact=bSeparateMagazine?(Visual.bUseCustomHands?Visual.MagazineHand:(WeaponSlot==EFMWeaponSlot::Primary?FVector(-2.6,-1.9,-.9):FVector(-2,-1.35,-2.8))):Visual.ReloadPalm;
    FFMHandTarget MagazineHand = Grip(ReloadContact,
 				FVector(0.97, 0.04, 0.23), FVector(0, -1, 0),
 				FVector2D(68, 121), FVector2D(60, 110), 0.76f, false);
 			MagazineHand.bWeaponGrip=Visual.bUseCustomHands;MagazineHand.ElbowPole=Visual.LeftElbowPole;
+			if (bPistolMagazine)
+			{
+				MagazineHand = Grip(ReloadContact, FVector(0.85, 0.42, 0.32), FVector(0, -0.58, -0.81),
+					FVector2D(64, 112), FVector2D(53, 94), 0.57f, false);
+				MagazineHand.bWeaponGrip = true;
+				MagazineHand.ElbowPole = FVector(22, -8, -18);
+				MagazineHand.ThumbAlongFrame = 0.55f;
+			}
    MagazineHand.Wrist *= bSeparateMagazine?Magazine->GetComponentTransform().GetRelativeTransform(MeshTransform):WeaponInMesh;
 			Targets.Left = BlendHands(Targets.Left, MagazineHand, Reach);
 		}
