@@ -1,5 +1,6 @@
 ﻿#include "FMMenuPlayerController.h"
 #include "FMCustomizeWidget.h"
+#include "FMLobbyWidget.h"
 #include "FMSettingsWidget.h"
 
 #include "Blueprint/UserWidget.h"
@@ -14,6 +15,10 @@
 #include "Components/TextBlock.h"
 #include "Components/VerticalBox.h"
 #include "Components/VerticalBoxSlot.h"
+#include "Algo/AllOf.h"
+#include "Engine/Engine.h"
+#include "Interfaces/IPv4/IPv4Address.h"
+#include "Styling/CoreStyle.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "UObject/ConstructorHelpers.h"
@@ -89,6 +94,7 @@ void AFMMenuPlayerController::BeginPlay()
 	Bind(TEXT("Btn_Quit"), &AFMMenuPlayerController::ShowQuitDialog, TEXT("ShowQuitDialog"));
 
 	Menu->AddToViewport();
+	GEngine->OnNetworkFailure().AddUObject(this, &AFMMenuPlayerController::HandleNetworkFailure);
 	bShowMouseCursor = true;
 	FocusMenu(Menu->GetWidgetFromName(TEXT("Btn_Play")));
 }
@@ -109,10 +115,98 @@ void AFMMenuPlayerController::LogMenuSelection(const TCHAR* Selection)
 	UE_LOG(LogTemp, Display, TEXT("FIELDMAKER menu preview: %s"), Selection);
 }
 
-void AFMMenuPlayerController::Play() { UGameplayStatics::OpenLevel(this, TEXT("/Game/Map/L_FMBridgeBattlefield")); }
+void AFMMenuPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	if (GEngine) GEngine->OnNetworkFailure().RemoveAll(this);
+	Super::EndPlay(EndPlayReason);
+}
+
+void AFMMenuPlayerController::Play()
+{
+	if (!Menu || PlayPanel) return;
+	PlayPanel = CreateWidget<UFMLobbyWidget>(this, UFMLobbyWidget::StaticClass());
+	if (!PlayPanel) return;
+	PlayPanel->MenuFont = FCoreStyle::GetDefaultFontStyle("Regular", 16);
+	PlayPanel->OnCreateRoom.BindUObject(this, &AFMMenuPlayerController::CreateRoom);
+	PlayPanel->OnJoinRoom.BindUObject(this, &AFMMenuPlayerController::JoinRoom);
+	PlayPanel->OnPractice.BindUObject(this, &AFMMenuPlayerController::Training);
+	PlayPanel->OnClose.BindUObject(this, &AFMMenuPlayerController::ClosePlayPanel);
+	Menu->SetIsEnabled(false);
+	PlayPanel->AddToViewport(10);
+	FocusMenu(PlayPanel);
+}
+
+void AFMMenuPlayerController::ClosePlayPanel()
+{
+	if (!PlayPanel) return;
+	if (bJoiningRoom)
+	{
+		bJoiningRoom = false;
+		GEngine->CancelPending(GetWorld());
+	}
+	PlayPanel->RemoveFromParent();
+	PlayPanel = nullptr;
+	Menu->SetIsEnabled(true);
+	FocusMenu(Menu->GetWidgetFromName(TEXT("Btn_Play")));
+}
+
+void AFMMenuPlayerController::CreateRoom()
+{
+	if (PlayPanel && !bJoiningRoom)
+	{
+		UGameplayStatics::OpenLevel(this, TEXT("/Game/Map/L_FMBridgeBattlefield"), true, TEXT("listen?FMRoom"));
+	}
+}
+
+bool AFMMenuPlayerController::JoinRoom(const FString& Address)
+{
+	if (!PlayPanel || bJoiningRoom) return false;
+	const FString Endpoint = Address.TrimStartAndEnd();
+	FString Host = Endpoint;
+	FString Port;
+	const bool bHasPort = Endpoint.Split(TEXT(":"), &Host, &Port);
+	if (Host.Equals(TEXT("localhost"), ESearchCase::IgnoreCase)) Host = TEXT("127.0.0.1");
+	FIPv4Address IP;
+	int32 PortNumber = 0;
+	const bool bValidPort = !bHasPort ||
+		(Port.Len() <= 5 && Algo::AllOf(Port, [](TCHAR Char) { return FChar::IsDigit(Char); }) &&
+			LexTryParseString(PortNumber, *Port) && PortNumber >= 1 && PortNumber <= 65535);
+	if (!FIPv4Address::Parse(Host, IP) || !bValidPort)
+	{
+		PlayPanel->Notice = NSLOCTEXT("FMLobby", "InvalidAddress", "IPv4 주소 또는 IPv4:포트를 입력하세요.");
+		return false;
+	}
+
+	bJoiningRoom = true;
+	PlayPanel->Notice = NSLOCTEXT("FMLobby", "Connecting", "대기방에 연결 중…");
+	const FString Destination = Port.IsEmpty() ? IP.ToString() : FString::Printf(TEXT("%s:%d"), *IP.ToString(), PortNumber);
+	ClientTravel(Destination, TRAVEL_Absolute);
+	return true;
+}
+
+void AFMMenuPlayerController::HandleNetworkFailure(UWorld* World, UNetDriver* Driver, ENetworkFailure::Type Failure, const FString& Error)
+{
+	if (!bJoiningRoom || !PlayPanel || (World && World != GetWorld())) return;
+	bJoiningRoom = false;
+	if (Error.Contains(TEXT("FIELDMAKER_ROOM_FULL")))
+	{
+		PlayPanel->Notice = NSLOCTEXT("FMLobby", "Full", "대기방이 가득 찼습니다.");
+	}
+	else if (Error.Contains(TEXT("FIELDMAKER_ROOM_STARTED")))
+	{
+		PlayPanel->Notice = NSLOCTEXT("FMLobby", "Started", "이미 시작한 방입니다.");
+	}
+	else
+	{
+		PlayPanel->Notice = NSLOCTEXT("FMLobby", "ConnectionFailed", "연결하지 못했습니다. 호스트의 주소와 방 상태를 확인하세요.");
+	}
+}
 void AFMMenuPlayerController::Armory() { LogMenuSelection(TEXT("Armory")); }
 void AFMMenuPlayerController::Structure() { LogMenuSelection(TEXT("Structure")); }
-void AFMMenuPlayerController::Training() { Play(); }
+void AFMMenuPlayerController::Training()
+{
+	if (!bJoiningRoom) UGameplayStatics::OpenLevel(this, TEXT("/Game/Map/L_FMBridgeBattlefield"));
+}
 void AFMMenuPlayerController::Customize()
 {
 	if (CustomizePanel)

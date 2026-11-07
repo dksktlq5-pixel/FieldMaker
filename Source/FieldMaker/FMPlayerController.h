@@ -21,8 +21,15 @@ protected:
 	virtual void SetupInputComponent() override;
 	virtual void OnPossess(APawn* InPawn) override;
 	virtual void AcknowledgePossession(APawn* InPawn) override;
+	virtual void PlayerTick(float DeltaTime) override;
 
 private:
+	UPROPERTY(Transient)
+	TObjectPtr<class UFMLobbyWidget> RoomWidget;
+	UFUNCTION()
+	void StartRoomMatch();
+	UFUNCTION()
+	void LeaveRoom();
 	UPROPERTY(Transient) TObjectPtr<class UFMShopWidget> ShopWidget;
 	template <EFMWeaponSlot Slot> void EquipWeapon();
 	void UseWeapon();

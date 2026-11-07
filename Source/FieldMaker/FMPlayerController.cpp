@@ -6,6 +6,14 @@
 #include "Components/InputComponent.h"
 #include "FMUserPreferences.h"
 #include "FMShopWidget.h"
+#include "FMGameMode.h"
+#include "FMGameState.h"
+#include "FMLobbyWidget.h"
+#include "Engine/NetDriver.h"
+#include "IPAddress.h"
+#include "Kismet/GameplayStatics.h"
+#include "SocketSubsystem.h"
+#include "Styling/CoreStyle.h"
 
 void AFMPlayerController::BeginPlay()
 {
@@ -14,6 +22,70 @@ void AFMPlayerController::BeginPlay()
 	{
 		SetInputMode(FInputModeGameOnly());
 		bShowMouseCursor = false;
+	}
+}
+
+void AFMPlayerController::PlayerTick(float DeltaTime)
+{
+	Super::PlayerTick(DeltaTime);
+	if (!IsLocalController()) return;
+	const auto* State = GetWorld()->GetGameState<AFMGameState>();
+	if (!State) return;
+
+	const auto Match = State->GetMatchSnapshot();
+	const bool bWaitingInRoom = Match.bPlayerRoom &&
+		(Match.Phase == EFMMatchPhase::WaitingForPlayers || Match.Phase == EFMMatchPhase::Ready);
+	if (bWaitingInRoom && !RoomWidget)
+	{
+		RoomWidget = CreateWidget<UFMLobbyWidget>(this, UFMLobbyWidget::StaticClass());
+		if (!RoomWidget) return;
+		RoomWidget->bInRoom = true;
+		RoomWidget->MenuFont = FCoreStyle::GetDefaultFontStyle("Regular", 16);
+		RoomWidget->OnStart.BindUObject(this, &AFMPlayerController::StartRoomMatch);
+		RoomWidget->OnClose.BindUObject(this, &AFMPlayerController::LeaveRoom);
+		if (HasAuthority())
+		{
+			const auto BoundAddress = GetNetDriver() ? GetNetDriver()->GetLocalAddr() : nullptr;
+			const int32 Port = BoundAddress ? BoundAddress->GetPort() : GetWorld()->URL.Port;
+			FString LocalIP = TEXT("127.0.0.1");
+			if (auto* Sockets = ISocketSubsystem::Get(PLATFORM_SOCKETSUBSYSTEM))
+			{
+				bool bCanBindAll = false;
+				const auto LocalAddress = Sockets->GetLocalHostAddr(*GLog, bCanBindAll);
+				if (LocalAddress->IsValid()) LocalIP = LocalAddress->ToString(false);
+			}
+			RoomWidget->HostAddress = FText::Format(
+				NSLOCTEXT("FMLobby", "HostAddress", "참가 주소   {0}:{1}\n같은 PC에서는 127.0.0.1:{1}"),
+				FText::FromString(LocalIP), FText::AsNumber(Port, &FNumberFormattingOptions::DefaultNoGrouping()));
+		}
+		RoomWidget->AddToViewport(100);
+		bShowMouseCursor = true;
+		FInputModeUIOnly Mode;
+		Mode.SetWidgetToFocus(RoomWidget->TakeWidget());
+		SetInputMode(Mode);
+	}
+	else if (!bWaitingInRoom && RoomWidget)
+	{
+		RoomWidget->RemoveFromParent();
+		RoomWidget = nullptr;
+		bShowMouseCursor = false;
+		SetInputMode(FInputModeGameOnly());
+	}
+}
+
+void AFMPlayerController::StartRoomMatch()
+{
+	if (HasAuthority() && IsLocalController())
+	{
+		if (auto* Mode = GetWorld()->GetAuthGameMode<AFMGameMode>()) Mode->StartPlayerRoom(this);
+	}
+}
+
+void AFMPlayerController::LeaveRoom()
+{
+	if (IsLocalController() && RoomWidget)
+	{
+		UGameplayStatics::OpenLevel(this, TEXT("/Game/Map/L_FMFrontend"));
 	}
 }
 
@@ -130,7 +202,7 @@ void AFMPlayerController::ToggleTestArmor()
 
 void AFMPlayerController::ToggleShop()
 {
- if (!IsLocalController()) return;
+ if (!IsLocalController() || RoomWidget) return;
  if (ShopWidget) { CloseShop(); return; }
  ShopWidget = CreateWidget<UFMShopWidget>(this, UFMShopWidget::StaticClass());
  if (!ShopWidget) return;

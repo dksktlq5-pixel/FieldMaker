@@ -21,6 +21,7 @@ struct FFMMatchSnapshot
 	UPROPERTY(BlueprintReadOnly) int32 Team1Score = 0;
 	UPROPERTY(BlueprintReadOnly) double PhaseEndServerTime = 0.0;
 	UPROPERTY(BlueprintReadOnly) bool bSidesSwapped = false;
+	UPROPERTY(BlueprintReadOnly) bool bPlayerRoom = false;
 };
 
 UCLASS()
@@ -34,6 +35,7 @@ public:
 	UFUNCTION(BlueprintPure, Category="Match")
 	float GetPhaseTimeRemaining() const;
 	void SetLobbyReady(bool bReady);
+	void InitializePlayerRoom();
 	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Match")
 	void SetPhase(EFMMatchPhase Phase, float Duration = 0.f);
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;

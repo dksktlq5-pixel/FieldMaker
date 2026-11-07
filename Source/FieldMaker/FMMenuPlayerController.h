@@ -15,6 +15,7 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 private:
 	UPROPERTY()
@@ -33,6 +34,17 @@ private:
 	void LogMenuSelection(const TCHAR* Selection);
 	void CloseSettings();
 	void CloseCustomize();
+	void ClosePlayPanel();
+	void HandleNetworkFailure(UWorld* World, class UNetDriver* Driver, ENetworkFailure::Type Failure, const FString& Error);
+
+	UPROPERTY(Transient)
+	TObjectPtr<class UFMLobbyWidget> PlayPanel;
+	bool bJoiningRoom = false;
+
+	UFUNCTION()
+	void CreateRoom();
+	UFUNCTION()
+	bool JoinRoom(const FString& Address);
 
 	UPROPERTY(Transient)
 	TObjectPtr<class UFMCustomizeWidget> CustomizePanel;

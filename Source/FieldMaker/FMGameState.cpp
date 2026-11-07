@@ -22,6 +22,13 @@ void AFMGameState::SetLobbyReady(bool bReady)
 	ForceNetUpdate();
 }
 
+void AFMGameState::InitializePlayerRoom()
+{
+	if (!HasAuthority()) return;
+	MatchSnapshot.bPlayerRoom = true;
+	SetLobbyReady(false);
+}
+
 void AFMGameState::SetPhase(EFMMatchPhase Phase, float Duration)
 {
 	if (!HasAuthority() || !FMath::IsFinite(Duration)) return;
