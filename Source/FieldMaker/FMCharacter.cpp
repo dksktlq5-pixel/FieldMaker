@@ -42,6 +42,8 @@ AFMCharacter::AFMCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<UFMWeaponPoseMesh>(ACharacter::MeshComponentName))
 {
 	PrimaryActorTick.bCanEverTick = true;
+	// Bound movement replication work as the listen server renders at a higher frame rate.
+	SetNetUpdateFrequency(60.f);
 	bUseControllerRotationYaw = true;
 	FirstPersonCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
 	FirstPersonCamera->SetupAttachment(GetCapsuleComponent());

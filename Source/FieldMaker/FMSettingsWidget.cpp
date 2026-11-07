@@ -27,6 +27,9 @@ const FLinearColor Gold(0.70f, 0.47f, 0.15f);
 const FLinearColor Ink(0.021f, 0.024f, 0.026f);
 const FLinearColor White(0.93f, 0.92f, 0.88f);
 const FLinearColor Muted(0.54f, 0.55f, 0.53f);
+constexpr int32 CompetitiveQuality = 4;
+constexpr float CompetitiveResolutionScale = 85.f;
+constexpr float FrameLimits[] = {0.f, 60.f, 120.f, 144.f, 165.f, 240.f};
 
 struct FDisplayDraft
 {
@@ -34,11 +37,18 @@ struct FDisplayDraft
 	EWindowMode::Type Mode;
 	bool bVSync;
 	int32 Quality;
+	float FrameLimit;
 
 	explicit FDisplayDraft(UGameUserSettings& Settings)
 		: Resolution(Settings.GetScreenResolution()), Mode(Settings.GetFullscreenMode()),
-		bVSync(Settings.IsVSyncEnabled()), Quality(Settings.GetOverallScalabilityLevel())
+		bVSync(Settings.IsVSyncEnabled()), Quality(Settings.GetOverallScalabilityLevel()),
+		FrameLimit(Settings.GetFrameRateLimit())
 	{
+		if (Quality < 0 && Settings.GetGlobalIlluminationQuality() == 0 && Settings.GetReflectionQuality() == 0 &&
+			Settings.GetShadowQuality() == 1 && Settings.GetTextureQuality() == 2 && Settings.GetViewDistanceQuality() == 2)
+		{
+			Quality = CompetitiveQuality;
+		}
 	}
 };
 
@@ -206,12 +216,38 @@ private:
 		Row(Rows, LOCTEXT("Preset", "그래픽 품질"),
 			Button(TAttribute<FText>::CreateLambda([this] {
 				const FText Quality[] = {LOCTEXT("Low", "낮음   ›"), LOCTEXT("Medium", "중간   ›"), LOCTEXT("High", "높음   ›")};
+				if (Display.Quality == CompetitiveQuality) return LOCTEXT("Competitive", "경쟁   ›");
 				return Display.Quality >= 0 && Display.Quality <= 2 ? Quality[Display.Quality] : LOCTEXT("Custom", "사용자 지정   ›");
 			}), FSimpleDelegate::CreateLambda([this] {
-				Display.Quality = Display.Quality >= 0 && Display.Quality <= 2 ? (Display.Quality == 2 ? -1 : Display.Quality + 1) : 0;
+				Display.Quality = Display.Quality >= 0 && Display.Quality < 2 ? Display.Quality + 1 :
+					Display.Quality == 2 ? CompetitiveQuality : Display.Quality == CompetitiveQuality ? -1 : 0;
 			})));
+		Row(Rows, LOCTEXT("FrameLimit", "프레임 제한"),
+			Button(TAttribute<FText>::CreateLambda([this] {
+				return Display.FrameLimit > 0.f
+					? FText::Format(LOCTEXT("FPS", "{0} FPS   ›"), FText::AsNumber(FMath::RoundToInt(Display.FrameLimit)))
+					: LOCTEXT("Unlimited", "무제한   ›");
+			}), FSimpleDelegate::CreateLambda([this] {
+				int32 Next = 0;
+				for (int32 Index = 0; Index < UE_ARRAY_COUNT(FrameLimits); ++Index)
+				{
+					if (FMath::IsNearlyEqual(Display.FrameLimit, FrameLimits[Index]))
+					{
+						Next = (Index + 1) % UE_ARRAY_COUNT(FrameLimits);
+						break;
+					}
+				}
+				Display.FrameLimit = FrameLimits[Next];
+			})));
+		Row(Rows, LOCTEXT("CompetitiveTarget", "144 FPS 목표"),
+			Button(LOCTEXT("UseCompetitive", "경쟁 설정 선택"),
+				FSimpleDelegate::CreateLambda([this] {
+					Display.Quality = CompetitiveQuality;
+					Display.FrameLimit = 144.f;
+					Display.bVSync = false;
+				})));
 		Rows.AddSlot().AutoHeight().Padding(0, 10)
-		[ Text(LOCTEXT("DisplayHint", "사용자 지정은 현재 세부 품질을 유지합니다. 무테 창은 데스크톱 해상도를 사용합니다."), 13, Muted) ];
+		[ Text(LOCTEXT("DisplayHint", "경쟁 설정은 내부 해상도 85%와 낮은 조명·반사 비용을 사용합니다."), 13, Muted) ];
 	}
 
 	static FText ToggleText(bool Enabled)
@@ -294,6 +330,7 @@ private:
 		Display.Mode = EWindowMode::WindowedFullscreen;
 		Display.bVSync = false;
 		Display.Quality = 2;
+		Display.FrameLimit = 0.f;
 		Resolutions.AddUnique(Display.Resolution);
 	}
 
@@ -314,7 +351,19 @@ private:
 	void Commit()
 	{
 		Settings->SetVSyncEnabled(Display.bVSync);
-		if (Display.Quality >= 0)
+		Settings->SetFrameRateLimit(Display.FrameLimit);
+		if (Display.Quality == CompetitiveQuality)
+		{
+			Settings->SetOverallScalabilityLevel(1);
+			Settings->SetViewDistanceQuality(2);
+			Settings->SetAntiAliasingQuality(2);
+			Settings->SetTextureQuality(2);
+			Settings->SetGlobalIlluminationQuality(0);
+			Settings->SetReflectionQuality(0);
+			Settings->SetPostProcessingQuality(0);
+			Settings->SetResolutionScaleValueEx(CompetitiveResolutionScale);
+		}
+		else if (Display.Quality >= 0)
 		{
 			Settings->SetOverallScalabilityLevel(Display.Quality);
 		}
