@@ -1,4 +1,5 @@
 #include "FMSteamRoomSubsystem.h"
+#include "FMGameState.h"
 #include "FMMenuPlayerController.h"
 #include "Engine/Engine.h"
 #include "Engine/GameInstance.h"
@@ -94,7 +95,7 @@ void UFMSteamRoomSubsystem::CreateRoom()
 	if (IsBusy() || BoundSessions->GetNamedSession(NAME_GameSession)) return;
 
 	FOnlineSessionSettings Settings;
-	Settings.NumPublicConnections = 2;
+	Settings.NumPublicConnections = AFMGameState::RoomCapacity;
 	Settings.bUsesPresence = true;
 	Settings.bUseLobbiesIfAvailable = true;
 	Settings.bAllowInvites = true;

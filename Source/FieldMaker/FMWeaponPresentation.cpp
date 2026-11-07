@@ -187,20 +187,24 @@ void AFMCharacter::OnRep_WeaponSlot()
 
 void AFMCharacter::UpdateWeaponPresentation(float DeltaSeconds)
 {
-	const auto Visual=GetWeaponVisualData();
+	const auto& Visual = GetActiveWeaponVisualRow();
  const bool bDetailed=!Visual.Mesh.IsNull();
 	const bool bPrimary = WeaponSlot == EFMWeaponSlot::Primary;
 	const bool bFirearm = IsFirearm(WeaponSlot);
 	const bool bVisible = GetPlayerState() && Health > 0.f;
- const bool bScoped=IsScopeViewActive();
- FirstPersonArms->SetVisibility(bVisible && !bScoped);
+	const bool bLocalView = IsLocallyControlled();
+	const bool bScoped = bLocalView && IsScopeViewActive();
 	// Keep the running weapon close to the lowered shoulders instead of an idle aim pose.
 	SprintPoseAlpha = FMath::FInterpTo(SprintPoseAlpha, bSprinting && GetVelocity().Size2D() > 100.f ? 1.f : 0.f, DeltaSeconds, 10.f);
 	// Retract the knife stance's shoulders while keeping both hands anchored in camera space.
-	const FVector ArmOffset = FVector(WeaponSlot == EFMWeaponSlot::Melee ? -12.f : 8.f, 0.f, -170.f)
-  + (bDetailed?FMath::Lerp(Visual.ArmOffset,Visual.ADSArmOffset,bFirearm?ADSAlpha:0.f):FVector::ZeroVector);
-	FirstPersonArms->SetRelativeLocation(DeltaSeconds > 0.f
-		? FMath::VInterpTo(FirstPersonArms->GetRelativeLocation(), ArmOffset, DeltaSeconds, 18.f) : ArmOffset);
+	if (bLocalView)
+	{
+		FirstPersonArms->SetVisibility(bVisible && !bScoped);
+		const FVector ArmOffset = FVector(WeaponSlot == EFMWeaponSlot::Melee ? -12.f : 8.f, 0.f, -170.f)
+			+ (bDetailed ? FMath::Lerp(Visual.ArmOffset, Visual.ADSArmOffset, bFirearm ? ADSAlpha : 0.f) : FVector::ZeroVector);
+		FirstPersonArms->SetRelativeLocation(DeltaSeconds > 0.f
+			? FMath::VInterpTo(FirstPersonArms->GetRelativeLocation(), ArmOffset, DeltaSeconds, 18.f) : ArmOffset);
+	}
 	const float Speed = GetVelocity().Size2D();
 	const bool bOnGround = GetCharacterMovement()->IsMovingOnGround();
 	MoveBobAlpha = FMath::FInterpTo(MoveBobAlpha, bOnGround ? FMath::Clamp(Speed / 250.f, 0.f, 1.f) : 0.f, DeltaSeconds, 10.f);
@@ -279,15 +283,20 @@ void AFMCharacter::UpdateWeaponPresentation(float DeltaSeconds)
 	const FRotator ViewAngles[] = {FRotator(0, -11, -4), FRotator(0, -7, 0),
 		FRotator(0, -10, 0), FRotator(6, -10, 3)};
 	const int32 Slot = static_cast<int32>(WeaponSlot);
-	// Keep the stock beyond the near clip plane and the top of the sights at eye level.
-	const FVector AimGrip = (bPrimary ? FVector(55, 0, -18) : FVector(49, 0, -10)) + (bDetailed?Visual.ADSOffset:FVector::ZeroVector);
-	const FVector ViewGrip = FMath::Lerp(ViewGrips[Slot]+(bDetailed?Visual.ViewOffset:FVector::ZeroVector), AimGrip, bFirearm ? ADSAlpha : 0.f)
-		+ FVector(-5.f, 0.f, -5.f) * SprintPoseAlpha;
 	const FRotator ViewAngle = FMath::Lerp(ViewAngles[Slot], FRotator::ZeroRotator, bFirearm ? ADSAlpha : 0.f)
 		+ FRotator(-12.f, 0.f, 0.f) * SprintPoseAlpha;
-	// Bring the magazine into the player's view during the exchange.
-	const FVector ViewReloadLift = FVector(4.f, 0.f, bPistolMagazine ? 12.f : 20.f) * ReloadTilt;
-	const FTransform ViewMotion(Rotation + ViewAngle, ViewGrip + Offset + ViewReloadLift);
+	if (bLocalView)
+	{
+		// Keep the stock beyond the near clip plane and the top of the sights at eye level.
+		const FVector AimGrip = (bPrimary ? FVector(55, 0, -18) : FVector(49, 0, -10))
+			+ (bDetailed ? Visual.ADSOffset : FVector::ZeroVector);
+		const FVector ViewGrip = FMath::Lerp(ViewGrips[Slot] + (bDetailed ? Visual.ViewOffset : FVector::ZeroVector),
+			AimGrip, bFirearm ? ADSAlpha : 0.f) + FVector(-5.f, 0.f, -5.f) * SprintPoseAlpha;
+		const FVector ViewReloadLift = FVector(4.f, 0.f, bPistolMagazine ? 12.f : 20.f) * ReloadTilt;
+		const FTransform ViewMotion(Rotation + ViewAngle, ViewGrip + Offset + ViewReloadLift);
+		if (WeaponSlot == EFMWeaponSlot::Melee) ViewMeleeMotion = ViewMotion;
+		else ViewWeapon->SetRelativeTransform(ViewMotion);
+	}
 	// The character mesh faces local +Y. Convert from actor-facing coordinates to that mesh's frame.
 	const FRotator MeshFacing(0, 90, 0);
 	const float AimPitch = FMath::Clamp(FRotator::NormalizeAxis(GetBaseAimRotation().Pitch), -55.f, 55.f);
@@ -304,12 +313,10 @@ void AFMCharacter::UpdateWeaponPresentation(float DeltaSeconds)
 	if (WeaponSlot == EFMWeaponSlot::Melee)
 	{
 		// Drive the arm from the motion track. The visible knife is attached to the solved hand.
-		ViewMeleeMotion = ViewMotion;
 		WorldMeleeMotion = WorldMotion;
 	}
 	else
 	{
-		ViewWeapon->SetRelativeTransform(ViewMotion);
 		WorldWeapon->SetRelativeTransform(WorldMotion);
 	}
 
@@ -323,19 +330,22 @@ void AFMCharacter::UpdateWeaponPresentation(float DeltaSeconds)
 		: FRotator(15.f, -12.f, 7.f) * MagazineTravel;
 	for (UStaticMeshComponent* Magazine : {ViewMagazine.Get(), WorldMagazine.Get()})
 	{
+		if (!bLocalView && Magazine == ViewMagazine) continue;
 		Magazine->SetRelativeLocationAndRotation(MagBase + MagOffset, Visual.MagazineRotation + MagTurn);
 		Magazine->SetVisibility(bVisible && bFirearm && Magazine->GetStaticMesh()!=nullptr && (Magazine!=ViewMagazine || !bScoped));
 	}
 
 	const bool bGrenadeReady = WeaponSlot != EFMWeaponSlot::Throwable ||
 		(Grenades > 0 && (Motion != EFMWeaponMotion::Throw || Age < ThrowReleaseTime || Age > 0.53f));
-	ViewWeapon->SetVisibility(bVisible && bGrenadeReady && !bScoped);
+	if (bLocalView) ViewWeapon->SetVisibility(bVisible && bGrenadeReady && !bScoped);
 	WorldWeapon->SetVisibility(bVisible && bGrenadeReady);
- for(auto* Accessory:{ViewAccessory.Get(),WorldAccessory.Get()})Accessory->SetVisibility(bVisible && Accessory->GetStaticMesh()!=nullptr && (Accessory!=ViewAccessory || !bScoped));
+	WorldAccessory->SetVisibility(bVisible && WorldAccessory->GetStaticMesh() != nullptr);
+	if (bLocalView) ViewAccessory->SetVisibility(bVisible && ViewAccessory->GetStaticMesh() != nullptr && !bScoped);
 
 	const bool bFlash = bVisible && bFirearm && Motion == EFMWeaponMotion::Fire && Age < 0.045f;
 	for (UStaticMeshComponent* Flash : {ViewFlash.Get(), WorldFlash.Get()})
 	{
+		if (!bLocalView && Flash == ViewFlash) continue;
 		if (bFlash)
 		{
 			float MuzzleX=bPrimary?62.f:21.f;
@@ -372,7 +382,7 @@ bool AFMCharacter::GetWeaponGripTargets(const USkeletalMeshComponent& PoseMesh, 
 		? (bView ? ViewMeleeMotion * FirstPersonCamera->GetComponentTransform().GetRelativeTransform(MeshTransform) : WorldMeleeMotion)
 		: Weapon->GetComponentTransform().GetRelativeTransform(MeshTransform);
 	const bool bFirearm = IsFirearm(WeaponSlot);
- const auto Visual=GetWeaponVisualData();
+	const auto& Visual = GetActiveWeaponVisualRow();
  const bool bDetailed=!Visual.Mesh.IsNull();
 	const float Age = GetMotionAge();
 	const bool bTrigger = WeaponMotion.Motion == EFMWeaponMotion::Fire && Age < 0.16f;
@@ -539,5 +549,5 @@ void AFMCharacter::PlayReloadInsert()
 bool AFMCharacter::IsScopeViewActive() const
 {
  return bAiming && ADSAlpha>.92f && WeaponSlot==EFMWeaponSlot::Primary && Health>0 &&
-  (GetWeaponData(WeaponSlot).Category==EFMWeaponCategory::Sniper || GetWeaponVisualData().bScopeOverlay);
+  (GetWeaponData(WeaponSlot).Category==EFMWeaponCategory::Sniper || GetActiveWeaponVisualRow().bScopeOverlay);
 }

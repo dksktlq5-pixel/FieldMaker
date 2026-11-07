@@ -134,7 +134,20 @@ void AFMCharacter::ServerSelectCatalogWeapon_Implementation(FName Id)
 
 FFMWeaponVisualRow AFMCharacter::GetWeaponVisualData() const
 {
- return GetCatalogWeaponVisual(GetWeaponId(WeaponSlot));
+	return GetActiveWeaponVisualRow();
+}
+
+const FFMWeaponVisualRow& AFMCharacter::GetActiveWeaponVisualRow() const
+{
+	if (WeaponVisualDataTable)
+	{
+		if (const auto* Row = WeaponVisualDataTable->FindRow<FFMWeaponVisualRow>(GetWeaponId(WeaponSlot), TEXT("Presentation"), false))
+		{
+			return *Row;
+		}
+	}
+	static const FFMWeaponVisualRow Fallback;
+	return Fallback;
 }
 FFMWeaponVisualRow AFMCharacter::GetCatalogWeaponVisual(FName Id) const
 {

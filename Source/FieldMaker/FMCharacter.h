@@ -137,6 +137,7 @@ private:
 	UPROPERTY()
 	TObjectPtr<UDataTable> ArmorDataTable;
  UPROPERTY() TObjectPtr<UDataTable> WeaponVisualDataTable;
+	const FFMWeaponVisualRow& GetActiveWeaponVisualRow() const;
 	static EFMHitZone HitZoneForBone(FName Bone);
 	UPROPERTY(ReplicatedUsing=OnRep_CombatStance)
 	bool bSprinting = false;

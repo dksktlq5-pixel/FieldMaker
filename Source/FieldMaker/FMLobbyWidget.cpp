@@ -3,6 +3,7 @@
 #include "FMPlayerState.h"
 #include "FMSteamRoomSubsystem.h"
 #include "Engine/GameInstance.h"
+#include "Engine/GameViewportClient.h"
 #include "Engine/Texture2D.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Widgets/Images/SImage.h"
@@ -45,6 +46,30 @@ UFMLobbyWidget::UFMLobbyWidget(const FObjectInitializer& ObjectInitializer)
 	MapPreviewBrush.ImageSize = FVector2D(380, 178);
 }
 
+void UFMLobbyWidget::NativeConstruct()
+{
+	Super::NativeConstruct();
+	if (bInRoom && GetWorld() && !RoomViewport.IsValid())
+	{
+		if (auto* Viewport = GetWorld()->GetGameViewport())
+		{
+			RoomViewport = Viewport;
+			bPreviousWorldRenderingDisabled = Viewport->bDisableWorldRendering;
+			Viewport->bDisableWorldRendering = true;
+		}
+	}
+}
+
+void UFMLobbyWidget::NativeDestruct()
+{
+	if (auto* Viewport = RoomViewport.Get())
+	{
+		Viewport->bDisableWorldRendering = bPreviousWorldRenderingDisabled;
+	}
+	RoomViewport.Reset();
+	Super::NativeDestruct();
+}
+
 TSharedRef<SWidget> UFMLobbyWidget::RebuildWidget()
 {
 	SetIsFocusable(true);
@@ -66,7 +91,7 @@ TSharedRef<SWidget> UFMLobbyWidget::RebuildWidget()
 		[SNew(STextBlock).Font(Heading).ColorAndOpacity(FLinearColor(0.88f, 0.66f, 0.31f))
 			.Text(LOCTEXT("PlayTitle", "플레이"))];
 	Rows->AddSlot().AutoHeight().Padding(0, 0, 0, 8)
-		[Button(LOCTEXT("Create", "방 생성 · 로컬 1대1"), OnCreateRoom)];
+		[Button(LOCTEXT("Create", "방 생성 · 로컬 5대5"), OnCreateRoom)];
 	Rows->AddSlot().AutoHeight().Padding(0, 0, 0, 8)
 		[Button(LOCTEXT("CreateSteam", "방 생성 · Steam 친구"), OnCreateSteamRoom)];
 	Rows->AddSlot().AutoHeight().Padding(0, 6, 0, 8)
@@ -168,14 +193,14 @@ TSharedRef<SWidget> UFMLobbyWidget::BuildRoom()
 		[SNew(SBorder).BorderImage(White).BorderBackgroundColor(FLinearColor(0.035f, 0.055f, 0.08f, 0.95f))
 			.Padding(FMargin(18, 12))[Header]]
 		+ SVerticalBox::Slot().AutoHeight().HAlign(HAlign_Center).Padding(0, 20, 0, 4)
-		[RoomLabel(MenuFont, 32, LOCTEXT("RoomTitle", "1대1 대기방"))]
+		[RoomLabel(MenuFont, 32, LOCTEXT("RoomTitle", "5대5 대기방"))]
 		+ SVerticalBox::Slot().AutoHeight().HAlign(HAlign_Center).Padding(0, 0, 0, 12)
 		[SNew(STextBlock).Font(MenuFont).ColorAndOpacity(RoomMuted)
 			.Text_Lambda([this] { return GetRoomStatus(); })]
 		+ SVerticalBox::Slot().AutoHeight().HAlign(HAlign_Center)
 		[MapCard]
 		+ SVerticalBox::Slot().AutoHeight().HAlign(HAlign_Center).Padding(0, 9, 0, 16)
-		[RoomLabel(MenuFont, 14, LOCTEXT("Settings", "모드   1대1 교전 테스트     /     정원   2명"), RoomMuted)]
+		[RoomLabel(MenuFont, 14, LOCTEXT("Settings", "모드   5대5 교전 테스트     /     정원   10명"), RoomMuted)]
 		+ SVerticalBox::Slot().AutoHeight()
 		[Teams]
 		+ SVerticalBox::Slot().AutoHeight().Padding(0, 16, 0, 0)
@@ -190,6 +215,7 @@ TSharedRef<SWidget> UFMLobbyWidget::BuildRoom()
 			.Visibility_Lambda([this] { return bShowHostAddress ? EVisibility::Visible : EVisibility::Collapsed; })];
 
 	return SNew(SOverlay)
+		+ SOverlay::Slot()[SNew(SImage).Image(&MapPreviewBrush)]
 		+ SOverlay::Slot()[SNew(SBackgroundBlur).BlurStrength(8.f)]
 		+ SOverlay::Slot()
 		[SNew(SBorder).BorderImage(White).BorderBackgroundColor(FLinearColor(0.032f, 0.063f, 0.105f, 0.72f))]
@@ -201,25 +227,31 @@ TSharedRef<SWidget> UFMLobbyWidget::BuildRoom()
 TSharedRef<SWidget> UFMLobbyWidget::BuildTeam(uint8 Team, const FText& Title, const FLinearColor& Accent)
 {
 	const auto* White = FCoreStyle::Get().GetBrush("WhiteBrush");
-	return SNew(SVerticalBox)
+	const auto Slots = SNew(SVerticalBox)
 		+ SVerticalBox::Slot().AutoHeight()
 		[SNew(SBorder).BorderImage(White).BorderBackgroundColor(Accent.CopyWithNewOpacity(0.78f))
 			.Padding(FMargin(16, 8))
-			[RoomLabel(MenuFont, 18, Title)]]
-		+ SVerticalBox::Slot().AutoHeight()
-		[SNew(SBox).HeightOverride(88)
-			[SNew(SBorder).BorderImage(White).BorderBackgroundColor(Accent * 0.17f + FLinearColor(0.016f, 0.022f, 0.032f, 0.66f))
-				.Padding(14)
-				[SNew(SHorizontalBox)
-					+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center).Padding(0, 0, 14, 0)
-					[SNew(SBorder).BorderImage(White).BorderBackgroundColor(Accent.CopyWithNewOpacity(0.23f))
-						.Padding(FMargin(14, 9))[RoomLabel(MenuFont, 19, FText::AsNumber(1), Accent)]]
-					+ SHorizontalBox::Slot().FillWidth(1).VAlign(VAlign_Center)
-					[SNew(STextBlock).Font(MenuFont).ColorAndOpacity(RoomText)
-						.Text_Lambda([this, Team] { return GetTeamMember(Team); })]]]];
+			[RoomLabel(MenuFont, 18, Title)]];
+	for (int32 SeatIndex = 0; SeatIndex < AFMGameState::TeamCapacity; ++SeatIndex)
+	{
+		Slots->AddSlot().AutoHeight().Padding(0, 2, 0, 0)
+			[SNew(SBox).HeightOverride(42)
+				[SNew(SBorder).BorderImage(White)
+					.BorderBackgroundColor(Accent * 0.14f + FLinearColor(0.016f, 0.022f, 0.032f, 0.70f))
+					.Padding(FMargin(12, 5))
+					[SNew(SHorizontalBox)
+						+ SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center).Padding(0, 0, 12, 0)
+						[SNew(SBorder).BorderImage(White).BorderBackgroundColor(Accent.CopyWithNewOpacity(0.23f))
+							.Padding(FMargin(10, 4))[RoomLabel(MenuFont, 15, FText::AsNumber(SeatIndex + 1), Accent)]]
+						+ SHorizontalBox::Slot().FillWidth(1).VAlign(VAlign_Center)
+						[SNew(STextBlock).Font(MenuFont).ColorAndOpacity(RoomText)
+							.OverflowPolicy(ETextOverflowPolicy::Ellipsis)
+							.Text_Lambda([this, Team, SeatIndex] { return GetTeamMember(Team, SeatIndex); })]]]];
+	}
+	return Slots;
 }
 
-FText UFMLobbyWidget::GetTeamMember(uint8 Team) const
+FText UFMLobbyWidget::GetTeamMember(uint8 Team, int32 SeatIndex) const
 {
 	const auto* State = GetWorld() ? GetWorld()->GetGameState<AFMGameState>() : nullptr;
 	if (State)
@@ -228,6 +260,7 @@ FText UFMLobbyWidget::GetTeamMember(uint8 Team) const
 		{
 			if (const auto* Member = Cast<AFMPlayerState>(Player); Member && Member->GetTeam() == Team)
 			{
+				if (SeatIndex-- != 0) continue;
 				const FText Name = FText::FromString(Member->GetPlayerName());
 				return Member == GetOwningPlayerState() ? FText::Format(LOCTEXT("LocalName", "{0}  ·  나"), Name) : Name;
 			}
@@ -238,7 +271,11 @@ FText UFMLobbyWidget::GetTeamMember(uint8 Team) const
 
 FText UFMLobbyWidget::GetRoomStatus() const
 {
-	return CanStart() ? LOCTEXT("ReadyStatus", "2 / 2  ·  시작 가능") : LOCTEXT("WaitingStatus", "1 / 2  ·  상대 입장 대기 중");
+	const auto* State = GetWorld() ? GetWorld()->GetGameState<AFMGameState>() : nullptr;
+	const int32 Players = State ? State->PlayerArray.Num() : 0;
+	return FText::Format(LOCTEXT("RoomStatus", "{0} / {1}  ·  {2}"),
+		FText::AsNumber(Players), FText::AsNumber(AFMGameState::RoomCapacity),
+		CanStart() ? LOCTEXT("ReadyStatus", "시작 가능") : LOCTEXT("WaitingStatus", "상대 입장 대기 중"));
 }
 
 FText UFMLobbyWidget::GetSteamNotice() const

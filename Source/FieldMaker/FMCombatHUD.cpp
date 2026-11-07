@@ -121,7 +121,7 @@ void AFMCombatHUD::DrawHUD()
 			Teams[0], Teams[1], *Time), White, Center, 69.f, 0.62f, true);
 		Label(Character->IsSprinting() ? TEXT("SPRINT - ATTACK LOCKED") : Character->IsAiming() ? TEXT("ADS") :
 			Match.Phase == EFMMatchPhase::Ready || Match.Phase == EFMMatchPhase::WaitingForPlayers
-			? TEXT("WAITING FOR ROUND FLOW - ATTACK LOCKED") : TEXT("LOCAL 1v1 TEST"), Gold, Center, 82.f, 0.58f, true);
+			? TEXT("WAITING FOR ROUND FLOW - ATTACK LOCKED") : TEXT("TEAM COMBAT TEST"), Gold, Center, 82.f, 0.58f, true);
 	}
 
 	const float Health = Character->GetHealth();

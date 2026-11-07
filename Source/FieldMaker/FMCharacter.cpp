@@ -87,6 +87,7 @@ AFMCharacter::AFMCharacter(const FObjectInitializer& ObjectInitializer)
 	OutfitCap->SetStaticMesh(CapMesh.Object);
 
 	FirstPersonArms = CreateDefaultSubobject<UFMWeaponPoseMesh>(TEXT("FirstPersonArms"));
+	FirstPersonArms->PrimaryComponentTick.bStartWithTickEnabled = false;
 	FirstPersonArms->SetupAttachment(FirstPersonCamera);
 	FirstPersonArms->SetRelativeLocation(FVector(8.0, 0.0, -170.0));
 	FirstPersonArms->SetRelativeRotation(FRotator(0.0, -90.0, 0.0));
@@ -128,6 +129,11 @@ AFMCharacter::AFMCharacter(const FObjectInitializer& ObjectInitializer)
 void AFMCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	// Server bones remain current for hit detection. Clients only need rendered third-person poses.
+	if (GetNetMode() == NM_Client)
+	{
+		GetMesh()->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::OnlyTickPoseWhenRendered;
+	}
 	if (FPackageName::DoesPackageExist(TEXT("/Game/FieldMaker/Data/DT_FMWeapons")))
 		WeaponDataTable = LoadObject<UDataTable>(nullptr,TEXT("/Game/FieldMaker/Data/DT_FMWeapons.DT_FMWeapons"));
 	if (FPackageName::DoesPackageExist(TEXT("/Game/FieldMaker/Data/DT_FMArmor")))
@@ -166,7 +172,13 @@ void AFMCharacter::Tick(float DeltaSeconds)
 		if (Health <= 0.f) bSprinting = false;
 		UpdateStanceSpeed();
 	}
-	if (IsLocallyControlled())
+	const bool bLocalView = IsLocallyControlled() && GetNetMode() != NM_DedicatedServer;
+	const bool bTickViewArms = bLocalView && Health > 0.f;
+	if (FirstPersonArms->IsComponentTickEnabled() != bTickViewArms)
+	{
+		FirstPersonArms->SetComponentTickEnabled(bTickViewArms);
+	}
+	if (bLocalView)
 	{
 		ADSAlpha = FMath::FInterpTo(ADSAlpha, bAiming ? 1.f : 0.f, DeltaSeconds, 14.f);
 		FirstPersonCamera->SetFieldOfView(FMath::Lerp(90.f, GetWeaponData(WeaponSlot).AimFOV, ADSAlpha));

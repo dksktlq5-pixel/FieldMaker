@@ -39,8 +39,12 @@ FString AFMGameMode::GetRoomAdmissionError(APlayerController* PendingPlayer)
 {
 	if (!bPlayerRoom) return {};
 	if (bRoomStarted) return TEXT("FIELDMAKER_ROOM_STARTED");
-	const int32 PendingCount = PendingPlayer && PendingPlayer->PlayerState && !MustSpectate(PendingPlayer) ? 1 : 0;
-	return GetNumPlayers() - PendingCount >= 2 ? TEXT("FIELDMAKER_ROOM_FULL") : FString();
+	int32 Occupied = 0;
+	for (TActorIterator<APlayerController> It(GetWorld()); It; ++It)
+	{
+		if (*It != PendingPlayer && It->PlayerState) ++Occupied;
+	}
+	return Occupied >= AFMGameState::RoomCapacity ? TEXT("FIELDMAKER_ROOM_FULL") : FString();
 }
 
 void AFMGameMode::PreLogin(const FString& Options, const FString& Address, const FUniqueNetIdRepl& UniqueId,
@@ -53,7 +57,7 @@ void AFMGameMode::PreLogin(const FString& Options, const FString& Address, const
 FString AFMGameMode::InitNewPlayer(APlayerController* Player, const FUniqueNetIdRepl& UniqueId,
 	const FString& Options, const FString& Portal)
 {
-	// A second connection can finish its handshake after the room filled.
+	// A connection can finish its handshake after the room filled.
 	const FString AdmissionError = GetRoomAdmissionError(Player);
 	if (!AdmissionError.IsEmpty()) return AdmissionError;
 	// Super::InitNewPlayer selects the start spot, so team assignment must precede it.
@@ -125,9 +129,26 @@ bool AFMGameMode::StartPlayerRoom(APlayerController* Requester)
 	bRoomStarted = true;
 	bStartPlayersAsSpectators = false;
 	State->SetPhase(EFMMatchPhase::CombatTest);
+	constexpr float SpawnSpacing = 135.f;
+	int32 SpawnedPerTeam[2] = {};
 	for (TActorIterator<APlayerController> It(GetWorld()); It; ++It)
 	{
-		RestartPlayer(*It);
+		auto* Player = *It;
+		const auto* Member = Player->GetPlayerState<AFMPlayerState>();
+		if (!Member || Member->GetTeam() >= 2) continue;
+		if (const AActor* Start = FindPlayerStart(Player))
+		{
+			const int32 Slot = SpawnedPerTeam[Member->GetTeam()]++;
+			// Fill the center first and alternate left/right so short-handed teams stay centered.
+			const int32 Lane = (Slot + 1) / 2 * (Slot % 2 == 0 ? 1 : -1);
+			FTransform Spawn = Start->GetActorTransform();
+			Spawn.AddToTranslation(Start->GetActorRightVector() * (Lane * SpawnSpacing));
+			RestartPlayerAtTransform(Player, Spawn);
+		}
+		else
+		{
+			RestartPlayer(Player);
+		}
 	}
 	return true;
 }

@@ -25,11 +25,13 @@ public:
 
 protected:
 	virtual TSharedRef<SWidget> RebuildWidget() override;
+	virtual void NativeConstruct() override;
+	virtual void NativeDestruct() override;
 
 private:
 	TSharedRef<SWidget> BuildRoom();
 	TSharedRef<SWidget> BuildTeam(uint8 Team, const FText& Title, const FLinearColor& Accent);
-	FText GetTeamMember(uint8 Team) const;
+	FText GetTeamMember(uint8 Team, int32 SeatIndex) const;
 	FText GetRoomStatus() const;
 	FText GetSteamNotice() const;
 	bool CanStart() const;
@@ -38,5 +40,7 @@ private:
 	UPROPERTY()
 	TObjectPtr<class UTexture2D> MapPreview;
 	FSlateBrush MapPreviewBrush;
+	TWeakObjectPtr<class UGameViewportClient> RoomViewport;
+	bool bPreviousWorldRenderingDisabled = false;
 	bool bShowHostAddress = false;
 };

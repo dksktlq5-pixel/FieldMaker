@@ -30,6 +30,9 @@ class FIELDMAKER_API AFMGameState : public AGameStateBase
 {
 	GENERATED_BODY()
 public:
+	static constexpr int32 TeamCapacity = 5;
+	static constexpr int32 RoomCapacity = 2 * TeamCapacity;
+
 	AFMGameState();
 	UFUNCTION(BlueprintPure, Category="Match")
 	FFMMatchSnapshot GetMatchSnapshot() const { return MatchSnapshot; }
