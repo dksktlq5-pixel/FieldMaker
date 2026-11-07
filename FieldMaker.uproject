@@ -33,6 +33,16 @@
 		{
 			"Name": "AllToolsets",
 			"Enabled": true
+		},
+		{
+			"Name": "OnlineSubsystemSteam",
+			"Enabled": true,
+			"PlatformAllowList": ["Win64"]
+		},
+		{
+			"Name": "SocketSubsystemSteamIP",
+			"Enabled": true,
+			"PlatformAllowList": ["Win64"]
 		}
 	]
 }

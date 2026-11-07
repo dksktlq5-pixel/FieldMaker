@@ -9,6 +9,8 @@
 #include "FMGameMode.h"
 #include "FMGameState.h"
 #include "FMLobbyWidget.h"
+#include "FMSteamRoomSubsystem.h"
+#include "Engine/GameInstance.h"
 #include "Engine/NetDriver.h"
 #include "IPAddress.h"
 #include "Kismet/GameplayStatics.h"
@@ -40,10 +42,16 @@ void AFMPlayerController::PlayerTick(float DeltaTime)
 		RoomWidget = CreateWidget<UFMLobbyWidget>(this, UFMLobbyWidget::StaticClass());
 		if (!RoomWidget) return;
 		RoomWidget->bInRoom = true;
+		RoomWidget->bSteamRoom = Match.bSteamRoom;
 		RoomWidget->MenuFont = FCoreStyle::GetDefaultFontStyle("Regular", 16);
 		RoomWidget->OnStart.BindUObject(this, &AFMPlayerController::StartRoomMatch);
 		RoomWidget->OnClose.BindUObject(this, &AFMPlayerController::LeaveRoom);
-		if (HasAuthority())
+		if (HasAuthority() && Match.bSteamRoom)
+		{
+			RoomWidget->OnInviteFriends.BindUObject(GetGameInstance()->GetSubsystem<UFMSteamRoomSubsystem>(),
+				&UFMSteamRoomSubsystem::InviteFriends);
+		}
+		else if (HasAuthority())
 		{
 			const auto BoundAddress = GetNetDriver() ? GetNetDriver()->GetLocalAddr() : nullptr;
 			const int32 Port = BoundAddress ? BoundAddress->GetPort() : GetWorld()->URL.Port;
@@ -85,6 +93,7 @@ void AFMPlayerController::LeaveRoom()
 {
 	if (IsLocalController() && RoomWidget)
 	{
+		if (RoomWidget->bSteamRoom) GetGameInstance()->GetSubsystem<UFMSteamRoomSubsystem>()->LeaveRoom();
 		UGameplayStatics::OpenLevel(this, TEXT("/Game/Map/L_FMFrontend"));
 	}
 }

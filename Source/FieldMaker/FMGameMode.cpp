@@ -31,7 +31,7 @@ void AFMGameMode::InitGameState()
 	Super::InitGameState();
 	if (auto* State = GetGameState<AFMGameState>(); bPlayerRoom && State)
 	{
-		State->InitializePlayerRoom();
+		State->InitializePlayerRoom(UGameplayStatics::HasOption(OptionsString, TEXT("FMSteamRoom")));
 	}
 }
 

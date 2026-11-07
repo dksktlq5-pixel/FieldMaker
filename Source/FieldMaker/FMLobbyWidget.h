@@ -11,12 +11,15 @@ class UFMLobbyWidget : public UUserWidget
 public:
 	UFMLobbyWidget(const FObjectInitializer& ObjectInitializer);
 	FSimpleDelegate OnCreateRoom;
+	FSimpleDelegate OnCreateSteamRoom;
+	FSimpleDelegate OnInviteFriends;
 	FSimpleDelegate OnPractice;
 	FSimpleDelegate OnStart;
 	FSimpleDelegate OnClose;
 	TDelegate<bool(const FString&)> OnJoinRoom;
 	FSlateFontInfo MenuFont;
 	bool bInRoom = false;
+	bool bSteamRoom = false;
 	FText HostAddress;
 	FText Notice;
 
@@ -28,6 +31,7 @@ private:
 	TSharedRef<SWidget> BuildTeam(uint8 Team, const FText& Title, const FLinearColor& Accent);
 	FText GetTeamMember(uint8 Team) const;
 	FText GetRoomStatus() const;
+	FText GetSteamNotice() const;
 	bool CanStart() const;
 	FReply Join();
 	TSharedPtr<class SEditableTextBox> AddressBox;

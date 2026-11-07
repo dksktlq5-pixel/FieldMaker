@@ -2,6 +2,7 @@
 #include "FMCustomizeWidget.h"
 #include "FMLobbyWidget.h"
 #include "FMSettingsWidget.h"
+#include "FMSteamRoomSubsystem.h"
 
 #include "Blueprint/UserWidget.h"
 #include "Blueprint/WidgetTree.h"
@@ -17,6 +18,7 @@
 #include "Components/VerticalBoxSlot.h"
 #include "Algo/AllOf.h"
 #include "Engine/Engine.h"
+#include "Engine/GameInstance.h"
 #include "Interfaces/IPv4/IPv4Address.h"
 #include "Styling/CoreStyle.h"
 #include "Kismet/KismetSystemLibrary.h"
@@ -94,6 +96,7 @@ void AFMMenuPlayerController::BeginPlay()
 	Bind(TEXT("Btn_Quit"), &AFMMenuPlayerController::ShowQuitDialog, TEXT("ShowQuitDialog"));
 
 	Menu->AddToViewport();
+	GetGameInstance()->GetSubsystem<UFMSteamRoomSubsystem>()->BindInvites();
 	GEngine->OnNetworkFailure().AddUObject(this, &AFMMenuPlayerController::HandleNetworkFailure);
 	bShowMouseCursor = true;
 	FocusMenu(Menu->GetWidgetFromName(TEXT("Btn_Play")));
@@ -128,6 +131,7 @@ void AFMMenuPlayerController::Play()
 	if (!PlayPanel) return;
 	PlayPanel->MenuFont = FCoreStyle::GetDefaultFontStyle("Regular", 16);
 	PlayPanel->OnCreateRoom.BindUObject(this, &AFMMenuPlayerController::CreateRoom);
+	PlayPanel->OnCreateSteamRoom.BindUObject(this, &AFMMenuPlayerController::CreateSteamRoom);
 	PlayPanel->OnJoinRoom.BindUObject(this, &AFMMenuPlayerController::JoinRoom);
 	PlayPanel->OnPractice.BindUObject(this, &AFMMenuPlayerController::Training);
 	PlayPanel->OnClose.BindUObject(this, &AFMMenuPlayerController::ClosePlayPanel);
@@ -138,7 +142,7 @@ void AFMMenuPlayerController::Play()
 
 void AFMMenuPlayerController::ClosePlayPanel()
 {
-	if (!PlayPanel) return;
+	if (!PlayPanel || IsSteamTravelBusy()) return;
 	if (bJoiningRoom)
 	{
 		bJoiningRoom = false;
@@ -152,15 +156,29 @@ void AFMMenuPlayerController::ClosePlayPanel()
 
 void AFMMenuPlayerController::CreateRoom()
 {
+	if (PlayPanel && !bJoiningRoom && !IsSteamTravelBusy())
+	{
+		UGameplayStatics::OpenLevel(this, TEXT("/Game/Map/L_FMBridgeBattlefield"), true, TEXT("listen?FMRoom?bIsLanMatch"));
+	}
+}
+
+void AFMMenuPlayerController::CreateSteamRoom()
+{
 	if (PlayPanel && !bJoiningRoom)
 	{
-		UGameplayStatics::OpenLevel(this, TEXT("/Game/Map/L_FMBridgeBattlefield"), true, TEXT("listen?FMRoom"));
+		GetGameInstance()->GetSubsystem<UFMSteamRoomSubsystem>()->CreateRoom();
 	}
+}
+
+bool AFMMenuPlayerController::IsSteamTravelBusy() const
+{
+	const auto* Steam = GetGameInstance()->GetSubsystem<UFMSteamRoomSubsystem>();
+	return Steam && Steam->IsBusy();
 }
 
 bool AFMMenuPlayerController::JoinRoom(const FString& Address)
 {
-	if (!PlayPanel || bJoiningRoom) return false;
+	if (!PlayPanel || bJoiningRoom || IsSteamTravelBusy()) return false;
 	const FString Endpoint = Address.TrimStartAndEnd();
 	FString Host = Endpoint;
 	FString Port;
@@ -205,7 +223,7 @@ void AFMMenuPlayerController::Armory() { LogMenuSelection(TEXT("Armory")); }
 void AFMMenuPlayerController::Structure() { LogMenuSelection(TEXT("Structure")); }
 void AFMMenuPlayerController::Training()
 {
-	if (!bJoiningRoom) UGameplayStatics::OpenLevel(this, TEXT("/Game/Map/L_FMBridgeBattlefield"));
+	if (!bJoiningRoom && !IsSteamTravelBusy()) UGameplayStatics::OpenLevel(this, TEXT("/Game/Map/L_FMBridgeBattlefield"));
 }
 void AFMMenuPlayerController::Customize()
 {

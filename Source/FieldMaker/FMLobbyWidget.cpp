@@ -1,6 +1,8 @@
 #include "FMLobbyWidget.h"
 #include "FMGameState.h"
 #include "FMPlayerState.h"
+#include "FMSteamRoomSubsystem.h"
+#include "Engine/GameInstance.h"
 #include "Engine/Texture2D.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Widgets/Images/SImage.h"
@@ -65,6 +67,8 @@ TSharedRef<SWidget> UFMLobbyWidget::RebuildWidget()
 			.Text(LOCTEXT("PlayTitle", "플레이"))];
 	Rows->AddSlot().AutoHeight().Padding(0, 0, 0, 8)
 		[Button(LOCTEXT("Create", "방 생성 · 로컬 1대1"), OnCreateRoom)];
+	Rows->AddSlot().AutoHeight().Padding(0, 0, 0, 8)
+		[Button(LOCTEXT("CreateSteam", "방 생성 · Steam 친구"), OnCreateSteamRoom)];
 	Rows->AddSlot().AutoHeight().Padding(0, 6, 0, 8)
 		[SNew(SHorizontalBox)
 			+ SHorizontalBox::Slot().FillWidth(1).Padding(0, 0, 8, 0)
@@ -79,6 +83,8 @@ TSharedRef<SWidget> UFMLobbyWidget::RebuildWidget()
 		[Button(LOCTEXT("Practice", "혼자 연습"), OnPractice)];
 	Rows->AddSlot().AutoHeight().Padding(0, 0, 0, 8)
 		[SNew(STextBlock).Font(MenuFont).AutoWrapText(true).Text_Lambda([this] { return Notice; })];
+	Rows->AddSlot().AutoHeight()
+		[SNew(STextBlock).Font(MenuFont).AutoWrapText(true).Text_Lambda([this] { return GetSteamNotice(); })];
 	Rows->AddSlot().AutoHeight()
 		[Button(LOCTEXT("Back", "뒤로"), OnClose)];
 
@@ -100,7 +106,8 @@ TSharedRef<SWidget> UFMLobbyWidget::BuildRoom()
 		+ SHorizontalBox::Slot().FillWidth(1)
 		[RoomLabel(MenuFont, 16, LOCTEXT("Brand", "FIELDMAKER  /  플레이"), RoomGold)]
 		+ SHorizontalBox::Slot().AutoWidth()
-		[RoomLabel(MenuFont, 14, LOCTEXT("RoomType", "로컬 사용자 설정 경기"), RoomMuted)];
+		[RoomLabel(MenuFont, 14, bSteamRoom ? LOCTEXT("SteamRoomType", "Steam 친구 대기방") :
+			LOCTEXT("RoomType", "로컬 사용자 설정 경기"), RoomMuted)];
 
 	const auto MapCard = SNew(SBox).WidthOverride(380).HeightOverride(178)
 		[SNew(SOverlay)
@@ -137,10 +144,16 @@ TSharedRef<SWidget> UFMLobbyWidget::BuildRoom()
 				[RoomLabel(MenuFont, 20, LOCTEXT("Start", "경기 테스트 시작"))]];
 		Footer->AddSlot().FillWidth(1).VAlign(VAlign_Center)
 			[SNew(SButton).HAlign(HAlign_Center).ContentPadding(FMargin(18, 10))
-				.OnClicked_Lambda([this] { bShowHostAddress = !bShowHostAddress; return FReply::Handled(); })
+				.OnClicked_Lambda([this]
+				{
+					if (bSteamRoom) OnInviteFriends.ExecuteIfBound();
+					else bShowHostAddress = !bShowHostAddress;
+					return FReply::Handled();
+				})
 				[SNew(STextBlock).Font(MenuFont).ColorAndOpacity(RoomText)
 					.Text_Lambda([this]
 					{
+						if (bSteamRoom) return LOCTEXT("SteamInvite", "Steam 친구 초대");
 						return bShowHostAddress ? LOCTEXT("HideAddress", "참가 주소 숨기기") : LOCTEXT("ShowAddress", "참가 주소 보기");
 					})]];
 	}
@@ -167,6 +180,10 @@ TSharedRef<SWidget> UFMLobbyWidget::BuildRoom()
 		[Teams]
 		+ SVerticalBox::Slot().AutoHeight().Padding(0, 16, 0, 0)
 		[Footer]
+		+ SVerticalBox::Slot().AutoHeight().HAlign(HAlign_Right)
+		[SNew(STextBlock).Font(MenuFont).ColorAndOpacity(RoomMuted)
+			.Text_Lambda([this] { return GetSteamNotice(); })
+			.Visibility(bSteamRoom ? EVisibility::Visible : EVisibility::Collapsed)]
 		+ SVerticalBox::Slot().AutoHeight().HAlign(HAlign_Right).Padding(0, 8, 0, 0)
 		[SNew(STextBlock).Font(MenuFont).ColorAndOpacity(RoomMuted).Justification(ETextJustify::Right)
 			.Text(HostAddress)
@@ -222,6 +239,12 @@ FText UFMLobbyWidget::GetTeamMember(uint8 Team) const
 FText UFMLobbyWidget::GetRoomStatus() const
 {
 	return CanStart() ? LOCTEXT("ReadyStatus", "2 / 2  ·  시작 가능") : LOCTEXT("WaitingStatus", "1 / 2  ·  상대 입장 대기 중");
+}
+
+FText UFMLobbyWidget::GetSteamNotice() const
+{
+	const auto* Steam = GetGameInstance() ? GetGameInstance()->GetSubsystem<UFMSteamRoomSubsystem>() : nullptr;
+	return Steam ? Steam->GetNotice() : FText::GetEmpty();
 }
 
 FReply UFMLobbyWidget::Join()

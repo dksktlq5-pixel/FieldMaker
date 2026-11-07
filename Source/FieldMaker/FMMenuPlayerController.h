@@ -44,7 +44,10 @@ private:
 	UFUNCTION()
 	void CreateRoom();
 	UFUNCTION()
+	void CreateSteamRoom();
+	UFUNCTION()
 	bool JoinRoom(const FString& Address);
+	bool IsSteamTravelBusy() const;
 
 	UPROPERTY(Transient)
 	TObjectPtr<class UFMCustomizeWidget> CustomizePanel;

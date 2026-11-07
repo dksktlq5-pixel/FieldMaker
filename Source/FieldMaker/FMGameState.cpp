@@ -22,10 +22,11 @@ void AFMGameState::SetLobbyReady(bool bReady)
 	ForceNetUpdate();
 }
 
-void AFMGameState::InitializePlayerRoom()
+void AFMGameState::InitializePlayerRoom(bool bSteamRoom)
 {
 	if (!HasAuthority()) return;
 	MatchSnapshot.bPlayerRoom = true;
+	MatchSnapshot.bSteamRoom = bSteamRoom;
 	SetLobbyReady(false);
 }
 
