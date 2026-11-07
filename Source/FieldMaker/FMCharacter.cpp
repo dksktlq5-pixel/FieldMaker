@@ -28,6 +28,8 @@ namespace
 constexpr float WalkSpeed = 250.0f;
 constexpr float SprintSpeed = 550.0f;
 constexpr float CameraHeight = 64.0f;
+constexpr float CrouchedCapsuleHalfHeight = 60.0f;
+constexpr float CrouchedEyeClearance = 8.0f;
 
 const UInputAction* LoadAction(const TCHAR* Name)
 {
@@ -119,6 +121,7 @@ AFMCharacter::AFMCharacter(const FObjectInitializer& ObjectInitializer)
 
 	auto* Movement = GetCharacterMovement();
 	Movement->GetNavAgentPropertiesRef().bCanCrouch = true;
+	Movement->SetCrouchedHalfHeight(CrouchedCapsuleHalfHeight);
 	Movement->MaxWalkSpeed = WalkSpeed;
 }
 
@@ -304,7 +307,7 @@ void AFMCharacter::ToggleCrouch()
 void AFMCharacter::OnStartCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust)
 {
 	Super::OnStartCrouch(HalfHeightAdjust, ScaledHalfHeightAdjust);
-	FirstPersonCamera->SetRelativeLocation(FVector(0, 0, CameraHeight - HalfHeightAdjust));
+	FirstPersonCamera->SetRelativeLocation(FVector(0, 0, FMath::Min(CameraHeight, GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight() - CrouchedEyeClearance)));
 }
 
 void AFMCharacter::OnEndCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust)

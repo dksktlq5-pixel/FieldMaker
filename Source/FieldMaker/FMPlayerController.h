@@ -4,7 +4,6 @@
 #include "FMPlayerController.generated.h"
 
 class UFMShopWidget;
-class UFMCustomizeWidget;
 
 UCLASS()
 class FIELDMAKER_API AFMPlayerController : public APlayerController
@@ -12,9 +11,6 @@ class FIELDMAKER_API AFMPlayerController : public APlayerController
 	GENERATED_BODY()
 
 public:
- UFUNCTION(BlueprintCallable,Category="Appearance") void OpenCustomization();
- UFUNCTION(BlueprintCallable,Category="Appearance") void CloseCustomization();
- UFUNCTION(BlueprintPure,Category="Appearance") UFMCustomizeWidget* GetCustomizationWidget() const {return CustomizationWidget;}
 	UFUNCTION(BlueprintCallable, Category="Shop") void ToggleShop();
 	UFUNCTION(BlueprintCallable, Category="Shop") void CloseShop();
 	UFUNCTION(BlueprintPure, Category="Shop") UFMShopWidget* GetShopWidget() const { return ShopWidget; }
@@ -27,7 +23,6 @@ protected:
 	virtual void AcknowledgePossession(APawn* InPawn) override;
 
 private:
- UPROPERTY(Transient) TObjectPtr<UFMCustomizeWidget> CustomizationWidget;
 	UPROPERTY(Transient) TObjectPtr<class UFMShopWidget> ShopWidget;
 	template <EFMWeaponSlot Slot> void EquipWeapon();
 	void UseWeapon();

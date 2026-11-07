@@ -6,8 +6,6 @@
 #include "Components/InputComponent.h"
 #include "FMUserPreferences.h"
 #include "FMShopWidget.h"
-#include "FMCustomizeWidget.h"
-#include "Styling/CoreStyle.h"
 
 void AFMPlayerController::BeginPlay()
 {
@@ -38,7 +36,6 @@ void AFMPlayerController::SetupInputComponent()
 	InputComponent->BindKey(EKeys::R, IE_Pressed, this, &AFMPlayerController::ReloadWeapon);
 	InputComponent->BindKey(EKeys::RightMouseButton, IE_Pressed, this, &AFMPlayerController::StartAiming);
 	InputComponent->BindKey(EKeys::RightMouseButton, IE_Released, this, &AFMPlayerController::StopAiming);
-	InputComponent->BindKey(EKeys::C,IE_Pressed,this,&AFMPlayerController::OpenCustomization);
 	InputComponent->BindKey(EKeys::B, IE_Pressed, this, &AFMPlayerController::ToggleShop);
 	InputComponent->BindKey(EKeys::V, IE_Pressed, this, &AFMPlayerController::ToggleTestArmor);
 
@@ -79,7 +76,7 @@ void AFMPlayerController::ServerSetAppearance_Implementation(uint32 AppearanceId
 template <EFMWeaponSlot Slot>
 void AFMPlayerController::EquipWeapon()
 {
-	if (IsShopOpen() || CustomizationWidget) return;
+	if (IsShopOpen()) return;
 	if (auto* CombatPawn = GetPawn<AFMCharacter>())
 	{
 		CombatPawn->ServerEquipWeapon(Slot);
@@ -88,7 +85,7 @@ void AFMPlayerController::EquipWeapon()
 
 void AFMPlayerController::UseWeapon()
 {
-	if (IsShopOpen() || CustomizationWidget) return;
+	if (IsShopOpen()) return;
 	if (auto* CombatPawn = GetPawn<AFMCharacter>())
 	{
 		CombatPawn->ServerStartFire();
@@ -105,7 +102,7 @@ void AFMPlayerController::StopUsingWeapon()
 
 void AFMPlayerController::ReloadWeapon()
 {
-	if (IsShopOpen() || CustomizationWidget) return;
+	if (IsShopOpen()) return;
 	if (auto* CombatPawn = GetPawn<AFMCharacter>())
 	{
 		CombatPawn->ServerReload();
@@ -114,7 +111,7 @@ void AFMPlayerController::ReloadWeapon()
 
 void AFMPlayerController::StartAiming()
 {
-	if (IsShopOpen() || CustomizationWidget) return;
+	if (IsShopOpen()) return;
 	if (auto* CombatPawn = GetPawn<AFMCharacter>())
 		CombatPawn->ServerSetAiming(!FMLocalPreferences::Get().bToggleADS || !CombatPawn->IsAiming());
 }
@@ -127,13 +124,13 @@ void AFMPlayerController::StopAiming()
 
 void AFMPlayerController::ToggleTestArmor()
 {
-	if (IsShopOpen() || CustomizationWidget) return;
+	if (IsShopOpen()) return;
 	if (auto* CombatPawn = GetPawn<AFMCharacter>()) CombatPawn->ServerToggleTestArmor();
 }
 
 void AFMPlayerController::ToggleShop()
 {
- if (!IsLocalController() || CustomizationWidget) return;
+ if (!IsLocalController()) return;
  if (ShopWidget) { CloseShop(); return; }
  ShopWidget = CreateWidget<UFMShopWidget>(this, UFMShopWidget::StaticClass());
  if (!ShopWidget) return;
@@ -158,24 +155,4 @@ void AFMPlayerController::CloseShop()
  SetIgnoreMoveInput(false); SetIgnoreLookInput(false);
  bShowMouseCursor = false;
  SetInputMode(FInputModeGameOnly());
-}
-
-void AFMPlayerController::OpenCustomization()
-{
- if(!IsLocalController() || CustomizationWidget)return;
- CloseShop();CustomizationWidget=CreateWidget<UFMCustomizeWidget>(this,UFMCustomizeWidget::StaticClass());
- if(!CustomizationWidget)return;
- if(auto* P=GetPawn<AFMCharacter>()){P->ServerStopFire();P->ServerSetAiming(false);P->ServerSetSprint(false);}
- CustomizationWidget->MenuFont=FCoreStyle::GetDefaultFontStyle("Regular",16);
- CustomizationWidget->ButtonStyle=FCoreStyle::Get().GetWidgetStyle<FButtonStyle>("Button");
- CustomizationWidget->InitializePreview(9.f,true);
- CustomizationWidget->OnClosed.BindUObject(this,&AFMPlayerController::CloseCustomization);
- CustomizationWidget->OnApplied.BindLambda([this](uint32 Code){ServerSetAppearance(Code);});
- SetIgnoreMoveInput(true);SetIgnoreLookInput(true);CustomizationWidget->AddToViewport(60);bShowMouseCursor=true;
- FInputModeUIOnly Mode;Mode.SetWidgetToFocus(CustomizationWidget->TakeWidget());SetInputMode(Mode);CustomizationWidget->SetKeyboardFocus();
-}
-void AFMPlayerController::CloseCustomization()
-{
- if(!CustomizationWidget)return;
- CustomizationWidget->RemoveFromParent();CustomizationWidget=nullptr;SetIgnoreMoveInput(false);SetIgnoreLookInput(false);bShowMouseCursor=false;SetInputMode(FInputModeGameOnly());
 }
