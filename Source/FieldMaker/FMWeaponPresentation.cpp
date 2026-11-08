@@ -194,9 +194,9 @@ void AFMCharacter::UpdateWeaponPresentation(float DeltaSeconds)
 	const bool bVisible = GetPlayerState() && Health > 0.f;
 	const bool bLocalView = IsLocallyControlled();
 	const bool bScoped = bLocalView && IsScopeViewActive();
-	// Move the hip-fire rig away from the camera while keeping the hands and weapon together.
-	const FVector CompactViewOffset = bLocalView && bFirearm
-		? FVector(bPrimary ? 9.f : 6.f, 2.f, -4.f) * (1.f - ADSAlpha)
+	// Tuck the local hip-fire rig into the lower-right edge; leave the world rig and ADS independent.
+	const FVector HipViewOffset = bLocalView && bFirearm
+		? (bPrimary ? FVector(-8.f, 5.f, -7.f) : FVector(-3.f, 3.f, -4.f)) * (1.f - ADSAlpha)
 		: FVector::ZeroVector;
 	// Keep the running weapon close to the lowered shoulders instead of an idle aim pose.
 	SprintPoseAlpha = FMath::FInterpTo(SprintPoseAlpha, bSprinting && GetVelocity().Size2D() > 100.f ? 1.f : 0.f, DeltaSeconds, 10.f);
@@ -206,7 +206,7 @@ void AFMCharacter::UpdateWeaponPresentation(float DeltaSeconds)
 		FirstPersonArms->SetVisibility(bVisible && !bScoped);
 		const FVector ArmOffset = FVector(WeaponSlot == EFMWeaponSlot::Melee ? -12.f : 8.f, 0.f, -170.f)
 			+ (bDetailed ? FMath::Lerp(Visual.ArmOffset, Visual.ADSArmOffset, bFirearm ? ADSAlpha : 0.f) : FVector::ZeroVector)
-			+ CompactViewOffset;
+			+ HipViewOffset;
 		FirstPersonArms->SetRelativeLocation(DeltaSeconds > 0.f
 			? FMath::VInterpTo(FirstPersonArms->GetRelativeLocation(), ArmOffset, DeltaSeconds, 18.f) : ArmOffset);
 	}
@@ -298,7 +298,9 @@ void AFMCharacter::UpdateWeaponPresentation(float DeltaSeconds)
 		const FVector ViewGrip = FMath::Lerp(ViewGrips[Slot] + (bDetailed ? Visual.ViewOffset : FVector::ZeroVector),
 			AimGrip, bFirearm ? ADSAlpha : 0.f) + FVector(-5.f, 0.f, -5.f) * SprintPoseAlpha;
 		const FVector ViewReloadLift = FVector(4.f, 0.f, bPistolMagazine ? 12.f : 20.f) * ReloadTilt;
-		const FTransform ViewMotion(Rotation + ViewAngle, ViewGrip + Offset + ViewReloadLift + CompactViewOffset);
+		// Bring the magazine and support hand into view for the exchange.
+		const FVector ReloadFraming = FVector(6.f, -5.f, 4.f) * ReloadTilt;
+		const FTransform ViewMotion(Rotation + ViewAngle, ViewGrip + Offset + ViewReloadLift + HipViewOffset + ReloadFraming);
 		if (WeaponSlot == EFMWeaponSlot::Melee) ViewMeleeMotion = ViewMotion;
 		else ViewWeapon->SetRelativeTransform(ViewMotion);
 	}
