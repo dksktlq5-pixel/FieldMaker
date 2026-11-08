@@ -194,9 +194,12 @@ void AFMCharacter::UpdateWeaponPresentation(float DeltaSeconds)
 	const bool bVisible = GetPlayerState() && Health > 0.f;
 	const bool bLocalView = IsLocallyControlled();
 	const bool bScoped = bLocalView && IsScopeViewActive();
+	const bool bAR15 = bPrimary && GetWeaponId(WeaponSlot) == FName(TEXT("M4"));
 	// Tuck the local hip-fire rig into the lower-right edge; leave the world rig and ADS independent.
+	const FVector AR15Framing(-8.f, -8.f, -10.f);
 	const FVector HipViewOffset = bLocalView && bFirearm
-		? (bPrimary ? FVector(-8.f, 5.f, -7.f) : FVector(-3.f, 3.f, -4.f)) * (1.f - ADSAlpha)
+		? (bPrimary ? FVector(-10.f, 15.f, -1.f) + (bAR15 ? AR15Framing : FVector::ZeroVector)
+			: FVector(-3.f, 3.f, -4.f)) * (1.f - ADSAlpha)
 		: FVector::ZeroVector;
 	// Keep the running weapon close to the lowered shoulders instead of an idle aim pose.
 	SprintPoseAlpha = FMath::FInterpTo(SprintPoseAlpha, bSprinting && GetVelocity().Size2D() > 100.f ? 1.f : 0.f, DeltaSeconds, 10.f);
@@ -285,7 +288,7 @@ void AFMCharacter::UpdateWeaponPresentation(float DeltaSeconds)
 
 	const FVector ViewGrips[] = {FVector(49, 16, -22), FVector(49, 11, -16),
 		FVector(45, 22, -15), FVector(46, 16, -18)};
-	const FRotator ViewAngles[] = {FRotator(0, -11, -4), FRotator(0, -7, 0),
+	const FRotator ViewAngles[] = {bAR15 ? FRotator(10, -11, -4) : FRotator(2, -7, -4), FRotator(0, -7, 0),
 		FRotator(0, -10, 0), FRotator(6, -10, 3)};
 	const int32 Slot = static_cast<int32>(WeaponSlot);
 	const FRotator ViewAngle = FMath::Lerp(ViewAngles[Slot], FRotator::ZeroRotator, bFirearm ? ADSAlpha : 0.f)
@@ -299,7 +302,8 @@ void AFMCharacter::UpdateWeaponPresentation(float DeltaSeconds)
 			AimGrip, bFirearm ? ADSAlpha : 0.f) + FVector(-5.f, 0.f, -5.f) * SprintPoseAlpha;
 		const FVector ViewReloadLift = FVector(4.f, 0.f, bPistolMagazine ? 12.f : 20.f) * ReloadTilt;
 		// Bring the magazine and support hand into view for the exchange.
-		const FVector ReloadFraming = FVector(6.f, -5.f, 4.f) * ReloadTilt;
+		const FVector ReloadFraming = (bPrimary ? FVector(8.f, -15.f, -2.f) : FVector(6.f, -5.f, 4.f)) * ReloadTilt
+			- (bAR15 ? AR15Framing * (ReloadTilt * (1.f - ADSAlpha)) : FVector::ZeroVector);
 		const FTransform ViewMotion(Rotation + ViewAngle, ViewGrip + Offset + ViewReloadLift + HipViewOffset + ReloadFraming);
 		if (WeaponSlot == EFMWeaponSlot::Melee) ViewMeleeMotion = ViewMotion;
 		else ViewWeapon->SetRelativeTransform(ViewMotion);
