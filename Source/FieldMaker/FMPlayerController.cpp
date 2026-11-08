@@ -8,6 +8,8 @@
 #include "FMShopWidget.h"
 #include "FMGameMode.h"
 #include "FMGameState.h"
+#include "FMPlayerState.h"
+#include "FMStructure.h"
 #include "FMLobbyWidget.h"
 #include "FMSteamRoomSubsystem.h"
 #include "Engine/GameInstance.h"
@@ -35,6 +37,7 @@ void AFMPlayerController::PlayerTick(float DeltaTime)
 	if (!State) return;
 
 	const auto Match = State->GetMatchSnapshot();
+	if (bBuildMode && !CanBuild()) bBuildMode = false;
 	if (ShopWidget && Match.Phase != EFMMatchPhase::Purchase && Match.Phase != EFMMatchPhase::CombatTest) CloseShop();
 	const bool bWaitingInRoom = Match.bPlayerRoom &&
 		(Match.Phase == EFMMatchPhase::WaitingForPlayers || Match.Phase == EFMMatchPhase::Ready);
@@ -115,11 +118,10 @@ void AFMPlayerController::SetupInputComponent()
 	InputComponent->BindKey(EKeys::Two, IE_Pressed, this, &AFMPlayerController::EquipWeapon<EFMWeaponSlot::Secondary>);
 	InputComponent->BindKey(EKeys::Three, IE_Pressed, this, &AFMPlayerController::EquipWeapon<EFMWeaponSlot::Melee>);
 	InputComponent->BindKey(EKeys::Four, IE_Pressed, this, &AFMPlayerController::EquipWeapon<EFMWeaponSlot::Throwable>);
-	InputComponent->BindKey(EKeys::Five, IE_Pressed, this, &AFMPlayerController::PlaceStructure<0>);
-	InputComponent->BindKey(EKeys::Six, IE_Pressed, this, &AFMPlayerController::PlaceStructure<1>);
+	InputComponent->BindKey(EKeys::C, IE_Pressed, this, &AFMPlayerController::ToggleBuildMode);
 	InputComponent->BindKey(EKeys::LeftMouseButton, IE_Pressed, this, &AFMPlayerController::UseWeapon);
 	InputComponent->BindKey(EKeys::LeftMouseButton, IE_Released, this, &AFMPlayerController::StopUsingWeapon);
-	InputComponent->BindKey(EKeys::R, IE_Pressed, this, &AFMPlayerController::ReloadWeapon);
+	InputComponent->BindKey(EKeys::R, IE_Pressed, this, &AFMPlayerController::RotateStructureOrReload);
 	InputComponent->BindKey(EKeys::RightMouseButton, IE_Pressed, this, &AFMPlayerController::StartAiming);
 	InputComponent->BindKey(EKeys::RightMouseButton, IE_Released, this, &AFMPlayerController::StopAiming);
 	InputComponent->BindKey(EKeys::B, IE_Pressed, this, &AFMPlayerController::ToggleShop);
@@ -164,6 +166,12 @@ template <EFMWeaponSlot Slot>
 void AFMPlayerController::EquipWeapon()
 {
 	if (IsShopOpen()) return;
+	if (bBuildMode)
+	{
+		BuildSelection = static_cast<int32>(Slot);
+		BuildQuarterTurns = 0;
+		return;
+	}
 	if (auto* CombatPawn = GetPawn<AFMCharacter>())
 	{
 		CombatPawn->ServerEquipWeapon(Slot);
@@ -175,6 +183,11 @@ void AFMPlayerController::UseWeapon()
 	if (IsShopOpen()) return;
 	if (auto* CombatPawn = GetPawn<AFMCharacter>())
 	{
+		if (bBuildMode)
+		{
+			if (CanBuild()) CombatPawn->ServerPlaceStructure(BuildSelection, BuildQuarterTurns);
+			return;
+		}
 		CombatPawn->ServerStartFire();
 	}
 }
@@ -215,11 +228,32 @@ void AFMPlayerController::ToggleTestArmor()
 	if (auto* CombatPawn = GetPawn<AFMCharacter>()) CombatPawn->ServerToggleTestArmor();
 }
 
-template<int32 Index> void AFMPlayerController::PlaceStructure()
+bool AFMPlayerController::CanBuild() const
 {
 	const auto* State = GetWorld()->GetGameState<AFMGameState>();
-	if (!State || State->GetMatchSnapshot().Phase != EFMMatchPhase::Building || IsShopOpen()) return;
-	if (auto* CombatPawn = GetPawn<AFMCharacter>()) CombatPawn->ServerPlaceStructure(Index);
+	const auto* CombatPawn = GetPawn<AFMCharacter>();
+	return CombatPawn && CombatPawn->GetHealth() > 0.f && State && !IsShopOpen() &&
+		State->GetMatchSnapshot().Phase == EFMMatchPhase::Building && State->GetPhaseTimeRemaining() > 0.f;
+}
+
+void AFMPlayerController::ToggleBuildMode()
+{
+	bBuildMode = !bBuildMode && CanBuild();
+	BuildQuarterTurns = 0;
+	const auto* Member = GetPlayerState<AFMPlayerState>();
+	if (!bBuildMode || !Member || Member->GetStructureCount(BuildSelection) > 0) return;
+	for (int32 Index = 0; Index < AFMStructure::ItemCount; ++Index)
+	{
+		if (Member->GetStructureCount(Index) <= 0) continue;
+		BuildSelection = Index;
+		break;
+	}
+}
+
+void AFMPlayerController::RotateStructureOrReload()
+{
+	if (bBuildMode) BuildQuarterTurns = (BuildQuarterTurns + 1) % 4;
+	else ReloadWeapon();
 }
 
 void AFMPlayerController::ToggleShop()

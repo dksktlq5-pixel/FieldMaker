@@ -29,14 +29,14 @@ public:
 	// Opt-in for development maps only; the actual match still uses phase gates.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Match")
 	bool bCombatSandbox = false;
-	bool IsInPreparationZone(const AController* Player, const FVector& Location, bool bSpawnOnly) const;
+	static bool IsInPreparationZone(const AController* Player, const FVector& Location, bool bSpawnOnly);
+	static const AActor* GetTeamStart(const UWorld* World, uint8 Side);
 private:
 	void SetRoundPhase(EFMMatchPhase Phase, float Duration);
 	void UpdateRound();
 	void EndRound(int32 Winner);
 	void ReturnPlayersToSpawn(bool bResetRound, bool bResetEquipment);
 	void ClearStructures();
-	const AActor* GetTeamStart(uint8 Side) const;
 	FTimerHandle RoundTimer;
 	double CaptureProgress = 0;
 	double LastRoundUpdate = 0;

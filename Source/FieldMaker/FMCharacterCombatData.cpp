@@ -221,52 +221,71 @@ void AFMCharacter::ServerBuyStructure_Implementation(int32 Index)
 	Member->ChangeStructureStock(Index, 1);
 }
 
-void AFMCharacter::ServerPlaceStructure_Implementation(int32 Index)
+bool AFMCharacter::FindStructurePlacement(int32 Index, int32 QuarterTurns, FTransform& Transform, AFMStructure*& Support) const
 {
 	const auto* Item = AFMStructure::GetItem(Index);
-	auto* Member = GetPlayerState<AFMPlayerState>();
+	const auto* Member = GetPlayerState<AFMPlayerState>();
 	const auto* State = GetWorld()->GetGameState<AFMGameState>();
-	const auto* Mode = GetWorld()->GetAuthGameMode<AFMGameMode>();
-	if (!Item || !Member || Health <= 0 || Member->GetTeam() >= 2 || Member->GetStructureCount(Index) <= 0 ||
-		!State || !Mode || State->GetMatchSnapshot().Phase != EFMMatchPhase::Building ||
-		State->GetPhaseTimeRemaining() <= 0.f || !Mode->IsInPreparationZone(GetController(), GetActorLocation(), false)) return;
-
-	int32 Placed = 0;
-	for (TActorIterator<AFMStructure> It(GetWorld()); It; ++It) if (++Placed >= 40) return;
+	if (!Item || QuarterTurns < 0 || QuarterTurns > 3 || !Member || Health <= 0 || Member->GetTeam() >= 2 ||
+		Member->GetStructureCount(Index) <= 0 || !State || State->GetMatchSnapshot().Phase != EFMMatchPhase::Building ||
+		State->GetPhaseTimeRemaining() <= 0.f || !AFMGameMode::IsInPreparationZone(GetController(), GetActorLocation(), false)) return false;
 
 	const FVector Eye = FirstPersonCamera->GetComponentLocation();
 	const FCollisionQueryParams Query(SCENE_QUERY_STAT(FMStructurePlacement), false, this);
-	FCollisionObjectQueryParams Ground(ECC_WorldStatic);
+	FCollisionObjectQueryParams Surfaces(ECC_WorldStatic);
+	Surfaces.AddObjectTypesToQuery(ECC_WorldDynamic);
 	FHitResult Hit;
-	if (!GetWorld()->LineTraceSingleByObjectType(Hit, Eye, Eye + GetBaseAimRotation().Vector() * 500.f, Ground, Query) ||
-		Hit.ImpactNormal.Z < 0.95f) return;
+	if (!GetWorld()->LineTraceSingleByObjectType(Hit, Eye, Eye + GetBaseAimRotation().Vector() * 550.f, Surfaces, Query) ||
+		Hit.ImpactNormal.Z < 0.95f) return false;
 
-	const FRotator Facing(0, FMath::GridSnap(GetActorRotation().Yaw + 90.f, 15.f), 0);
+	Support = Cast<AFMStructure>(Hit.GetActor());
+	if (Support && (Support->GetOwnerTeam() != Member->GetTeam() || Support->IsActorBeingDestroyed())) return false;
+	if (!Support && Hit.Component.IsValid() && Hit.Component->GetCollisionObjectType() != ECC_WorldStatic) return false;
+
+	const float BaseYaw = Support ? Support->GetActorRotation().Yaw : FMath::GridSnap(GetActorRotation().Yaw + 90.f, 15.f);
+	const FRotator Facing(0, BaseYaw + 90.f * QuarterTurns, 0);
 	FVector Floor = Hit.ImpactPoint;
-	Floor.X = FMath::GridSnap(Floor.X, 25.f);
-	Floor.Y = FMath::GridSnap(Floor.Y, 25.f);
-	if (!Mode->IsInPreparationZone(GetController(), Floor, false) || Mode->IsInPreparationZone(GetController(), Floor, true)) return;
+	const FVector Anchor = Support ? Support->GetActorLocation() : FVector::ZeroVector;
+	const FRotator SupportRotation = Support ? Support->GetActorRotation() : FRotator::ZeroRotator;
+	FVector Offset = SupportRotation.UnrotateVector(Floor - Anchor);
+	Offset.X = FMath::GridSnap(Offset.X, 25.f);
+	Offset.Y = FMath::GridSnap(Offset.Y, 25.f);
+	Floor = Anchor + SupportRotation.RotateVector(Offset);
+	if (!AFMGameMode::IsInPreparationZone(GetController(), Floor, false) ||
+		AFMGameMode::IsInPreparationZone(GetController(), Floor, true)) return false;
 
 	for (const float X : {-1.f, 1.f})
 	{
 		for (const float Y : {-1.f, 1.f})
 		{
-			const FVector Corner = Floor + Facing.RotateVector(FVector(Item->HalfSize.X * X, Item->HalfSize.Y * Y, 0));
-			FHitResult Support;
-			if (!Mode->IsInPreparationZone(GetController(), Corner, false) || Mode->IsInPreparationZone(GetController(), Corner, true) ||
-				!GetWorld()->LineTraceSingleByObjectType(Support, Corner + FVector(0, 0, 15), Corner - FVector(0, 0, 15), Ground, Query) ||
-				Support.ImpactNormal.Z < 0.95f) return;
+			const FVector Corner = Floor + Facing.RotateVector(FVector((Item->HalfSize.X - 1.f) * X, (Item->HalfSize.Y - 1.f) * Y, 0));
+			FHitResult CornerHit;
+			if (!AFMGameMode::IsInPreparationZone(GetController(), Corner, false) ||
+				AFMGameMode::IsInPreparationZone(GetController(), Corner, true) ||
+				!GetWorld()->LineTraceSingleByObjectType(CornerHit, Corner + FVector(0, 0, 8), Corner - FVector(0, 0, 8), Surfaces, Query) ||
+				CornerHit.ImpactNormal.Z < 0.95f || (Support && CornerHit.GetActor() != Support) ||
+				(!Support && CornerHit.Component.IsValid() && CornerHit.Component->GetCollisionObjectType() != ECC_WorldStatic)) return false;
 		}
 	}
 	const FVector Center = Floor + FVector(0, 0, Item->HalfSize.Z + 2.f);
-	FCollisionObjectQueryParams Blockers = Ground;
-	Blockers.AddObjectTypesToQuery(ECC_WorldDynamic);
-	Blockers.AddObjectTypesToQuery(ECC_Pawn);
-	if (GetWorld()->OverlapAnyTestByObjectType(Center, Facing.Quaternion(), Blockers, FCollisionShape::MakeBox(Item->HalfSize))) return;
-	const FTransform Transform(Facing, Center);
+	Surfaces.AddObjectTypesToQuery(ECC_Pawn);
+	if (GetWorld()->OverlapAnyTestByObjectType(Center, Facing.Quaternion(), Surfaces, FCollisionShape::MakeBox(Item->HalfSize))) return false;
+	Transform = FTransform(Facing, Center);
+	return true;
+}
+
+void AFMCharacter::ServerPlaceStructure_Implementation(int32 Index, int32 QuarterTurns)
+{
+	FTransform Transform;
+	AFMStructure* Support = nullptr;
+	if (!FindStructurePlacement(Index, QuarterTurns, Transform, Support)) return;
+	int32 Placed = 0;
+	for (TActorIterator<AFMStructure> It(GetWorld()); It; ++It) if (++Placed >= 40) return;
+
+	auto* Member = GetPlayerState<AFMPlayerState>();
 	auto* Structure = GetWorld()->SpawnActorDeferred<AFMStructure>(AFMStructure::StaticClass(), Transform);
 	if (!Structure) return;
-	Structure->Initialize(Index, Member->GetTeam());
+	Structure->Initialize(Index, Member->GetTeam(), Support);
 	Structure->FinishSpawning(Transform);
 	Member->ChangeStructureStock(Index, -1);
 }

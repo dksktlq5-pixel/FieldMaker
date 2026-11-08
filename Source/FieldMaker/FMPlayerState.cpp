@@ -48,7 +48,7 @@ void AFMPlayerState::ResetEconomy(int32 StartingCredits)
 {
 	if (!HasAuthority()) return;
 	Credits = StartingCredits;
-	StructureStock = {0, 0};
+	StructureStock = {0, 0, 0, 0};
 	ForceNetUpdate();
 }
 

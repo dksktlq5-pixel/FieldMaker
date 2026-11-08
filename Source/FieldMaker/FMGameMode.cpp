@@ -123,7 +123,7 @@ bool AFMGameMode::StartPlayerRoom(APlayerController* Requester)
 {
 	auto* State = GetGameState<AFMGameState>();
 	if (!bPlayerRoom || bRoomStarted || !State || !Requester || !Requester->IsLocalController() ||
-		State->GetMatchSnapshot().Phase != EFMMatchPhase::Ready || !GetTeamStart(0) || !GetTeamStart(1))
+		State->GetMatchSnapshot().Phase != EFMMatchPhase::Ready || !GetTeamStart(GetWorld(), 0) || !GetTeamStart(GetWorld(), 1))
 	{
 		return false;
 	}
@@ -147,7 +147,7 @@ void AFMGameMode::ReturnPlayersToSpawn(bool bResetRound, bool bResetEquipment)
 		if (!Member || Member->GetTeam() >= 2) continue;
 		const auto* State = GetGameState<AFMGameState>();
 		const uint8 Side = Member->GetTeam() ^ uint8(State->GetMatchSnapshot().bSidesSwapped);
-		if (const AActor* Start = GetTeamStart(Side))
+		if (const AActor* Start = GetTeamStart(GetWorld(), Side))
 		{
 			const int32 Slot = SpawnedPerTeam[Member->GetTeam()]++;
 			// Fill the center first and alternate left/right so short-handed teams stay centered.
@@ -197,24 +197,24 @@ AActor* AFMGameMode::ChoosePlayerStart_Implementation(AController* Player)
 	return Super::ChoosePlayerStart_Implementation(Player);
 }
 
-const AActor* AFMGameMode::GetTeamStart(uint8 Side) const
+const AActor* AFMGameMode::GetTeamStart(const UWorld* World, uint8 Side)
 {
 	const FName Tag(*FString::Printf(TEXT("FM_Team%d"), Side));
-	for (TActorIterator<APlayerStart> It(GetWorld()); It; ++It)
+	for (TActorIterator<APlayerStart> It(World); It; ++It)
 	{
 		if (It->PlayerStartTag == Tag) return *It;
 	}
 	return nullptr;
 }
 
-bool AFMGameMode::IsInPreparationZone(const AController* Player, const FVector& Location, bool bSpawnOnly) const
+bool AFMGameMode::IsInPreparationZone(const AController* Player, const FVector& Location, bool bSpawnOnly)
 {
 	const auto* Member = Player ? Player->GetPlayerState<AFMPlayerState>() : nullptr;
-	const auto* State = GetGameState<AFMGameState>();
+	const auto* State = Player ? Player->GetWorld()->GetGameState<AFMGameState>() : nullptr;
 	if (!Member || Member->GetTeam() >= 2 || !State) return false;
 	const uint8 Side = Member->GetTeam() ^ uint8(State->GetMatchSnapshot().bSidesSwapped);
-	const auto* Start = GetTeamStart(Side);
-	const auto* Other = GetTeamStart(Side ^ 1);
+	const auto* Start = GetTeamStart(Player->GetWorld(), Side);
+	const auto* Other = GetTeamStart(Player->GetWorld(), Side ^ 1);
 	if (!Start || !Other) return false;
 	const FVector Origin = Start->GetActorLocation();
 	if (bSpawnOnly) return FVector::DistSquared2D(Location, Origin) <= FMath::Square(550.f);
@@ -287,7 +287,7 @@ void AFMGameMode::UpdateRound()
 			if (!IsInPreparationZone(Pawn->GetController(), Pawn->GetActorLocation(), bSpawnOnly))
 			{
 				const uint8 Side = Team ^ uint8(Match.bSidesSwapped);
-				if (const auto* Start = GetTeamStart(Side))
+				if (const auto* Start = GetTeamStart(GetWorld(), Side))
 				{
 					Pawn->GetCharacterMovement()->StopMovementImmediately();
 					const int32 Lane = Alive[Team] - 1;
@@ -324,8 +324,8 @@ void AFMGameMode::UpdateRound()
 		}
 		if (!bKnife && State->GetPhaseTimeRemaining() <= 60.f)
 		{
-			const auto* A = GetTeamStart(0);
-			const auto* B = GetTeamStart(1);
+			const auto* A = GetTeamStart(GetWorld(), 0);
+			const auto* B = GetTeamStart(GetWorld(), 1);
 			if (!A || !B) return;
 			const FVector Center = (A->GetActorLocation() + B->GetActorLocation()) * 0.5f;
 			bool Present[2] = {};

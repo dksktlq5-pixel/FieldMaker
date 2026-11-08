@@ -27,7 +27,7 @@ public:
 	void ChangeStructureStock(int32 Index, int32 Delta);
 private:
 	UPROPERTY(Replicated) int32 Credits = 0;
-	UPROPERTY(Replicated) TArray<int32> StructureStock = {0, 0};
+	UPROPERTY(Replicated) TArray<int32> StructureStock = {0, 0, 0, 0};
 	UPROPERTY(Replicated)
 	uint8 Team = UnassignedTeam;
 

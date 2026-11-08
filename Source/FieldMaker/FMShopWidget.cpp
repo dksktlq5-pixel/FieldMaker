@@ -92,8 +92,8 @@ FText UFMShopWidget::DetailText() const
  if (const auto* Item = AFMStructure::GetItem(Index))
  {
   const auto* Member = P->GetPlayerState<AFMPlayerState>();
-  return FText::FromString(FString::Printf(TEXT("내구도  %.0f\n가격  $%d\n보유  %d / 3\n\n구축 시간에 바닥을 조준하고 %d 키로 설치합니다."), Item->Health, Item->Price,
-   Member ? Member->GetStructureCount(Index) : 0, Index + 5));
+  return FText::FromString(FString::Printf(TEXT("내구도  %.0f\n가격  $%d\n보유  %d / 3\n\n구축 시간에 C로 모드를 켜고 %d 키로 선택한 뒤 좌클릭으로 배치합니다."), Item->Health, Item->Price,
+   Member ? Member->GetStructureCount(Index) : 0, Index + 1));
  }
  if(IsArmor(Id))return FText::FromString(FString::Printf(TEXT("방어력  %.0f / %.0f\n총탄 피해 감소  %.0f%%\n\n머리·칼·폭발 피해는 우회합니다.\n흡수한 피해만큼 방어력이 소모됩니다."),P->GetArmor(),P->GetCatalogArmorRules(Id).MaximumArmor,P->GetCatalogArmorRules(Id).AbsorptionFraction*100));
  if(Id==TEXT("Flash") || Id==TEXT("Smoke") || Id==TEXT("Fire") || Id==TEXT("Decoy"))return FText::FromString(TEXT("카탈로그 예정 항목\n\n효과와 전용 투사체는 아직 구현되지 않았습니다."));
@@ -162,7 +162,7 @@ TSharedRef<SWidget> UFMShopWidget::RebuildWidget()
  if(const auto* P=GetOwningPlayerPawn<AFMCharacter>())Catalog=P->GetCatalogWeaponIds();
  Catalog.Append({TEXT("LightArmor"),TEXT("MediumArmor"),TEXT("Flash"),TEXT("Smoke"),TEXT("Fire"),TEXT("Decoy")});
  if (const auto* State = GetWorld()->GetGameState<AFMGameState>(); State && State->GetMatchSnapshot().Phase == EFMMatchPhase::Purchase)
-  Catalog.Append({TEXT("Sandbags"), TEXT("BallisticWall")});
+  Catalog.Append({TEXT("Sandbags"), TEXT("BallisticWall"), TEXT("StepCrate"), TEXT("BuildContainer")});
  SelectWeaponById(TEXT("M4"));
  CardStyle=FCoreStyle::Get().GetWidgetStyle<FButtonStyle>("Button");
  CardStyle.SetNormal(FSlateColorBrush(FLinearColor(.06f,.065f,.07f,.85f)));

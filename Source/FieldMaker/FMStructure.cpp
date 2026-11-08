@@ -13,7 +13,9 @@ namespace
 {
 const FFMStructureItem Items[] = {
 	{TEXT("모래주머니"), 500, 200.f, FVector(85, 25, 45)},
-	{TEXT("방탄벽"), 1000, 450.f, FVector(90, 20, 85)}
+	{TEXT("방탄벽"), 1000, 450.f, FVector(90, 20, 85)},
+	{TEXT("발판 상자"), 400, 175.f, FVector(62.5, 62.5, 32.5)},
+	{TEXT("컨테이너"), 1500, 650.f, FVector(200, 100, 70)}
 };
 }
 
@@ -34,12 +36,26 @@ AFMStructure::AFMStructure()
 		TEXT("/Game/StylizedBridge/StaticMesh/Road/Prefabs/SM_BarrierRoad_A1.SM_BarrierRoad_A1"));
 	SandbagMesh = Sandbags.Succeeded() ? Sandbags.Object : Cube.Object;
 	WallMesh = Wall.Succeeded() ? Wall.Object : Cube.Object;
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> Crate(
+		TEXT("/Game/StylizedBridge/StaticMesh/Props/SM_WoodBox_A1.SM_WoodBox_A1"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> Container(
+		TEXT("/Game/StylizedBridge/StaticMesh/Train/SM_TrainContainer_A1.SM_TrainContainer_A1"));
+	CrateMesh = Crate.Succeeded() ? Crate.Object : Cube.Object;
+	CrateLid = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("CrateLid"));
+	CrateLid->SetupAttachment(Collision);
+	CrateLid->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	CrateLid->SetStaticMesh(Cube.Object);
+	if (Crate.Succeeded()) CrateLid->SetMaterial(0, Crate.Object->GetMaterial(0));
+	CrateLid->SetVisibility(false);
+	ContainerMesh = Container.Succeeded() ? Container.Object : Cube.Object;
 }
 
 int32 AFMStructure::FindItem(FName Id)
 {
 	if (Id == TEXT("Sandbags")) return 0;
 	if (Id == TEXT("BallisticWall")) return 1;
+	if (Id == TEXT("StepCrate")) return 2;
+	if (Id == TEXT("BuildContainer")) return 3;
 	return INDEX_NONE;
 }
 
@@ -54,12 +70,18 @@ void AFMStructure::BeginPlay()
 	ApplyItem();
 }
 
-void AFMStructure::Initialize(int32 Index, uint8 Team)
+void AFMStructure::Initialize(int32 Index, uint8 Team, AFMStructure* Support)
 {
 	ItemIndex = Index;
 	OwnerTeam = Team;
 	Health = Items[Index].Health;
+	if (Support) Support->OnDestroyed.AddDynamic(this, &AFMStructure::OnSupportDestroyed);
 	ApplyItem();
+}
+
+void AFMStructure::OnSupportDestroyed(AActor*)
+{
+	Destroy();
 }
 
 void AFMStructure::ApplyItem()
@@ -67,7 +89,14 @@ void AFMStructure::ApplyItem()
 	const auto* Item = GetItem(ItemIndex);
 	if (!Item) return;
 	Collision->SetBoxExtent(Item->HalfSize);
-	auto* Visual = ItemIndex == 0 ? SandbagMesh.Get() : WallMesh.Get();
+	CrateLid->SetVisibility(ItemIndex == 2);
+	if (ItemIndex == 2)
+	{
+		CrateLid->SetRelativeLocation(FVector(0, 0, Item->HalfSize.Z - 2.5f));
+		CrateLid->SetRelativeScale3D(FVector(Item->HalfSize.X / 50.f, Item->HalfSize.Y / 50.f, 0.05f));
+	}
+	UStaticMesh* const Visuals[] = {SandbagMesh.Get(), WallMesh.Get(), CrateMesh.Get(), ContainerMesh.Get()};
+	auto* Visual = Visuals[ItemIndex];
 	if (!Visual) return;
 	Mesh->SetStaticMesh(Visual);
 	const auto Bounds = Visual->GetBounds();
@@ -96,4 +125,5 @@ void AFMStructure::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(AFMStructure, ItemIndex);
 	DOREPLIFETIME(AFMStructure, Health);
+	DOREPLIFETIME(AFMStructure, OwnerTeam);
 }

@@ -7,6 +7,8 @@
 #include "FMCharacter.h"
 #include "FMPlayerState.h"
 #include "FMGameState.h"
+#include "FMPlayerController.h"
+#include "FMStructure.h"
 #include "GameFramework/GameStateBase.h"
 
 namespace
@@ -104,6 +106,8 @@ void AFMCombatHUD::DrawHUD()
 	Box(Red, Center, 15.f, 85.f, 2.f);
 	const auto* MatchState = GetWorld()->GetGameState<AFMGameState>();
 	const FFMMatchSnapshot Match = MatchState ? MatchState->GetMatchSnapshot() : FFMMatchSnapshot();
+	const auto* Controller = Cast<AFMPlayerController>(GetOwningPlayerController());
+	const bool bBuildMode = Controller && Controller->IsBuildMode();
 	const bool bMatch = Match.Phase != EFMMatchPhase::Practice;
 	const FString Header = !bMatch ? (Teams[1] == 0 ? TEXT("PRACTICE") : TEXT("TEAM SIZE"))
 		: FString::Printf(TEXT("ROUND %d | %s"), Match.RoundNumber,
@@ -124,15 +128,14 @@ void AFMCombatHUD::DrawHUD()
 			Match.Phase == EFMMatchPhase::Ready || Match.Phase == EFMMatchPhase::WaitingForPlayers
 			? TEXT("WAITING FOR PLAYERS") : Match.Phase == EFMMatchPhase::CombatTest ? TEXT("TEAM COMBAT TEST")
 			: Match.Phase == EFMMatchPhase::Purchase ? TEXT("B  WEAPON / STRUCTURE SHOP")
-			: Match.Phase == EFMMatchPhase::Building ? TEXT("AIM AT FLOOR  |  5 SANDBAGS  /  6 WALL")
+			: Match.Phase == EFMMatchPhase::Building ? (bBuildMode ? TEXT("LMB PLACE  |  R ROTATE  |  C EXIT") : TEXT("C  BUILD MODE"))
 			: (Match.Phase == EFMMatchPhase::Result || Match.Phase == EFMMatchPhase::Finished)
 				? (Match.RoundWinner < 0 ? TEXT("DRAW / NO WINNER") : Match.RoundWinner == 0 ? TEXT("BLUE WINS") : TEXT("RED WINS"))
 				: TEXT(""), Gold, Center, 82.f, 0.58f, true);
 		if (Match.Phase == EFMMatchPhase::Finished)
 			Label(TEXT("F10  RETURN TO MENU"), Gold, Center, 96.f, 0.62f, true);
 		if (Player && Match.bPlayerRoom)
-			Label(FString::Printf(TEXT("$%d  |  5 [%d]  6 [%d]"), Player->GetCredits(), Player->GetStructureCount(0),
-				Player->GetStructureCount(1)), Gold, 30.f, Height - 113.f, 0.65f);
+			Label(FString::Printf(TEXT("$%d"), Player->GetCredits()), Gold, 30.f, Height - 113.f, 0.65f);
 	}
 
 	const float Health = Character->GetHealth();
@@ -152,7 +155,33 @@ void AFMCombatHUD::DrawHUD()
 	Box(FLinearColor(0.16f, 0.19f, 0.24f), 30.f, Height - 29.f, 126.f, 3.f);
 	Box(HealthColor, 30.f, Height - 29.f, 126.f * Health / AFMCharacter::MaxHealth, 3.f);
 
-	const int32 Slot = static_cast<int32>(Character->GetWeaponSlot());
+	const int32 Slot = bBuildMode ? Controller->GetBuildSelection() : static_cast<int32>(Character->GetWeaponSlot());
+	if (bBuildMode)
+	{
+		const auto* Item = AFMStructure::GetItem(Slot);
+		FTransform Placement;
+		AFMStructure* Support = nullptr;
+		const bool bValid = Item && Character->FindStructurePlacement(Slot, Controller->GetBuildRotation(), Placement, Support);
+		const FLinearColor Cyan(0.f, 0.95f, 1.f);
+		Label(bValid ? TEXT("PLACE") : TEXT("CANNOT PLACE"), bValid ? Cyan : Red, Center, Height * 0.5f + 18.f, 0.66f, true);
+		if (bValid)
+		{
+			FVector2D Screen[8];
+			bool bProjected = true;
+			for (int32 Corner = 0; Corner < 8; ++Corner)
+			{
+				const FVector Sign(Corner & 1 ? 1 : -1, Corner & 2 ? 1 : -1, Corner & 4 ? 1 : -1);
+				bProjected &= Controller->ProjectWorldLocationToScreen(Placement.TransformPosition(Item->HalfSize * Sign), Screen[Corner]);
+			}
+			if (bProjected)
+			{
+				for (int32 Corner = 0; Corner < 8; ++Corner)
+					for (const int32 Axis : {1, 2, 4})
+						if (!(Corner & Axis))
+							DrawLine(Screen[Corner].X, Screen[Corner].Y, Screen[Corner | Axis].X, Screen[Corner | Axis].Y, Cyan, 1.5f);
+			}
+		}
+	}
 	const TCHAR* Slots[] = {TEXT("1  PRIMARY"), TEXT("2  SECONDARY"), TEXT("3  MELEE"), TEXT("4  THROWABLE")};
 	for (int32 Index = 0; Index < UE_ARRAY_COUNT(Slots); ++Index)
 	{
@@ -162,7 +191,12 @@ void AFMCombatHUD::DrawHUD()
 		{
 			Box(Gold, X, Height - 41.f, 100.f, 2.f);
 		}
-		Label(Slots[Index], Slot == Index ? Gold : White, X + 50.f, Height - 37.f, 0.72f, true);
+		const auto* Member = Controller ? Controller->GetPlayerState<AFMPlayerState>() : nullptr;
+		const TCHAR* BuildNames[] = {TEXT("SANDBAGS"), TEXT("WALL"), TEXT("CRATE"), TEXT("CONTAINER")};
+		const FString SlotText = bBuildMode
+			? FString::Printf(TEXT("%d %s [%d]"), Index + 1, BuildNames[Index], Member ? Member->GetStructureCount(Index) : 0)
+			: FString(Slots[Index]);
+		Label(SlotText, Slot == Index ? Gold : White, X + 50.f, Height - 37.f, 0.72f, true);
 	}
 	Box(Ink, Width - 166.f, Height - 67.f, 146.f, 47.f);
 	const bool bFirearm = Slot <= static_cast<int32>(EFMWeaponSlot::Secondary);
