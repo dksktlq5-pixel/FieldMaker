@@ -1,5 +1,7 @@
 #pragma once
 #include "GameFramework/GameModeBase.h"
+#include "FMGameState.h"
+#include "TimerManager.h"
 #include "FMGameMode.generated.h"
 
 UCLASS()
@@ -27,7 +29,18 @@ public:
 	// Opt-in for development maps only; the actual match still uses phase gates.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Match")
 	bool bCombatSandbox = false;
+	bool IsInPreparationZone(const AController* Player, const FVector& Location, bool bSpawnOnly) const;
 private:
+	void SetRoundPhase(EFMMatchPhase Phase, float Duration);
+	void UpdateRound();
+	void EndRound(int32 Winner);
+	void ReturnPlayersToSpawn(bool bResetRound, bool bResetEquipment);
+	void ClearStructures();
+	const AActor* GetTeamStart(uint8 Side) const;
+	FTimerHandle RoundTimer;
+	double CaptureProgress = 0;
+	double LastRoundUpdate = 0;
+	int32 CaptureTeam = INDEX_NONE;
 	bool bPlayerRoom = false;
 	bool bRoomStarted = false;
 	FString GetRoomAdmissionError(APlayerController* PendingPlayer = nullptr);

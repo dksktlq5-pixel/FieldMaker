@@ -15,6 +15,7 @@ const TCHAR* PhaseLabel(EFMMatchPhase Phase)
 {
 	switch (Phase)
 	{
+	case EFMMatchPhase::Deploying: return TEXT("DEPLOYING");
 	case EFMMatchPhase::Ready: return TEXT("READY");
 	case EFMMatchPhase::KnifePreparation: return TEXT("KNIFE PREP");
 	case EFMMatchPhase::KnifeCombat: return TEXT("KNIFE");
@@ -121,7 +122,17 @@ void AFMCombatHUD::DrawHUD()
 			Teams[0], Teams[1], *Time), White, Center, 69.f, 0.62f, true);
 		Label(Character->IsSprinting() ? TEXT("SPRINT - ATTACK LOCKED") : Character->IsAiming() ? TEXT("ADS") :
 			Match.Phase == EFMMatchPhase::Ready || Match.Phase == EFMMatchPhase::WaitingForPlayers
-			? TEXT("WAITING FOR ROUND FLOW - ATTACK LOCKED") : TEXT("TEAM COMBAT TEST"), Gold, Center, 82.f, 0.58f, true);
+			? TEXT("WAITING FOR PLAYERS") : Match.Phase == EFMMatchPhase::CombatTest ? TEXT("TEAM COMBAT TEST")
+			: Match.Phase == EFMMatchPhase::Purchase ? TEXT("B  WEAPON / STRUCTURE SHOP")
+			: Match.Phase == EFMMatchPhase::Building ? TEXT("AIM AT FLOOR  |  5 SANDBAGS  /  6 WALL")
+			: (Match.Phase == EFMMatchPhase::Result || Match.Phase == EFMMatchPhase::Finished)
+				? (Match.RoundWinner < 0 ? TEXT("DRAW / NO WINNER") : Match.RoundWinner == 0 ? TEXT("BLUE WINS") : TEXT("RED WINS"))
+				: TEXT(""), Gold, Center, 82.f, 0.58f, true);
+		if (Match.Phase == EFMMatchPhase::Finished)
+			Label(TEXT("F10  RETURN TO MENU"), Gold, Center, 96.f, 0.62f, true);
+		if (Player && Match.bPlayerRoom)
+			Label(FString::Printf(TEXT("$%d  |  5 [%d]  6 [%d]"), Player->GetCredits(), Player->GetStructureCount(0),
+				Player->GetStructureCount(1)), Gold, 30.f, Height - 113.f, 0.65f);
 	}
 
 	const float Health = Character->GetHealth();

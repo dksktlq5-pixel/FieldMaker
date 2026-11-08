@@ -1,5 +1,11 @@
 #include "FMCharacter.h"
 #include "FMGameState.h"
+#include "FMGameMode.h"
+#include "FMPlayerState.h"
+#include "FMStructure.h"
+#include "Camera/CameraComponent.h"
+#include "EngineUtils.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Engine/World.h"
 
 namespace
@@ -82,9 +88,16 @@ void AFMCharacter::RefillArmor()
 void AFMCharacter::ServerEquipTestArmor_Implementation(FName Id)
 {
  const auto* State=GetWorld()->GetGameState<AFMGameState>();
- if(!State || State->GetMatchSnapshot().Phase!=EFMMatchPhase::CombatTest || Health<=0)return;
+ const bool bTest = State && State->GetMatchSnapshot().Phase == EFMMatchPhase::CombatTest;
+ if (Health <= 0 || (!bTest && !CanPurchase())) return;
  if(Id!=TEXT("LightArmor") && Id!=TEXT("MediumArmor"))return;
  if(!ArmorDataTable || !ArmorDataTable->FindRow<FFMArmorRow>(Id,TEXT("ArmorSelection"),false))return;
+ if (!bTest)
+ {
+  auto* Member = GetPlayerState<AFMPlayerState>();
+  const auto Rules = GetCatalogArmorRules(Id);
+  if (!Member || (ArmorId == Id && Armor >= Rules.MaximumArmor) || !Member->SpendCredits(Rules.Price)) return;
+ }
  ArmorId=Id;RefillArmor();ForceNetUpdate();
 }
 
@@ -116,14 +129,21 @@ FFMWeaponRow AFMCharacter::GetCatalogWeaponData(FName Id) const
 void AFMCharacter::ServerSelectCatalogWeapon_Implementation(FName Id)
 {
  const auto* State=GetWorld()->GetGameState<AFMGameState>();
- // Free catalog selection is confined to the combat sandbox until purchase/economy is connected.
- if(!State || State->GetMatchSnapshot().Phase!=EFMMatchPhase::CombatTest || Health<=0 || !WeaponDataTable)return;
+ const bool bTest = State && State->GetMatchSnapshot().Phase == EFMMatchPhase::CombatTest;
+ if ((!bTest && !CanPurchase()) || Health <= 0 || !WeaponDataTable) return;
  const auto* Row=WeaponDataTable->FindRow<FFMWeaponRow>(Id,TEXT("Selection"),false);
  if(!GetCatalogWeaponVisual(Id).bAvailable)return;
- if(!Row || !Row->bInCatalog || Row->Category==EFMWeaponCategory::Melee || Row->Category==EFMWeaponCategory::Grenade)return;
+ if (!Row || !Row->bInCatalog || Row->Category == EFMWeaponCategory::Melee) return;
+ auto* Member = GetPlayerState<AFMPlayerState>();
+ if (Row->Category == EFMWeaponCategory::Grenade)
+ {
+  if (!bTest && Member && Grenades < 2 && Member->SpendCredits(Row->Price)) { ++Grenades; ForceNetUpdate(); }
+  return;
+ }
  const auto Slot=Row->Category==EFMWeaponCategory::Pistol?EFMWeaponSlot::Secondary:EFMWeaponSlot::Primary;
  FName& Current=Slot==EFMWeaponSlot::Primary?PrimaryWeaponId:SecondaryWeaponId;
  if(Current==Id){ServerEquipWeapon_Implementation(Slot);return;}
+ if (!bTest && (!Member || !Member->SpendCredits(Row->Price))) return;
  CancelWeaponActions();Current=Id;WeaponSlot=Slot;
  const auto Data=GetWeaponData(Slot);
  if(Slot==EFMWeaponSlot::Primary){PrimaryAmmo=Data.MagazineSize;PrimaryReserve=Data.ReserveAmmo;}
@@ -153,4 +173,100 @@ FFMWeaponVisualRow AFMCharacter::GetCatalogWeaponVisual(FName Id) const
 {
  if(WeaponVisualDataTable)if(const auto* Row=WeaponVisualDataTable->FindRow<FFMWeaponVisualRow>(Id,TEXT("Presentation"),false))return *Row;
  return FFMWeaponVisualRow();
+}
+
+bool AFMCharacter::CanPurchase() const
+{
+	const auto* State = GetWorld()->GetGameState<AFMGameState>();
+	const auto* Mode = GetWorld()->GetAuthGameMode<AFMGameMode>();
+	return HasAuthority() && Health > 0.f && State && Mode && State->GetMatchSnapshot().bPlayerRoom &&
+		State->GetMatchSnapshot().Phase == EFMMatchPhase::Purchase && State->GetPhaseTimeRemaining() > 0.f &&
+		Mode->IsInPreparationZone(GetController(), GetActorLocation(), true);
+}
+
+void AFMCharacter::ResetForRound(bool bResetEquipment)
+{
+	if (!HasAuthority()) return;
+	const bool bLostEquipment = bResetEquipment || Health <= 0.f;
+	CancelWeaponActions();
+	if (bLostEquipment)
+	{
+		PrimaryWeaponId = NAME_None;
+		SecondaryWeaponId = NAME_None;
+		Armor = 0;
+		Grenades = 0;
+		WeaponSlot = EFMWeaponSlot::Melee;
+	}
+	PrimaryAmmo = PrimaryWeaponId.IsNone() ? 0 : GetWeaponData(EFMWeaponSlot::Primary).MagazineSize;
+	PrimaryReserve = PrimaryWeaponId.IsNone() ? 0 : GetWeaponData(EFMWeaponSlot::Primary).ReserveAmmo;
+	SecondaryAmmo = SecondaryWeaponId.IsNone() ? 0 : GetWeaponData(EFMWeaponSlot::Secondary).MagazineSize;
+	SecondaryReserve = SecondaryWeaponId.IsNone() ? 0 : GetWeaponData(EFMWeaponSlot::Secondary).ReserveAmmo;
+	Health = MaxHealth;
+	bSprinting = false;
+	bAiming = false;
+	NextAttackTime = 0;
+	SetWeaponMotion(EFMWeaponMotion::Ready);
+	SetActorHiddenInGame(false);
+	SetActorEnableCollision(true);
+	GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+	OnRep_WeaponSlot();
+	ForceNetUpdate();
+}
+
+void AFMCharacter::ServerBuyStructure_Implementation(int32 Index)
+{
+	const auto* Item = AFMStructure::GetItem(Index);
+	auto* Member = GetPlayerState<AFMPlayerState>();
+	if (!Item || !Member || !CanPurchase() || Member->GetStructureCount(Index) >= 3 || !Member->SpendCredits(Item->Price)) return;
+	Member->ChangeStructureStock(Index, 1);
+}
+
+void AFMCharacter::ServerPlaceStructure_Implementation(int32 Index)
+{
+	const auto* Item = AFMStructure::GetItem(Index);
+	auto* Member = GetPlayerState<AFMPlayerState>();
+	const auto* State = GetWorld()->GetGameState<AFMGameState>();
+	const auto* Mode = GetWorld()->GetAuthGameMode<AFMGameMode>();
+	if (!Item || !Member || Health <= 0 || Member->GetTeam() >= 2 || Member->GetStructureCount(Index) <= 0 ||
+		!State || !Mode || State->GetMatchSnapshot().Phase != EFMMatchPhase::Building ||
+		State->GetPhaseTimeRemaining() <= 0.f || !Mode->IsInPreparationZone(GetController(), GetActorLocation(), false)) return;
+
+	int32 Placed = 0;
+	for (TActorIterator<AFMStructure> It(GetWorld()); It; ++It) if (++Placed >= 40) return;
+
+	const FVector Eye = FirstPersonCamera->GetComponentLocation();
+	const FCollisionQueryParams Query(SCENE_QUERY_STAT(FMStructurePlacement), false, this);
+	FCollisionObjectQueryParams Ground(ECC_WorldStatic);
+	FHitResult Hit;
+	if (!GetWorld()->LineTraceSingleByObjectType(Hit, Eye, Eye + GetBaseAimRotation().Vector() * 500.f, Ground, Query) ||
+		Hit.ImpactNormal.Z < 0.95f) return;
+
+	const FRotator Facing(0, FMath::GridSnap(GetActorRotation().Yaw + 90.f, 15.f), 0);
+	FVector Floor = Hit.ImpactPoint;
+	Floor.X = FMath::GridSnap(Floor.X, 25.f);
+	Floor.Y = FMath::GridSnap(Floor.Y, 25.f);
+	if (!Mode->IsInPreparationZone(GetController(), Floor, false) || Mode->IsInPreparationZone(GetController(), Floor, true)) return;
+
+	for (const float X : {-1.f, 1.f})
+	{
+		for (const float Y : {-1.f, 1.f})
+		{
+			const FVector Corner = Floor + Facing.RotateVector(FVector(Item->HalfSize.X * X, Item->HalfSize.Y * Y, 0));
+			FHitResult Support;
+			if (!Mode->IsInPreparationZone(GetController(), Corner, false) || Mode->IsInPreparationZone(GetController(), Corner, true) ||
+				!GetWorld()->LineTraceSingleByObjectType(Support, Corner + FVector(0, 0, 15), Corner - FVector(0, 0, 15), Ground, Query) ||
+				Support.ImpactNormal.Z < 0.95f) return;
+		}
+	}
+	const FVector Center = Floor + FVector(0, 0, Item->HalfSize.Z + 2.f);
+	FCollisionObjectQueryParams Blockers = Ground;
+	Blockers.AddObjectTypesToQuery(ECC_WorldDynamic);
+	Blockers.AddObjectTypesToQuery(ECC_Pawn);
+	if (GetWorld()->OverlapAnyTestByObjectType(Center, Facing.Quaternion(), Blockers, FCollisionShape::MakeBox(Item->HalfSize))) return;
+	const FTransform Transform(Facing, Center);
+	auto* Structure = GetWorld()->SpawnActorDeferred<AFMStructure>(AFMStructure::StaticClass(), Transform);
+	if (!Structure) return;
+	Structure->Initialize(Index, Member->GetTeam());
+	Structure->FinishSpawning(Transform);
+	Member->ChangeStructureStock(Index, -1);
 }

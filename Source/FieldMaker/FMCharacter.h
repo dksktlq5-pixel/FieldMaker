@@ -69,6 +69,10 @@ public:
 	int32 GetLoadedAmmo() const;
 	UFUNCTION(BlueprintPure, Category = "Combat")
 	int32 GetReserveAmmo() const;
+	void ResetForRound(bool bResetEquipment);
+	bool CanPurchase() const;
+	UFUNCTION(Server, Reliable) void ServerBuyStructure(int32 Index);
+	UFUNCTION(Server, Reliable) void ServerPlaceStructure(int32 Index);
 	virtual float TakeDamage(float Damage, const FDamageEvent& Event, AController* InstigatorController, AActor* Causer) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 

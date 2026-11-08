@@ -1,4 +1,6 @@
 #include "FMGameMode.h"
+#include "FMStructure.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "FMCombatHUD.h"
 #include "GameFramework/GameStateBase.h"
 #include "FMPlayerState.h"
@@ -121,14 +123,21 @@ bool AFMGameMode::StartPlayerRoom(APlayerController* Requester)
 {
 	auto* State = GetGameState<AFMGameState>();
 	if (!bPlayerRoom || bRoomStarted || !State || !Requester || !Requester->IsLocalController() ||
-		State->GetMatchSnapshot().Phase != EFMMatchPhase::Ready)
+		State->GetMatchSnapshot().Phase != EFMMatchPhase::Ready || !GetTeamStart(0) || !GetTeamStart(1))
 	{
 		return false;
 	}
 
 	bRoomStarted = true;
 	bStartPlayersAsSpectators = false;
-	State->SetPhase(EFMMatchPhase::CombatTest);
+	ReturnPlayersToSpawn(true, true);
+	SetRoundPhase(EFMMatchPhase::Deploying, 2.f);
+	GetWorldTimerManager().SetTimer(RoundTimer, this, &AFMGameMode::UpdateRound, 0.1f, true);
+	return true;
+}
+
+void AFMGameMode::ReturnPlayersToSpawn(bool bResetRound, bool bResetEquipment)
+{
 	constexpr float SpawnSpacing = 135.f;
 	int32 SpawnedPerTeam[2] = {};
 	for (TActorIterator<APlayerController> It(GetWorld()); It; ++It)
@@ -136,21 +145,33 @@ bool AFMGameMode::StartPlayerRoom(APlayerController* Requester)
 		auto* Player = *It;
 		const auto* Member = Player->GetPlayerState<AFMPlayerState>();
 		if (!Member || Member->GetTeam() >= 2) continue;
-		if (const AActor* Start = FindPlayerStart(Player))
+		const auto* State = GetGameState<AFMGameState>();
+		const uint8 Side = Member->GetTeam() ^ uint8(State->GetMatchSnapshot().bSidesSwapped);
+		if (const AActor* Start = GetTeamStart(Side))
 		{
 			const int32 Slot = SpawnedPerTeam[Member->GetTeam()]++;
 			// Fill the center first and alternate left/right so short-handed teams stay centered.
 			const int32 Lane = (Slot + 1) / 2 * (Slot % 2 == 0 ? 1 : -1);
 			FTransform Spawn = Start->GetActorTransform();
 			Spawn.AddToTranslation(Start->GetActorRightVector() * (Lane * SpawnSpacing));
-			RestartPlayerAtTransform(Player, Spawn);
+			if (auto* Pawn = Cast<AFMCharacter>(Player->GetPawn()))
+			{
+				Pawn->GetCharacterMovement()->StopMovementImmediately();
+				Pawn->SetActorLocationAndRotation(Spawn.GetLocation(), Spawn.GetRotation(), false, nullptr, ETeleportType::TeleportPhysics);
+				Player->SetControlRotation(Spawn.Rotator());
+			}
+			else RestartPlayerAtTransform(Player, Spawn);
 		}
 		else
 		{
 			RestartPlayer(Player);
 		}
+		if (auto* Pawn = Cast<AFMCharacter>(Player->GetPawn()))
+		{
+			if (bResetRound) Pawn->ResetForRound(bResetEquipment);
+			Player->SetViewTarget(Pawn);
+		}
 	}
-	return true;
 }
 
 bool AFMGameMode::PlayerCanRestart_Implementation(APlayerController* Player)
@@ -161,7 +182,7 @@ bool AFMGameMode::PlayerCanRestart_Implementation(APlayerController* Player)
 AActor* AFMGameMode::ChoosePlayerStart_Implementation(AController* Player)
 {
 	const auto* State = Player ? Player->GetPlayerState<AFMPlayerState>() : nullptr;
-	if (bTeamMatch && State && State->GetTeam() < 2)
+	if ((bTeamMatch || bPlayerRoom) && State && State->GetTeam() < 2)
 	{
 		const auto* Match = GetGameState<AFMGameState>();
 		const bool bSwap = Match && Match->GetMatchSnapshot().bSidesSwapped;
@@ -174,4 +195,195 @@ AActor* AFMGameMode::ChoosePlayerStart_Implementation(AController* Player)
 		UE_LOG(LogTemp, Warning, TEXT("FIELDMAKER: Missing team start %s"), *Tag.ToString());
 	}
 	return Super::ChoosePlayerStart_Implementation(Player);
+}
+
+const AActor* AFMGameMode::GetTeamStart(uint8 Side) const
+{
+	const FName Tag(*FString::Printf(TEXT("FM_Team%d"), Side));
+	for (TActorIterator<APlayerStart> It(GetWorld()); It; ++It)
+	{
+		if (It->PlayerStartTag == Tag) return *It;
+	}
+	return nullptr;
+}
+
+bool AFMGameMode::IsInPreparationZone(const AController* Player, const FVector& Location, bool bSpawnOnly) const
+{
+	const auto* Member = Player ? Player->GetPlayerState<AFMPlayerState>() : nullptr;
+	const auto* State = GetGameState<AFMGameState>();
+	if (!Member || Member->GetTeam() >= 2 || !State) return false;
+	const uint8 Side = Member->GetTeam() ^ uint8(State->GetMatchSnapshot().bSidesSwapped);
+	const auto* Start = GetTeamStart(Side);
+	const auto* Other = GetTeamStart(Side ^ 1);
+	if (!Start || !Other) return false;
+	const FVector Origin = Start->GetActorLocation();
+	if (bSpawnOnly) return FVector::DistSquared2D(Location, Origin) <= FMath::Square(550.f);
+	const FVector Axis = (Other->GetActorLocation() - Origin).GetSafeNormal2D();
+	return FVector::DotProduct(Location - (Origin + Other->GetActorLocation()) * 0.5f, Axis) < -70.f;
+}
+
+void AFMGameMode::SetRoundPhase(EFMMatchPhase Phase, float Duration)
+{
+	GetGameState<AFMGameState>()->SetPhase(Phase, Duration);
+	const bool bLocked = Phase == EFMMatchPhase::Deploying || Phase == EFMMatchPhase::Countdown || Phase == EFMMatchPhase::Result
+		|| Phase == EFMMatchPhase::SideSwap || Phase == EFMMatchPhase::Finished;
+	for (TActorIterator<AFMCharacter> It(GetWorld()); It; ++It)
+	{
+		if (It->GetHealth() <= 0.f) continue;
+		if (bLocked) It->GetCharacterMovement()->DisableMovement();
+		else if (It->GetCharacterMovement()->MovementMode == MOVE_None)
+			It->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+	}
+}
+
+void AFMGameMode::ClearStructures()
+{
+	for (TActorIterator<AFMStructure> It(GetWorld()); It; ++It) It->Destroy();
+}
+
+void AFMGameMode::EndRound(int32 Winner)
+{
+	auto* State = GetGameState<AFMGameState>();
+	const bool bKnife = State->GetMatchSnapshot().Phase == EFMMatchPhase::KnifeCombat;
+	State->RecordRoundResult(Winner);
+	for (APlayerState* Player : State->PlayerArray)
+	{
+		if (auto* Member = Cast<AFMPlayerState>(Player))
+		{
+			if (bKnife) Member->ResetEconomy(5000);
+			else Member->AddCredits(Member->GetTeam() == Winner ? 4000 : 2500);
+		}
+	}
+	SetRoundPhase(EFMMatchPhase::Result, 10.f);
+}
+
+void AFMGameMode::UpdateRound()
+{
+	auto* State = GetGameState<AFMGameState>();
+	const auto Match = State->GetMatchSnapshot();
+	const double Now = State->GetServerWorldTimeSeconds();
+	const double Delta = FMath::Max(0.0, Now - LastRoundUpdate);
+	LastRoundUpdate = Now;
+	const bool bExpired = State->GetPhaseTimeRemaining() <= 0.f;
+	const bool bKnife = Match.Phase == EFMMatchPhase::KnifeCombat;
+	const bool bFighting = bKnife || Match.Phase == EFMMatchPhase::Combat;
+	int32 Members[2] = {}, Alive[2] = {};
+	float Health[2] = {};
+	AFMCharacter* Living[2] = {};
+	for (APlayerState* Player : State->PlayerArray)
+	{
+		const auto* Member = Cast<AFMPlayerState>(Player);
+		if (!Member || Member->GetTeam() >= 2) continue;
+		const uint8 Team = Member->GetTeam();
+		++Members[Team];
+		auto* Pawn = Cast<AFMCharacter>(Member->GetPawn());
+		if (!Pawn || Pawn->GetHealth() <= 0.f) continue;
+		++Alive[Team];
+		Health[Team] += Pawn->GetHealth();
+		Living[Team] = Pawn;
+		if (Match.Phase == EFMMatchPhase::KnifePreparation || Match.Phase == EFMMatchPhase::Purchase || Match.Phase == EFMMatchPhase::Building)
+		{
+			const bool bSpawnOnly = Match.Phase != EFMMatchPhase::Building;
+			if (!IsInPreparationZone(Pawn->GetController(), Pawn->GetActorLocation(), bSpawnOnly))
+			{
+				const uint8 Side = Team ^ uint8(Match.bSidesSwapped);
+				if (const auto* Start = GetTeamStart(Side))
+				{
+					Pawn->GetCharacterMovement()->StopMovementImmediately();
+					const int32 Lane = Alive[Team] - 1;
+					Pawn->TeleportTo(Start->GetActorLocation() + Start->GetActorRightVector() * (Lane - 2) * 135.f, Pawn->GetActorRotation());
+				}
+			}
+		}
+	}
+	if (Members[0] == 0 || Members[1] == 0)
+	{
+		State->RecordRoundResult(INDEX_NONE);
+		ClearStructures();
+		SetRoundPhase(EFMMatchPhase::Finished, 0.f);
+		GetWorldTimerManager().ClearTimer(RoundTimer);
+		return;
+	}
+	if (bFighting)
+	{
+		for (TActorIterator<APlayerController> It(GetWorld()); It; ++It)
+		{
+			const auto* Member = It->GetPlayerState<AFMPlayerState>();
+			const auto* Pawn = Cast<AFMCharacter>(It->GetPawn());
+			if (Member && Member->GetTeam() < 2 && Pawn && Pawn->GetHealth() <= 0.f && Living[Member->GetTeam()])
+				It->SetViewTarget(Living[Member->GetTeam()]);
+		}
+		if (!Alive[0] || !Alive[1]) { EndRound(Alive[0] ? 0 : Alive[1] ? 1 : INDEX_NONE); return; }
+		if (bExpired)
+		{
+			int32 Winner = INDEX_NONE;
+			if (bKnife && Alive[0] != Alive[1]) Winner = Alive[0] > Alive[1] ? 0 : 1;
+			else if (bKnife && !FMath::IsNearlyEqual(Health[0], Health[1])) Winner = Health[0] > Health[1] ? 0 : 1;
+			EndRound(Winner);
+			return;
+		}
+		if (!bKnife && State->GetPhaseTimeRemaining() <= 60.f)
+		{
+			const auto* A = GetTeamStart(0);
+			const auto* B = GetTeamStart(1);
+			if (!A || !B) return;
+			const FVector Center = (A->GetActorLocation() + B->GetActorLocation()) * 0.5f;
+			bool Present[2] = {};
+			for (TActorIterator<AFMCharacter> It(GetWorld()); It; ++It)
+			{
+				const auto* Member = It->GetPlayerState<AFMPlayerState>();
+				if (Member && Member->GetTeam() < 2 && It->GetHealth() > 0.f && FVector::DistSquared2D(It->GetActorLocation(), Center) <= FMath::Square(350.f))
+					Present[Member->GetTeam()] = true;
+			}
+			if (CaptureTeam != INDEX_NONE && !Present[CaptureTeam]) { CaptureTeam = INDEX_NONE; CaptureProgress = 0; }
+			if (Present[0] != Present[1])
+			{
+				CaptureTeam = Present[0] ? 0 : 1;
+				CaptureProgress += Delta;
+				if (CaptureProgress >= 10.0) EndRound(CaptureTeam);
+			}
+		}
+		return;
+	}
+	if (!bExpired) return;
+	switch (Match.Phase)
+	{
+	case EFMMatchPhase::Deploying: SetRoundPhase(EFMMatchPhase::KnifePreparation, 10.f); break;
+	case EFMMatchPhase::KnifePreparation: SetRoundPhase(EFMMatchPhase::KnifeCombat, 60.f); break;
+	case EFMMatchPhase::Purchase: SetRoundPhase(EFMMatchPhase::Building, 30.f); break;
+	case EFMMatchPhase::Building:
+		ReturnPlayersToSpawn(false, false);
+		SetRoundPhase(EFMMatchPhase::Countdown, 3.f);
+		break;
+	case EFMMatchPhase::Countdown:
+		CaptureTeam = INDEX_NONE;
+		CaptureProgress = 0;
+		SetRoundPhase(EFMMatchPhase::Combat, 150.f);
+		break;
+	case EFMMatchPhase::Result:
+		if (FMath::Max(Match.Team0Score, Match.Team1Score) >= 10)
+		{
+			ClearStructures();
+			SetRoundPhase(EFMMatchPhase::Finished, 0.f);
+			GetWorldTimerManager().ClearTimer(RoundTimer);
+		}
+		else if (!Match.bSidesSwapped && FMath::Max(Match.Team0Score, Match.Team1Score) >= 5)
+			SetRoundPhase(EFMMatchPhase::SideSwap, 5.f);
+		else
+		{
+			State->AdvanceRound(false);
+			ReturnPlayersToSpawn(true, Match.RoundNumber == 1);
+			SetRoundPhase(EFMMatchPhase::Purchase, 20.f);
+		}
+		break;
+	case EFMMatchPhase::SideSwap:
+		ClearStructures();
+		for (APlayerState* Player : State->PlayerArray)
+			if (auto* Member = Cast<AFMPlayerState>(Player)) Member->ResetEconomy(5000);
+		State->AdvanceRound(true);
+		ReturnPlayersToSpawn(true, true);
+		SetRoundPhase(EFMMatchPhase::Purchase, 20.f);
+		break;
+	default: break;
+	}
 }

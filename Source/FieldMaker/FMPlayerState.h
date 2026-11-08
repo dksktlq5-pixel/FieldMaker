@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "FMAppearanceSaveGame.h"
 #include "GameFramework/PlayerState.h"
@@ -19,7 +19,15 @@ public:
 	void SetAppearanceId(uint32 Id);
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
+	UFUNCTION(BlueprintPure, Category="Economy") int32 GetCredits() const { return Credits; }
+	UFUNCTION(BlueprintPure, Category="Economy") int32 GetStructureCount(int32 Index) const { return StructureStock.IsValidIndex(Index) ? StructureStock[Index] : 0; }
+	bool SpendCredits(int32 Price);
+	void AddCredits(int32 Amount);
+	void ResetEconomy(int32 StartingCredits);
+	void ChangeStructureStock(int32 Index, int32 Delta);
 private:
+	UPROPERTY(Replicated) int32 Credits = 0;
+	UPROPERTY(Replicated) TArray<int32> StructureStock = {0, 0};
 	UPROPERTY(Replicated)
 	uint8 Team = UnassignedTeam;
 

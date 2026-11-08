@@ -30,6 +30,24 @@ void AFMGameState::InitializePlayerRoom(bool bSteamRoom)
 	SetLobbyReady(false);
 }
 
+void AFMGameState::RecordRoundResult(int32 Winner)
+{
+	if (!HasAuthority()) return;
+	MatchSnapshot.RoundWinner = Winner;
+	if (Winner == 0) ++MatchSnapshot.Team0Score;
+	if (Winner == 1) ++MatchSnapshot.Team1Score;
+	ForceNetUpdate();
+}
+
+void AFMGameState::AdvanceRound(bool bSwapSides)
+{
+	if (!HasAuthority()) return;
+	++MatchSnapshot.RoundNumber;
+	MatchSnapshot.bSidesSwapped |= bSwapSides;
+	MatchSnapshot.RoundWinner = -1;
+	ForceNetUpdate();
+}
+
 void AFMGameState::SetPhase(EFMMatchPhase Phase, float Duration)
 {
 	if (!HasAuthority() || !FMath::IsFinite(Duration)) return;

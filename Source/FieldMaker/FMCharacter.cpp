@@ -366,8 +366,9 @@ bool AFMCharacter::IsCombatPhaseAllowed(bool bForAttack) const
 	if (!State) return false;
 	switch (State->GetMatchSnapshot().Phase)
 	{
-	case EFMMatchPhase::Practice: case EFMMatchPhase::Combat: case EFMMatchPhase::CombatTest: return true;
-	case EFMMatchPhase::KnifeCombat: return !bForAttack || WeaponSlot == EFMWeaponSlot::Melee;
+	case EFMMatchPhase::Practice: case EFMMatchPhase::CombatTest: return true;
+	case EFMMatchPhase::Combat: return State->GetPhaseTimeRemaining() > 0.f;
+	case EFMMatchPhase::KnifeCombat: return State->GetPhaseTimeRemaining() > 0.f && (!bForAttack || WeaponSlot == EFMWeaponSlot::Melee);
 	default: return false;
 	}
 }
@@ -462,6 +463,13 @@ float AFMCharacter::TakeDamage(float Damage, const FDamageEvent& Event, AControl
 	if (Health <= 0.f)
 	{
 		GetCharacterMovement()->DisableMovement();
+		if (const auto* State = GetWorld()->GetGameState<AFMGameState>(); State && State->GetMatchSnapshot().bPlayerRoom)
+		{
+			SetActorEnableCollision(false);
+			SetActorHiddenInGame(true);
+			if (Attacker && Victim && Attacker != Victim && State->GetMatchSnapshot().Phase == EFMMatchPhase::Combat)
+				InstigatorController->GetPlayerState<AFMPlayerState>()->AddCredits(300);
+		}
 		bSprinting = false;
 		bAiming = false;
 		CancelWeaponActions();
@@ -476,6 +484,12 @@ void AFMCharacter::ServerEquipWeapon_Implementation(EFMWeaponSlot Slot)
 	{
 		return;
 	}
+
+	const auto* State = GetWorld()->GetGameState<AFMGameState>();
+	if (State && State->GetMatchSnapshot().bPlayerRoom &&
+		((Slot == EFMWeaponSlot::Primary && PrimaryWeaponId.IsNone()) ||
+		 (Slot == EFMWeaponSlot::Secondary && SecondaryWeaponId.IsNone()) ||
+		 (Slot == EFMWeaponSlot::Throwable && Grenades <= 0))) return;
 
 	CancelWeaponActions();
 	WeaponSlot = Slot;

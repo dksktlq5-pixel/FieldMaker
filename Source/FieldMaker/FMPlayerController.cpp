@@ -1,4 +1,4 @@
-﻿#include "FMPlayerController.h"
+#include "FMPlayerController.h"
 #include "FMPlayerState.h"
 #include "EnhancedInputSubsystems.h"
 #include "Engine/LocalPlayer.h"
@@ -35,6 +35,7 @@ void AFMPlayerController::PlayerTick(float DeltaTime)
 	if (!State) return;
 
 	const auto Match = State->GetMatchSnapshot();
+	if (ShopWidget && Match.Phase != EFMMatchPhase::Purchase && Match.Phase != EFMMatchPhase::CombatTest) CloseShop();
 	const bool bWaitingInRoom = Match.bPlayerRoom &&
 		(Match.Phase == EFMMatchPhase::WaitingForPlayers || Match.Phase == EFMMatchPhase::Ready);
 	if (bWaitingInRoom && !RoomWidget)
@@ -91,9 +92,11 @@ void AFMPlayerController::StartRoomMatch()
 
 void AFMPlayerController::LeaveRoom()
 {
-	if (IsLocalController() && RoomWidget)
+	const auto* State = GetWorld()->GetGameState<AFMGameState>();
+	if (IsLocalController() && State && State->GetMatchSnapshot().bPlayerRoom &&
+		(RoomWidget || State->GetMatchSnapshot().Phase == EFMMatchPhase::Finished))
 	{
-		if (RoomWidget->bSteamRoom) GetGameInstance()->GetSubsystem<UFMSteamRoomSubsystem>()->LeaveRoom();
+		if (State->GetMatchSnapshot().bSteamRoom) GetGameInstance()->GetSubsystem<UFMSteamRoomSubsystem>()->LeaveRoom();
 		UGameplayStatics::OpenLevel(this, TEXT("/Game/Map/L_FMFrontend"));
 	}
 }
@@ -112,12 +115,15 @@ void AFMPlayerController::SetupInputComponent()
 	InputComponent->BindKey(EKeys::Two, IE_Pressed, this, &AFMPlayerController::EquipWeapon<EFMWeaponSlot::Secondary>);
 	InputComponent->BindKey(EKeys::Three, IE_Pressed, this, &AFMPlayerController::EquipWeapon<EFMWeaponSlot::Melee>);
 	InputComponent->BindKey(EKeys::Four, IE_Pressed, this, &AFMPlayerController::EquipWeapon<EFMWeaponSlot::Throwable>);
+	InputComponent->BindKey(EKeys::Five, IE_Pressed, this, &AFMPlayerController::PlaceStructure<0>);
+	InputComponent->BindKey(EKeys::Six, IE_Pressed, this, &AFMPlayerController::PlaceStructure<1>);
 	InputComponent->BindKey(EKeys::LeftMouseButton, IE_Pressed, this, &AFMPlayerController::UseWeapon);
 	InputComponent->BindKey(EKeys::LeftMouseButton, IE_Released, this, &AFMPlayerController::StopUsingWeapon);
 	InputComponent->BindKey(EKeys::R, IE_Pressed, this, &AFMPlayerController::ReloadWeapon);
 	InputComponent->BindKey(EKeys::RightMouseButton, IE_Pressed, this, &AFMPlayerController::StartAiming);
 	InputComponent->BindKey(EKeys::RightMouseButton, IE_Released, this, &AFMPlayerController::StopAiming);
 	InputComponent->BindKey(EKeys::B, IE_Pressed, this, &AFMPlayerController::ToggleShop);
+	InputComponent->BindKey(EKeys::F10, IE_Pressed, this, &AFMPlayerController::LeaveRoom);
 	InputComponent->BindKey(EKeys::V, IE_Pressed, this, &AFMPlayerController::ToggleTestArmor);
 
 	auto* Input = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
@@ -209,10 +215,20 @@ void AFMPlayerController::ToggleTestArmor()
 	if (auto* CombatPawn = GetPawn<AFMCharacter>()) CombatPawn->ServerToggleTestArmor();
 }
 
+template<int32 Index> void AFMPlayerController::PlaceStructure()
+{
+	const auto* State = GetWorld()->GetGameState<AFMGameState>();
+	if (!State || State->GetMatchSnapshot().Phase != EFMMatchPhase::Building || IsShopOpen()) return;
+	if (auto* CombatPawn = GetPawn<AFMCharacter>()) CombatPawn->ServerPlaceStructure(Index);
+}
+
 void AFMPlayerController::ToggleShop()
 {
  if (!IsLocalController() || RoomWidget) return;
  if (ShopWidget) { CloseShop(); return; }
+ const auto* State = GetWorld()->GetGameState<AFMGameState>();
+ if (!GetPawn<AFMCharacter>() || !State ||
+	 (State->GetMatchSnapshot().Phase != EFMMatchPhase::Purchase && State->GetMatchSnapshot().Phase != EFMMatchPhase::CombatTest)) return;
  ShopWidget = CreateWidget<UFMShopWidget>(this, UFMShopWidget::StaticClass());
  if (!ShopWidget) return;
  if (auto* P = GetPawn<AFMCharacter>())

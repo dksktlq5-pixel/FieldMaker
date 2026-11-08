@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include "GameFramework/PlayerController.h"
 #include "FMCharacter.h"
 #include "FMPlayerController.generated.h"
@@ -12,6 +12,7 @@ class FIELDMAKER_API AFMPlayerController : public APlayerController
 
 public:
 	UFUNCTION(BlueprintCallable, Category="Shop") void ToggleShop();
+	template<int32 Index> void PlaceStructure();
 	UFUNCTION(BlueprintCallable, Category="Shop") void CloseShop();
 	UFUNCTION(BlueprintPure, Category="Shop") UFMShopWidget* GetShopWidget() const { return ShopWidget; }
 	UFUNCTION(BlueprintPure, Category="Shop") bool IsShopOpen() const { return ShopWidget != nullptr; }
