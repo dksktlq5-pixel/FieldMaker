@@ -194,6 +194,10 @@ void AFMCharacter::UpdateWeaponPresentation(float DeltaSeconds)
 	const bool bVisible = GetPlayerState() && Health > 0.f;
 	const bool bLocalView = IsLocallyControlled();
 	const bool bScoped = bLocalView && IsScopeViewActive();
+	// Move the hip-fire rig away from the camera while keeping the hands and weapon together.
+	const FVector CompactViewOffset = bLocalView && bFirearm
+		? FVector(bPrimary ? 9.f : 6.f, 2.f, -4.f) * (1.f - ADSAlpha)
+		: FVector::ZeroVector;
 	// Keep the running weapon close to the lowered shoulders instead of an idle aim pose.
 	SprintPoseAlpha = FMath::FInterpTo(SprintPoseAlpha, bSprinting && GetVelocity().Size2D() > 100.f ? 1.f : 0.f, DeltaSeconds, 10.f);
 	// Retract the knife stance's shoulders while keeping both hands anchored in camera space.
@@ -201,7 +205,8 @@ void AFMCharacter::UpdateWeaponPresentation(float DeltaSeconds)
 	{
 		FirstPersonArms->SetVisibility(bVisible && !bScoped);
 		const FVector ArmOffset = FVector(WeaponSlot == EFMWeaponSlot::Melee ? -12.f : 8.f, 0.f, -170.f)
-			+ (bDetailed ? FMath::Lerp(Visual.ArmOffset, Visual.ADSArmOffset, bFirearm ? ADSAlpha : 0.f) : FVector::ZeroVector);
+			+ (bDetailed ? FMath::Lerp(Visual.ArmOffset, Visual.ADSArmOffset, bFirearm ? ADSAlpha : 0.f) : FVector::ZeroVector)
+			+ CompactViewOffset;
 		FirstPersonArms->SetRelativeLocation(DeltaSeconds > 0.f
 			? FMath::VInterpTo(FirstPersonArms->GetRelativeLocation(), ArmOffset, DeltaSeconds, 18.f) : ArmOffset);
 	}
@@ -293,7 +298,7 @@ void AFMCharacter::UpdateWeaponPresentation(float DeltaSeconds)
 		const FVector ViewGrip = FMath::Lerp(ViewGrips[Slot] + (bDetailed ? Visual.ViewOffset : FVector::ZeroVector),
 			AimGrip, bFirearm ? ADSAlpha : 0.f) + FVector(-5.f, 0.f, -5.f) * SprintPoseAlpha;
 		const FVector ViewReloadLift = FVector(4.f, 0.f, bPistolMagazine ? 12.f : 20.f) * ReloadTilt;
-		const FTransform ViewMotion(Rotation + ViewAngle, ViewGrip + Offset + ViewReloadLift);
+		const FTransform ViewMotion(Rotation + ViewAngle, ViewGrip + Offset + ViewReloadLift + CompactViewOffset);
 		if (WeaponSlot == EFMWeaponSlot::Melee) ViewMeleeMotion = ViewMotion;
 		else ViewWeapon->SetRelativeTransform(ViewMotion);
 	}
@@ -301,16 +306,18 @@ void AFMCharacter::UpdateWeaponPresentation(float DeltaSeconds)
 	const FRotator MeshFacing(0, 90, 0);
 	const float AimPitch = FMath::Clamp(FRotator::NormalizeAxis(GetBaseAimRotation().Pitch), -55.f, 55.f);
 	const FVector WorldGrips[] = {FVector(27, 10, 137), FVector(37, 6, 136),
-		FVector(32, 20, 130), FVector(24, 18, 125)};
+		FVector(30, 23, 121), FVector(24, 18, 125)};
 	const FRotator AimOffset(bFirearm ? AimPitch * 0.72f : 0.f, 0.f, 0.f);
 	const FVector ShoulderPivot(8, 0, 140);
 	const FVector RunningGrip = bPrimary ? FVector(19, 10, 115) : FVector(25, 8, 118);
 	const FVector StanceGrip = FMath::Lerp(WorldGrips[Slot], RunningGrip, bFirearm ? SprintPoseAlpha : 0.f);
 	const FVector WorldGrip = ShoulderPivot + AimOffset.RotateVector(StanceGrip - ShoulderPivot);
-	const FRotator WorldAngle = Rotation + (bFirearm ? AimOffset + FRotator(-18.f, 0.f, 0.f) * SprintPoseAlpha : ViewAngle);
+	const bool bWorldKnife = WeaponSlot == EFMWeaponSlot::Melee;
+	const FRotator WorldAngle = Rotation + (bFirearm ? AimOffset + FRotator(-18.f, 0.f, 0.f) * SprintPoseAlpha :
+		bWorldKnife ? FRotator(0.f, -20.f, 0.f) : ViewAngle);
 	const FTransform WorldMotion(MeshFacing.Quaternion() * WorldAngle.Quaternion(),
 		MeshFacing.RotateVector(WorldGrip + Offset * 0.7f));
-	if (WeaponSlot == EFMWeaponSlot::Melee)
+	if (bWorldKnife)
 	{
 		// Drive the arm from the motion track. The visible knife is attached to the solved hand.
 		WorldMeleeMotion = WorldMotion;
@@ -409,6 +416,7 @@ bool AFMCharacter::GetWeaponGripTargets(const USkeletalMeshComponent& PoseMesh, 
 	case EFMWeaponSlot::Melee:
 		Targets.Right = KnifeGrip();
 		Targets.bAlignKnifeWrist = true;
+		Targets.bFirstPersonKnife = bView;
 		break;
 	case EFMWeaponSlot::Throwable:
 	{
@@ -469,7 +477,7 @@ bool AFMCharacter::GetWeaponGripTargets(const USkeletalMeshComponent& PoseMesh, 
 			WeaponMotion.Motion == EFMWeaponMotion::Throw ? FadeInOut(Age, 0.53f) :
 			WeaponMotion.Motion == EFMWeaponMotion::Equip ? 1.f - Phase(Age, 0.f, GetEquipDuration()) : 0.f;
 		const FVector ViewGuard = bKnife ? FVector(39, -20, -17) : FVector(38, -17, -32);
-		const FVector WorldGuard = bKnife ? FVector(25, -19, 127) : FVector(18, -17, 111);
+		const FVector WorldGuard = bKnife ? FVector(24, -20, 119) : FVector(18, -17, 111);
 		const FVector Palm = (bView ? ViewGuard : WorldGuard) - FVector(0, 0, 8 * Lower);
 		Targets.Left = Grip(Palm, FVector(1, 0.26, 0.20),
 			bKnife ? FVector(0, 0.38, 0.92) : FVector(0, -0.83, -0.56),

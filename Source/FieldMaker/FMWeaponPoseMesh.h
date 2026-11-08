@@ -19,6 +19,25 @@ struct FFMGripTargets
 	FFMHandTarget Right;
 	FFMHandTarget Left;
 	bool bAlignKnifeWrist = false;
+	bool bFirstPersonKnife = false;
+};
+
+struct FFMPoseChain
+{
+	struct FDescendant
+	{
+		int32 Bone;
+		int32 Driver;
+	};
+
+	int32 Bones[3] = {INDEX_NONE, INDEX_NONE, INDEX_NONE};
+	TArray<FDescendant> Descendants;
+};
+
+struct FFMPoseArm
+{
+	FFMPoseChain Arm;
+	FFMPoseChain Digits[5];
 };
 
 // Applies hand IK before the evaluated pose reaches the renderer and outfit followers.
@@ -29,4 +48,9 @@ class UFMWeaponPoseMesh : public USkeletalMeshComponent
 
 public:
 	virtual void FinalizeBoneTransform() override;
+
+private:
+	TWeakObjectPtr<USkeletalMesh> CachedRigMesh;
+	FFMPoseArm RightRig;
+	FFMPoseArm LeftRig;
 };

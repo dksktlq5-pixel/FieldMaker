@@ -1,6 +1,5 @@
 #include "FMWeaponPoseMesh.h"
 
-#include "Algo/Find.h"
 #include "Engine/SkeletalMesh.h"
 #include "FMCharacter.h"
 #include "Math/RotationMatrix.h"
@@ -19,14 +18,72 @@ const FDigit RightDigits[] = {
 	{TEXT("index_01_r"), TEXT("index_02_r"), TEXT("index_03_r")},
 	{TEXT("middle_01_r"), TEXT("middle_02_r"), TEXT("middle_03_r")},
 	{TEXT("ring_01_r"), TEXT("ring_02_r"), TEXT("ring_03_r")},
-	{TEXT("pinky_01_r"), TEXT("pinky_02_r"), TEXT("pinky_03_r")}
+	{TEXT("pinky_01_r"), TEXT("pinky_02_r"), TEXT("pinky_03_r")},
+	{TEXT("thumb_01_r"), TEXT("thumb_02_r"), TEXT("thumb_03_r")}
 };
 const FDigit LeftDigits[] = {
 	{TEXT("index_01_l"), TEXT("index_02_l"), TEXT("index_03_l")},
 	{TEXT("middle_01_l"), TEXT("middle_02_l"), TEXT("middle_03_l")},
 	{TEXT("ring_01_l"), TEXT("ring_02_l"), TEXT("ring_03_l")},
-	{TEXT("pinky_01_l"), TEXT("pinky_02_l"), TEXT("pinky_03_l")}
+	{TEXT("pinky_01_l"), TEXT("pinky_02_l"), TEXT("pinky_03_l")},
+	{TEXT("thumb_01_l"), TEXT("thumb_02_l"), TEXT("thumb_03_l")}
 };
+
+FFMPoseChain BuildChain(const FReferenceSkeleton& Skeleton, const FDigit& Names)
+{
+	FFMPoseChain Chain;
+	Chain.Bones[0] = Skeleton.FindBoneIndex(Names.Proximal);
+	Chain.Bones[1] = Skeleton.FindBoneIndex(Names.Middle);
+	Chain.Bones[2] = Skeleton.FindBoneIndex(Names.Tip);
+	if (Chain.Bones[0] == INDEX_NONE || Chain.Bones[1] == INDEX_NONE || Chain.Bones[2] == INDEX_NONE)
+	{
+		return Chain;
+	}
+
+	TArray<int32, TInlineAllocator<512>> NearestDriver;
+	NearestDriver.Init(INDEX_NONE, Skeleton.GetNum());
+	for (int32 Bone = Chain.Bones[0]; Bone < Skeleton.GetNum(); ++Bone)
+	{
+		if (Bone == Chain.Bones[0] || Bone == Chain.Bones[1] || Bone == Chain.Bones[2])
+		{
+			NearestDriver[Bone] = Bone == Chain.Bones[0] ? 0 : Bone == Chain.Bones[1] ? 1 : 2;
+			continue;
+		}
+		const int32 Parent = Skeleton.GetParentIndex(Bone);
+		if (Parent != INDEX_NONE && NearestDriver[Parent] != INDEX_NONE)
+		{
+			const int32 Driver = NearestDriver[Parent];
+			NearestDriver[Bone] = Driver;
+			Chain.Descendants.Add({Bone, Driver});
+		}
+	}
+	return Chain;
+}
+
+FFMPoseArm BuildArm(const FReferenceSkeleton& Skeleton, bool bRight)
+{
+	FFMPoseArm Rig;
+	Rig.Arm = BuildChain(Skeleton, bRight
+		? FDigit{TEXT("upperarm_r"), TEXT("lowerarm_r"), TEXT("hand_r")}
+		: FDigit{TEXT("upperarm_l"), TEXT("lowerarm_l"), TEXT("hand_l")});
+	const auto& Digits = bRight ? RightDigits : LeftDigits;
+	for (int32 Index = 0; Index < UE_ARRAY_COUNT(Rig.Digits); ++Index)
+	{
+		Rig.Digits[Index] = BuildChain(Skeleton, Digits[Index]);
+	}
+	return Rig;
+}
+
+void RebaseDescendants(const FFMPoseChain& Chain, TArray<FTransform>& Pose, const FTransform (&Previous)[3])
+{
+	for (const auto& Entry : Chain.Descendants)
+	{
+		if (Pose.IsValidIndex(Entry.Bone))
+		{
+			Pose[Entry.Bone] = Pose[Entry.Bone].GetRelativeTransform(Previous[Entry.Driver]) * Pose[Chain.Bones[Entry.Driver]];
+		}
+	}
+}
 
 void AimJoint(FTransform& Joint, const FTransform& Child, const FVector& Direction)
 {
@@ -37,18 +94,17 @@ void AimJoint(FTransform& Joint, const FTransform& Child, const FVector& Directi
 	}
 }
 
-void PoseDigit(const FReferenceSkeleton& Skeleton, TArray<FTransform>& Pose, const FDigit& Digit,
+void PoseDigit(const FFMPoseChain& Chain, TArray<FTransform>& Pose,
 	const FVector& ProximalDirection, const FVector& MiddleDirection, const FQuat& TipBend)
 {
-	const int32 A = Skeleton.FindBoneIndex(Digit.Proximal);
-	const int32 B = Skeleton.FindBoneIndex(Digit.Middle);
-	const int32 C = Skeleton.FindBoneIndex(Digit.Tip);
+	const int32 A = Chain.Bones[0];
+	const int32 B = Chain.Bones[1];
+	const int32 C = Chain.Bones[2];
 	if (!Pose.IsValidIndex(A) || !Pose.IsValidIndex(B) || !Pose.IsValidIndex(C))
 	{
 		return;
 	}
-	const int32 DigitChain[] = {A,B,C};
- const FTransform DigitPrevious[] = {Pose[A],Pose[B],Pose[C]};
+	const FTransform DigitPrevious[] = {Pose[A], Pose[B], Pose[C]};
 	const FTransform SecondLocal = Pose[B].GetRelativeTransform(Pose[A]);
 	const FTransform ThirdLocal = Pose[C].GetRelativeTransform(Pose[B]);
 	AimJoint(Pose[A], Pose[B], ProximalDirection);
@@ -57,25 +113,11 @@ void PoseDigit(const FReferenceSkeleton& Skeleton, TArray<FTransform>& Pose, con
 	AimJoint(Pose[B], Pose[C], MiddleDirection);
 	Pose[C] = ThirdLocal * Pose[B];
 	Pose[C].SetRotation(TipBend * Pose[C].GetRotation());
- // Quantum fingers also skin against half, bulge and joint-correction children.
- // Rebase every descendant from its nearest driven phalanx, not just the three primary joints.
- for(int32 Bone=A+1;Bone<Pose.Num();++Bone)
- {
-  if(Bone==B || Bone==C)continue;
-  for(int32 Parent=Skeleton.GetParentIndex(Bone);Parent>=A;Parent=Skeleton.GetParentIndex(Parent))
-  {
-   const int32* Driven=Algo::Find(DigitChain,Parent);
-   if(Driven)
-   {
-    Pose[Bone]=Pose[Bone].GetRelativeTransform(DigitPrevious[Driven-DigitChain])*Pose[Parent];
-    break;
-   }
-  }
- }
-
+	// Preserve the local transforms of Quantum's finger correction bones.
+	RebaseDescendants(Chain, Pose, DigitPrevious);
 }
 
-void PoseFingers(const FReferenceSkeleton& Skeleton, TArray<FTransform>& Pose,
+void PoseFingers(const FFMPoseArm& Rig, TArray<FTransform>& Pose,
 	const FTransform& Wrist, const FFMHandTarget& Hand, bool bRight)
 {
 	// The two meshes use mirrored hand axes. The palm faces +Y on the right and -Y on the left.
@@ -86,8 +128,7 @@ void PoseFingers(const FReferenceSkeleton& Skeleton, TArray<FTransform>& Pose,
 		return Wrist.TransformVectorNoScale(FVector(-Side * FMath::Cos(Radians),
 			Side * FMath::Sin(Radians), Spread * Side));
 	};
-	const FDigit* Digits = bRight ? RightDigits : LeftDigits;
-	for (int32 Index = 0; Index < UE_ARRAY_COUNT(RightDigits); ++Index)
+	for (int32 Index = 0; Index < UE_ARRAY_COUNT(Rig.Digits) - 1; ++Index)
 	{
 		// The outer digits close progressively farther around the grip than the middle finger.
 		const double OuterCurl = FMath::Clamp((Hand.FingerBend.X - 25.0) / 40.0, 0.0, 1.0);
@@ -95,29 +136,27 @@ void PoseFingers(const FReferenceSkeleton& Skeleton, TArray<FTransform>& Pose,
 			Hand.FingerBend + FVector2D(3.0, 4.0) * ((Index - 1) * OuterCurl);
 		const double Spread = (1.5 - Index) * FMath::Lerp(0.045, 0.016, OuterCurl);
 		const FQuat TipBend(Wrist.GetUnitAxis(EAxis::Z), -FMath::DegreesToRadians(Bend.X * 0.20));
-		PoseDigit(Skeleton, Pose, Digits[Index], Direction(Bend.X, Spread), Direction(Bend.Y, Spread), TipBend);
+		PoseDigit(Rig.Digits[Index], Pose, Direction(Bend.X, Spread), Direction(Bend.Y, Spread), TipBend);
 	}
 
-	const FDigit Thumb = bRight
-		? FDigit{TEXT("thumb_01_r"), TEXT("thumb_02_r"), TEXT("thumb_03_r")}
-		: FDigit{TEXT("thumb_01_l"), TEXT("thumb_02_l"), TEXT("thumb_03_l")};
 	const float Opposition = Hand.ThumbOpposition;
 	const bool bSupportThumb=Hand.bWeaponGrip && !bRight;
  const FVector ThumbBase=bSupportThumb?FVector(-.75,.32,-.50):FVector(-0.70,0.38+0.16*Opposition,0.63);
 	const FVector ThumbTip=bSupportThumb?FVector(-.82,.35,-.30):FVector(-0.72,0.35+0.45*Opposition,0.35-0.42*Opposition);
  const FVector AlongBase=bSupportThumb?FVector(-.86,.08,-.50):Hand.bWeaponGrip?FVector(-.91,-.10,.36):FVector(-.91,.06,.36);
  const FVector AlongTip=bSupportThumb?FVector(-.98,.06,-.23):Hand.bWeaponGrip?FVector(-.99,-.10,-.08):FVector(-.99,.08,-.08);
-	PoseDigit(Skeleton, Pose, Thumb,
+	PoseDigit(Rig.Digits[UE_ARRAY_COUNT(Rig.Digits) - 1], Pose,
 		Wrist.TransformVectorNoScale(FMath::Lerp(ThumbBase, AlongBase, Hand.ThumbAlongFrame) * Side),
 		Wrist.TransformVectorNoScale(FMath::Lerp(ThumbTip, AlongTip, Hand.ThumbAlongFrame) * Side),
 		FQuat::Identity);
 }
 
-void SolveArm(const FReferenceSkeleton& Skeleton, TArray<FTransform>& Pose, const FFMHandTarget& Target, bool bRight, bool bAlignKnifeWrist = false)
+void SolveArm(const FFMPoseArm& Rig, TArray<FTransform>& Pose, const FFMHandTarget& Target, bool bRight,
+	bool bAlignKnifeWrist = false, bool bFirstPersonKnife = false)
 {
-	const int32 Shoulder = Skeleton.FindBoneIndex(bRight ? TEXT("upperarm_r") : TEXT("upperarm_l"));
-	const int32 Elbow = Skeleton.FindBoneIndex(bRight ? TEXT("lowerarm_r") : TEXT("lowerarm_l"));
-	const int32 Wrist = Skeleton.FindBoneIndex(bRight ? TEXT("hand_r") : TEXT("hand_l"));
+	const int32 Shoulder = Rig.Arm.Bones[0];
+	const int32 Elbow = Rig.Arm.Bones[1];
+	const int32 Wrist = Rig.Arm.Bones[2];
 	if (!Pose.IsValidIndex(Shoulder) || !Pose.IsValidIndex(Elbow) || !Pose.IsValidIndex(Wrist))
 	{
 		return;
@@ -127,8 +166,9 @@ void SolveArm(const FReferenceSkeleton& Skeleton, TArray<FTransform>& Pose, cons
 	const FTransform OldElbow = Pose[Elbow];
 	const FTransform OldWrist = Pose[Wrist];
 	// Component +Y is forward and -X is the character's right. Keep the elbows low and outboard.
-	const FVector PoleOffset = bAlignKnifeWrist
+	const FVector PoleOffset = bFirstPersonKnife
 		? FVector(12, 14, Target.Wrist.GetLocation().Z - OldShoulder.GetLocation().Z)
+		: bAlignKnifeWrist ? FVector(-22, -4, -32)
 		: Target.bWeaponGrip && !bRight?Target.ElbowPole:FVector(bRight ? -26 : 26,5,-46);
 	const FVector Pole = OldShoulder.GetLocation() + PoleOffset;
 	AnimationCore::SolveTwoBoneIK(Pose[Shoulder], Pose[Elbow], Pose[Wrist], Pole, Target.Wrist.GetLocation(), false, 1.f, 1.f);
@@ -139,8 +179,10 @@ void SolveArm(const FReferenceSkeleton& Skeleton, TArray<FTransform>& Pose, cons
 	{
 		if (bAlignKnifeWrist)
 		{
-			// The elbow stays inboard; the palm and blade lead forward across the lower screen.
-			const FVector ThumbSide = FVector(1, 0.7, 0.30) + 0.10 * Target.Wrist.GetUnitAxis(EAxis::Z);
+			// Keep the wrist in line with the forearm, using the swing track for world-space blade roll.
+			const FVector ThumbSide = bFirstPersonKnife
+				? FVector(1, 0.7, 0.30) + 0.10 * Target.Wrist.GetUnitAxis(EAxis::Z)
+				: Target.Wrist.GetUnitAxis(EAxis::Z);
 			WristRotation = FRotationMatrix::MakeFromXZ(-ForearmAxis, ThumbSide).ToQuat();
 		}
 		const FQuat WristDelta = WristRotation * Pose[Wrist].GetRotation().Inverse();
@@ -151,26 +193,9 @@ void SolveArm(const FReferenceSkeleton& Skeleton, TArray<FTransform>& Pose, cons
 	}
 	Pose[Wrist].SetRotation(WristRotation);
 
-	const int32 Chain[] = {Shoulder, Elbow, Wrist};
 	const FTransform Previous[] = {OldShoulder, OldElbow, OldWrist};
-	for (int32 Bone = Shoulder + 1; Bone < Pose.Num(); ++Bone)
-	{
-		if (Bone == Elbow || Bone == Wrist)
-		{
-			continue;
-		}
-
-		for (int32 Parent = Skeleton.GetParentIndex(Bone); Parent >= Shoulder; Parent = Skeleton.GetParentIndex(Parent))
-		{
-			const int32* ChainBone = Algo::Find(Chain, Parent);
-			if (ChainBone)
-			{
-				Pose[Bone] = Pose[Bone].GetRelativeTransform(Previous[ChainBone - Chain]) * Pose[Parent];
-				break;
-			}
-		}
-	}
-	PoseFingers(Skeleton, Pose, Pose[Wrist], Target, bRight);
+	RebaseDescendants(Rig.Arm, Pose, Previous);
+	PoseFingers(Rig, Pose, Pose[Wrist], Target, bRight);
 }
 }
 
@@ -182,10 +207,16 @@ void UFMWeaponPoseMesh::FinalizeBoneTransform()
 		const auto* Character = Cast<AFMCharacter>(GetOwner());
 		if (Character && Character->GetWeaponGripTargets(*this, Grips))
 		{
-			const FReferenceSkeleton& Skeleton = GetSkeletalMeshAsset()->GetRefSkeleton();
+			const auto* Mesh = GetSkeletalMeshAsset();
+			if (CachedRigMesh.Get() != Mesh)
+			{
+				RightRig = BuildArm(Mesh->GetRefSkeleton(), true);
+				LeftRig = BuildArm(Mesh->GetRefSkeleton(), false);
+				CachedRigMesh = GetSkeletalMeshAsset();
+			}
 			TArray<FTransform>& Pose = GetEditableComponentSpaceTransforms();
-			SolveArm(Skeleton, Pose, Grips.Right, true, Grips.bAlignKnifeWrist);
-			SolveArm(Skeleton, Pose, Grips.Left, false);
+			SolveArm(RightRig, Pose, Grips.Right, true, Grips.bAlignKnifeWrist, Grips.bFirstPersonKnife);
+			SolveArm(LeftRig, Pose, Grips.Left, false);
 		}
 	}
 	Super::FinalizeBoneTransform();

@@ -61,6 +61,7 @@ AFMCharacter::AFMCharacter(const FObjectInitializer& ObjectInitializer)
 	Body->SetGenerateOverlapEvents(false);
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Ignore);
+	// Modular outfits render instead of this leader mesh, so render visibility cannot gate its pose.
 	Body->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
 
 	const TCHAR* PartNames[] = {
@@ -131,11 +132,6 @@ AFMCharacter::AFMCharacter(const FObjectInitializer& ObjectInitializer)
 void AFMCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	// Server bones remain current for hit detection. Clients only need rendered third-person poses.
-	if (GetNetMode() == NM_Client)
-	{
-		GetMesh()->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::OnlyTickPoseWhenRendered;
-	}
 	if (FPackageName::DoesPackageExist(TEXT("/Game/FieldMaker/Data/DT_FMWeapons")))
 		WeaponDataTable = LoadObject<UDataTable>(nullptr,TEXT("/Game/FieldMaker/Data/DT_FMWeapons.DT_FMWeapons"));
 	if (FPackageName::DoesPackageExist(TEXT("/Game/FieldMaker/Data/DT_FMArmor")))
