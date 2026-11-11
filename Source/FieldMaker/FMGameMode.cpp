@@ -241,11 +241,11 @@ void AFMGameMode::ClearStructures()
 	for (TActorIterator<AFMStructure> It(GetWorld()); It; ++It) It->Destroy();
 }
 
-void AFMGameMode::EndRound(int32 Winner)
+void AFMGameMode::EndRound(int32 Winner, EFMResultReason Reason)
 {
 	auto* State = GetGameState<AFMGameState>();
 	const bool bKnife = State->GetMatchSnapshot().Phase == EFMMatchPhase::KnifeCombat;
-	State->RecordRoundResult(Winner);
+	State->RecordRoundResult(Winner, Reason);
 	for (APlayerState* Player : State->PlayerArray)
 	{
 		if (auto* Member = Cast<AFMPlayerState>(Player))
@@ -298,7 +298,7 @@ void AFMGameMode::UpdateRound()
 	}
 	if (Members[0] == 0 || Members[1] == 0)
 	{
-		State->RecordRoundResult(INDEX_NONE);
+		State->RecordRoundResult(INDEX_NONE, EFMResultReason::TeamLeft);
 		ClearStructures();
 		SetRoundPhase(EFMMatchPhase::Finished, 0.f);
 		GetWorldTimerManager().ClearTimer(RoundTimer);
@@ -313,13 +313,18 @@ void AFMGameMode::UpdateRound()
 			if (Member && Member->GetTeam() < 2 && Pawn && Pawn->GetHealth() <= 0.f && Living[Member->GetTeam()])
 				It->SetViewTarget(Living[Member->GetTeam()]);
 		}
-		if (!Alive[0] || !Alive[1]) { EndRound(Alive[0] ? 0 : Alive[1] ? 1 : INDEX_NONE); return; }
+		if (!Alive[0] || !Alive[1])
+		{
+			const int32 Winner = Alive[0] ? 0 : Alive[1] ? 1 : INDEX_NONE;
+			EndRound(Winner, Winner == INDEX_NONE ? EFMResultReason::DoubleElimination : EFMResultReason::Elimination);
+			return;
+		}
 		if (bExpired)
 		{
 			int32 Winner = INDEX_NONE;
 			if (bKnife && Alive[0] != Alive[1]) Winner = Alive[0] > Alive[1] ? 0 : 1;
 			else if (bKnife && !FMath::IsNearlyEqual(Health[0], Health[1])) Winner = Health[0] > Health[1] ? 0 : 1;
-			EndRound(Winner);
+			EndRound(Winner, EFMResultReason::TimeExpired);
 			return;
 		}
 		if (!bKnife && State->GetPhaseTimeRemaining() <= 60.f)
@@ -340,7 +345,7 @@ void AFMGameMode::UpdateRound()
 			{
 				CaptureTeam = Present[0] ? 0 : 1;
 				CaptureProgress += FMath::Min(Delta, 60.0 - State->GetPhaseTimeRemaining());
-				if (CaptureProgress >= 10.0) { EndRound(CaptureTeam); return; }
+				if (CaptureProgress >= 10.0) { EndRound(CaptureTeam, EFMResultReason::Capture); return; }
 			}
 			State->UpdateCapture(Center, CaptureTeam, FMath::FloorToInt(CaptureProgress * 10.0), Present[0] && Present[1]);
 		}

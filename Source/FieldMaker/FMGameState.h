@@ -10,6 +10,12 @@ enum class EFMMatchPhase : uint8
 	Purchase, Building, Countdown, Combat, Result, SideSwap, Finished, CombatTest, Deploying
 };
 
+UENUM(BlueprintType)
+enum class EFMResultReason : uint8
+{
+	None, Elimination, DoubleElimination, Capture, TimeExpired, TeamLeft
+};
+
 // One replicated snapshot keeps scores, round and phase changes together.
 USTRUCT(BlueprintType)
 struct FFMMatchSnapshot
@@ -18,6 +24,7 @@ struct FFMMatchSnapshot
 	UPROPERTY(BlueprintReadOnly) EFMMatchPhase Phase = EFMMatchPhase::Practice;
 	UPROPERTY(BlueprintReadOnly) int32 RoundNumber = 0;
 	UPROPERTY(BlueprintReadOnly) int32 RoundWinner = -1;
+	UPROPERTY(BlueprintReadOnly) EFMResultReason ResultReason = EFMResultReason::None;
 	UPROPERTY(BlueprintReadOnly) int32 Team0Score = 0;
 	UPROPERTY(BlueprintReadOnly) int32 Team1Score = 0;
 	UPROPERTY(BlueprintReadOnly) double PhaseEndServerTime = 0.0;
@@ -44,7 +51,7 @@ public:
 	FFMMatchSnapshot GetMatchSnapshot() const { return MatchSnapshot; }
 	UFUNCTION(BlueprintPure, Category="Match")
 	float GetPhaseTimeRemaining() const;
-	void RecordRoundResult(int32 Winner);
+	void RecordRoundResult(int32 Winner, EFMResultReason Reason);
 	void AdvanceRound(bool bSwapSides);
 	void UpdateCapture(const FVector& Center, int32 Team, int32 Percent, bool bContested);
 	void SetLobbyReady(bool bReady);

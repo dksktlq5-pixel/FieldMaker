@@ -34,7 +34,7 @@ public:
 private:
 	void SetRoundPhase(EFMMatchPhase Phase, float Duration);
 	void UpdateRound();
-	void EndRound(int32 Winner);
+	void EndRound(int32 Winner, EFMResultReason Reason);
 	void ReturnPlayersToSpawn(bool bResetRound, bool bResetEquipment);
 	void ClearStructures();
 	FTimerHandle RoundTimer;

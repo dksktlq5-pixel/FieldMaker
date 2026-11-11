@@ -13,6 +13,19 @@
 
 namespace
 {
+const TCHAR* ResultLabel(EFMResultReason Reason)
+{
+	switch (Reason)
+	{
+	case EFMResultReason::Elimination: return TEXT("TEAM ELIMINATED");
+	case EFMResultReason::DoubleElimination: return TEXT("BOTH TEAMS ELIMINATED");
+	case EFMResultReason::Capture: return TEXT("CENTER CAPTURED");
+	case EFMResultReason::TimeExpired: return TEXT("TIME EXPIRED");
+	case EFMResultReason::TeamLeft: return TEXT("TEAM DISCONNECTED");
+	default: return TEXT("");
+	}
+}
+
 const TCHAR* PhaseLabel(EFMMatchPhase Phase)
 {
 	switch (Phase)
@@ -132,8 +145,10 @@ void AFMCombatHUD::DrawHUD()
 			: (Match.Phase == EFMMatchPhase::Result || Match.Phase == EFMMatchPhase::Finished)
 				? (Match.RoundWinner < 0 ? TEXT("DRAW / NO WINNER") : Match.RoundWinner == 0 ? TEXT("BLUE WINS") : TEXT("RED WINS"))
 				: TEXT(""), Gold, Center, 82.f, 0.58f, true);
+		if (Match.Phase == EFMMatchPhase::Result || Match.Phase == EFMMatchPhase::Finished)
+			Label(ResultLabel(Match.ResultReason), White, Center, 96.f, 0.65f, true);
 		if (Match.Phase == EFMMatchPhase::Finished)
-			Label(TEXT("F10  RETURN TO MENU"), Gold, Center, 96.f, 0.62f, true);
+			Label(TEXT("F10  RETURN TO MENU"), Gold, Center, 110.f, 0.62f, true);
 		if (Player && Match.bPlayerRoom)
 			Label(FString::Printf(TEXT("$%d"), Player->GetCredits()), Gold, 30.f, Height - 113.f, 0.65f);
 	}

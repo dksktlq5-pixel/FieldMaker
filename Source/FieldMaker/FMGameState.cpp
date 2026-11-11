@@ -30,10 +30,11 @@ void AFMGameState::InitializePlayerRoom(bool bSteamRoom)
 	SetLobbyReady(false);
 }
 
-void AFMGameState::RecordRoundResult(int32 Winner)
+void AFMGameState::RecordRoundResult(int32 Winner, EFMResultReason Reason)
 {
 	if (!HasAuthority()) return;
 	MatchSnapshot.RoundWinner = Winner;
+	MatchSnapshot.ResultReason = Reason;
 	if (Winner == 0) ++MatchSnapshot.Team0Score;
 	if (Winner == 1) ++MatchSnapshot.Team1Score;
 	ForceNetUpdate();
@@ -45,6 +46,7 @@ void AFMGameState::AdvanceRound(bool bSwapSides)
 	++MatchSnapshot.RoundNumber;
 	MatchSnapshot.bSidesSwapped |= bSwapSides;
 	MatchSnapshot.RoundWinner = -1;
+	MatchSnapshot.ResultReason = EFMResultReason::None;
 	ForceNetUpdate();
 }
 
