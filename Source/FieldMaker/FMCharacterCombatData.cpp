@@ -221,14 +221,22 @@ void AFMCharacter::ServerBuyStructure_Implementation(int32 Index)
 	Member->ChangeStructureStock(Index, 1);
 }
 
-bool AFMCharacter::FindStructurePlacement(int32 Index, int32 QuarterTurns, FTransform& Transform, AFMStructure*& Support) const
+bool AFMCharacter::FindStructurePlacement(int32 Index, int32 QuarterTurns, FTransform& Transform, AFMStructure*& Support, const TCHAR** Reason) const
 {
+	const auto Reject = [Reason](const TCHAR* Message)
+	{
+		if (Reason) *Reason = Message;
+		return false;
+	};
 	const auto* Item = AFMStructure::GetItem(Index);
 	const auto* Member = GetPlayerState<AFMPlayerState>();
 	const auto* State = GetWorld()->GetGameState<AFMGameState>();
 	if (!Item || QuarterTurns < 0 || QuarterTurns > 3 || !Member || Health <= 0 || Member->GetTeam() >= 2 ||
-		Member->GetStructureCount(Index) <= 0 || !State || State->GetMatchSnapshot().Phase != EFMMatchPhase::Building ||
-		State->GetPhaseTimeRemaining() <= 0.f || !AFMGameMode::IsInPreparationZone(GetController(), GetActorLocation(), false)) return false;
+		!State || State->GetMatchSnapshot().Phase != EFMMatchPhase::Building ||
+		State->GetPhaseTimeRemaining() <= 0.f) return Reject(TEXT("BUILD UNAVAILABLE"));
+	if (Member->GetStructureCount(Index) <= 0) return Reject(TEXT("OUT OF STOCK"));
+	if (!AFMGameMode::IsInPreparationZone(GetController(), GetActorLocation(), false))
+		return Reject(TEXT("OUTSIDE BUILD ZONE"));
 
 	const FVector Eye = FirstPersonCamera->GetComponentLocation();
 	const FCollisionQueryParams Query(SCENE_QUERY_STAT(FMStructurePlacement), false, this);
@@ -236,11 +244,11 @@ bool AFMCharacter::FindStructurePlacement(int32 Index, int32 QuarterTurns, FTran
 	Surfaces.AddObjectTypesToQuery(ECC_WorldDynamic);
 	FHitResult Hit;
 	if (!GetWorld()->LineTraceSingleByObjectType(Hit, Eye, Eye + GetBaseAimRotation().Vector() * 550.f, Surfaces, Query) ||
-		Hit.ImpactNormal.Z < 0.95f) return false;
+		Hit.ImpactNormal.Z < 0.95f) return Reject(TEXT("AIM AT A FLAT SURFACE"));
 
 	Support = Cast<AFMStructure>(Hit.GetActor());
-	if (Support && (Support->GetOwnerTeam() != Member->GetTeam() || Support->IsActorBeingDestroyed())) return false;
-	if (!Support && Hit.Component.IsValid() && Hit.Component->GetCollisionObjectType() != ECC_WorldStatic) return false;
+	if (Support && (Support->GetOwnerTeam() != Member->GetTeam() || Support->IsActorBeingDestroyed())) return Reject(TEXT("INVALID SUPPORT"));
+	if (!Support && Hit.Component.IsValid() && Hit.Component->GetCollisionObjectType() != ECC_WorldStatic) return Reject(TEXT("INVALID SUPPORT"));
 
 	const float BaseYaw = Support ? Support->GetActorRotation().Yaw : FMath::GridSnap(GetActorRotation().Yaw + 90.f, 15.f);
 	const FRotator Facing(0, BaseYaw + 90.f * QuarterTurns, 0);
@@ -252,7 +260,7 @@ bool AFMCharacter::FindStructurePlacement(int32 Index, int32 QuarterTurns, FTran
 	Offset.Y = FMath::GridSnap(Offset.Y, 25.f);
 	Floor = Anchor + SupportRotation.RotateVector(Offset);
 	if (!AFMGameMode::IsInPreparationZone(GetController(), Floor, false) ||
-		AFMGameMode::IsInPreparationZone(GetController(), Floor, true)) return false;
+		AFMGameMode::IsInPreparationZone(GetController(), Floor, true)) return Reject(TEXT("OUTSIDE BUILD ZONE"));
 
 	for (const float X : {-1.f, 1.f})
 	{
@@ -261,15 +269,15 @@ bool AFMCharacter::FindStructurePlacement(int32 Index, int32 QuarterTurns, FTran
 			const FVector Corner = Floor + Facing.RotateVector(FVector((Item->HalfSize.X - 1.f) * X, (Item->HalfSize.Y - 1.f) * Y, 0));
 			FHitResult CornerHit;
 			if (!AFMGameMode::IsInPreparationZone(GetController(), Corner, false) ||
-				AFMGameMode::IsInPreparationZone(GetController(), Corner, true) ||
-				!GetWorld()->LineTraceSingleByObjectType(CornerHit, Corner + FVector(0, 0, 8), Corner - FVector(0, 0, 8), Surfaces, Query) ||
+				AFMGameMode::IsInPreparationZone(GetController(), Corner, true)) return Reject(TEXT("OUTSIDE BUILD ZONE"));
+			if (!GetWorld()->LineTraceSingleByObjectType(CornerHit, Corner + FVector(0, 0, 8), Corner - FVector(0, 0, 8), Surfaces, Query) ||
 				CornerHit.ImpactNormal.Z < 0.95f || (Support && CornerHit.GetActor() != Support) ||
-				(!Support && CornerHit.Component.IsValid() && CornerHit.Component->GetCollisionObjectType() != ECC_WorldStatic)) return false;
+				(!Support && CornerHit.Component.IsValid() && CornerHit.Component->GetCollisionObjectType() != ECC_WorldStatic)) return Reject(TEXT("NOT ENOUGH SUPPORT"));
 		}
 	}
 	const FVector Center = Floor + FVector(0, 0, Item->HalfSize.Z + 2.f);
 	Surfaces.AddObjectTypesToQuery(ECC_Pawn);
-	if (GetWorld()->OverlapAnyTestByObjectType(Center, Facing.Quaternion(), Surfaces, FCollisionShape::MakeBox(Item->HalfSize))) return false;
+	if (GetWorld()->OverlapAnyTestByObjectType(Center, Facing.Quaternion(), Surfaces, FCollisionShape::MakeBox(Item->HalfSize))) return Reject(TEXT("SPACE BLOCKED"));
 	Transform = FTransform(Facing, Center);
 	return true;
 }

@@ -182,9 +182,10 @@ void AFMCombatHUD::DrawHUD()
 		const auto* Item = AFMStructure::GetItem(Slot);
 		FTransform Placement;
 		AFMStructure* Support = nullptr;
-		const bool bValid = Item && Character->FindStructurePlacement(Slot, Controller->GetBuildRotation(), Placement, Support);
+		const TCHAR* Reason = TEXT("BUILD UNAVAILABLE");
+		const bool bValid = Item && Character->FindStructurePlacement(Slot, Controller->GetBuildRotation(), Placement, Support, &Reason);
 		const FLinearColor Cyan(0.f, 0.95f, 1.f);
-		Label(bValid ? TEXT("PLACE") : TEXT("CANNOT PLACE"), bValid ? Cyan : Red, Center, Height * 0.5f + 18.f, 0.66f, true);
+		Label(bValid ? TEXT("PLACE") : Reason, bValid ? Cyan : Red, Center, Height * 0.5f + 18.f, 0.66f, true);
 		if (bValid)
 		{
 			FVector2D Screen[8];

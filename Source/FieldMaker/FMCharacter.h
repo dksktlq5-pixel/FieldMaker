@@ -73,7 +73,7 @@ public:
 	bool CanPurchase() const;
 	UFUNCTION(Server, Reliable) void ServerBuyStructure(int32 Index);
 	UFUNCTION(Server, Reliable) void ServerPlaceStructure(int32 Index, int32 QuarterTurns);
-	bool FindStructurePlacement(int32 Index, int32 QuarterTurns, FTransform& Transform, class AFMStructure*& Support) const;
+	bool FindStructurePlacement(int32 Index, int32 QuarterTurns, FTransform& Transform, class AFMStructure*& Support, const TCHAR** Reason = nullptr) const;
 	virtual float TakeDamage(float Damage, const FDamageEvent& Event, AController* InstigatorController, AActor* Causer) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
