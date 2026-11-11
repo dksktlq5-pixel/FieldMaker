@@ -48,10 +48,27 @@ void AFMGameState::AdvanceRound(bool bSwapSides)
 	ForceNetUpdate();
 }
 
+void AFMGameState::UpdateCapture(const FVector& Center, int32 Team, int32 Percent, bool bContested)
+{
+	if (!HasAuthority()) return;
+	MatchSnapshot.CaptureCenter = Center;
+	MatchSnapshot.CapturingTeam = Team;
+	MatchSnapshot.CapturePercent = Percent;
+	MatchSnapshot.bCaptureActive = true;
+	MatchSnapshot.bCaptureContested = bContested;
+}
+
 void AFMGameState::SetPhase(EFMMatchPhase Phase, float Duration)
 {
 	if (!HasAuthority() || !FMath::IsFinite(Duration)) return;
 	MatchSnapshot.Phase = Phase;
+	if (Phase != EFMMatchPhase::Combat)
+	{
+		MatchSnapshot.bCaptureActive = false;
+		MatchSnapshot.bCaptureContested = false;
+		MatchSnapshot.CapturingTeam = INDEX_NONE;
+		MatchSnapshot.CapturePercent = 0;
+	}
 	MatchSnapshot.PhaseEndServerTime = Duration > 0.f ? GetServerWorldTimeSeconds() + Duration : 0.0;
 	ForceNetUpdate();
 }

@@ -21,6 +21,11 @@ struct FFMMatchSnapshot
 	UPROPERTY(BlueprintReadOnly) int32 Team0Score = 0;
 	UPROPERTY(BlueprintReadOnly) int32 Team1Score = 0;
 	UPROPERTY(BlueprintReadOnly) double PhaseEndServerTime = 0.0;
+	UPROPERTY(BlueprintReadOnly) FVector CaptureCenter = FVector::ZeroVector;
+	UPROPERTY(BlueprintReadOnly) int32 CapturePercent = 0;
+	UPROPERTY(BlueprintReadOnly) int32 CapturingTeam = INDEX_NONE;
+	UPROPERTY(BlueprintReadOnly) bool bCaptureActive = false;
+	UPROPERTY(BlueprintReadOnly) bool bCaptureContested = false;
 	UPROPERTY(BlueprintReadOnly) bool bSidesSwapped = false;
 	UPROPERTY(BlueprintReadOnly) bool bPlayerRoom = false;
 	UPROPERTY(BlueprintReadOnly) bool bSteamRoom = false;
@@ -41,6 +46,7 @@ public:
 	float GetPhaseTimeRemaining() const;
 	void RecordRoundResult(int32 Winner);
 	void AdvanceRound(bool bSwapSides);
+	void UpdateCapture(const FVector& Center, int32 Team, int32 Percent, bool bContested);
 	void SetLobbyReady(bool bReady);
 	void InitializePlayerRoom(bool bSteamRoom);
 	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Match")

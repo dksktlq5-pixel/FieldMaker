@@ -138,6 +138,27 @@ void AFMCombatHUD::DrawHUD()
 			Label(FString::Printf(TEXT("$%d"), Player->GetCredits()), Gold, 30.f, Height - 113.f, 0.65f);
 	}
 
+	if (Match.Phase == EFMMatchPhase::Combat && Match.bPlayerRoom)
+	{
+		const FLinearColor CaptureColor = Match.bCaptureContested ? Gold
+			: Match.CapturingTeam == 0 ? Blue : Match.CapturingTeam == 1 ? Red : White;
+		const FString CaptureStatus = !Match.bCaptureActive
+			? FString::Printf(TEXT("CENTER OPENS IN %ds"), FMath::Max(0, FMath::CeilToInt(MatchState->GetPhaseTimeRemaining() - 60.f)))
+			: Match.bCaptureContested ? TEXT("CENTER CONTESTED")
+			: Match.CapturingTeam == INDEX_NONE ? TEXT("CAPTURE CENTER")
+			: FString::Printf(TEXT("%s CAPTURING  %d%%"), Match.CapturingTeam == 0 ? TEXT("BLUE") : TEXT("RED"), Match.CapturePercent);
+		Label(CaptureStatus, CaptureColor, Center, 102.f, 0.68f, true);
+		if (Match.bCaptureActive && Controller)
+		{
+			FVector2D Marker;
+			if (Controller->ProjectWorldLocationToScreen(Match.CaptureCenter + FVector(0, 0, 100), Marker) &&
+				Marker.X >= 0 && Marker.X <= Canvas->ClipX && Marker.Y >= 0 && Marker.Y <= Canvas->ClipY)
+			{
+				Label(TEXT("[ CENTER ]"), CaptureColor, Marker.X / Scale, Marker.Y / Scale, 0.7f, true);
+			}
+		}
+	}
+
 	const float Health = Character->GetHealth();
 	const float Armor = Character->GetArmor();
 	const float MaximumArmor = Character->GetArmorRules().MaximumArmor;

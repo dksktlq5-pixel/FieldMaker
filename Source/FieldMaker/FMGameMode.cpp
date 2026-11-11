@@ -339,9 +339,10 @@ void AFMGameMode::UpdateRound()
 			if (Present[0] != Present[1])
 			{
 				CaptureTeam = Present[0] ? 0 : 1;
-				CaptureProgress += Delta;
-				if (CaptureProgress >= 10.0) EndRound(CaptureTeam);
+				CaptureProgress += FMath::Min(Delta, 60.0 - State->GetPhaseTimeRemaining());
+				if (CaptureProgress >= 10.0) { EndRound(CaptureTeam); return; }
 			}
+			State->UpdateCapture(Center, CaptureTeam, FMath::FloorToInt(CaptureProgress * 10.0), Present[0] && Present[1]);
 		}
 		return;
 	}
