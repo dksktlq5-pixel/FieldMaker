@@ -23,6 +23,7 @@ public:
 	AFMStructure();
 	static constexpr int32 ItemCount = 4;
 	uint8 GetOwnerTeam() const { return OwnerTeam; }
+	UStaticMesh* GetItemMesh(int32 Index) const;
 	static int32 FindItem(FName Id);
 	static const FFMStructureItem* GetItem(int32 Index);
 	void Initialize(int32 Index, uint8 Team, AFMStructure* Support);

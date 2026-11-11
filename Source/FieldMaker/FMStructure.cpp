@@ -84,6 +84,12 @@ void AFMStructure::OnSupportDestroyed(AActor*)
 	Destroy();
 }
 
+UStaticMesh* AFMStructure::GetItemMesh(int32 Index) const
+{
+	UStaticMesh* const Visuals[] = {SandbagMesh.Get(), WallMesh.Get(), CrateMesh.Get(), ContainerMesh.Get()};
+	return GetItem(Index) ? Visuals[Index] : nullptr;
+}
+
 void AFMStructure::ApplyItem()
 {
 	const auto* Item = GetItem(ItemIndex);
@@ -95,8 +101,7 @@ void AFMStructure::ApplyItem()
 		CrateLid->SetRelativeLocation(FVector(0, 0, Item->HalfSize.Z - 2.5f));
 		CrateLid->SetRelativeScale3D(FVector(Item->HalfSize.X / 50.f, Item->HalfSize.Y / 50.f, 0.05f));
 	}
-	UStaticMesh* const Visuals[] = {SandbagMesh.Get(), WallMesh.Get(), CrateMesh.Get(), ContainerMesh.Get()};
-	auto* Visual = Visuals[ItemIndex];
+	auto* Visual = GetItemMesh(ItemIndex);
 	if (!Visual) return;
 	Mesh->SetStaticMesh(Visual);
 	const auto Bounds = Visual->GetBounds();
