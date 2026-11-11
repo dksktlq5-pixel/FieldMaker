@@ -133,11 +133,11 @@ void AFMCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	if (FPackageName::DoesPackageExist(TEXT("/Game/FieldMaker/Data/DT_FMWeapons")))
-		WeaponDataTable = LoadObject<UDataTable>(nullptr,TEXT("/Game/FieldMaker/Data/DT_FMWeapons.DT_FMWeapons"));
+		WeaponDataTable = LoadObject<UDataTable>(nullptr,FMCatalog::Weapons);
 	if (FPackageName::DoesPackageExist(TEXT("/Game/FieldMaker/Data/DT_FMArmor")))
 		ArmorDataTable = LoadObject<UDataTable>(nullptr,TEXT("/Game/FieldMaker/Data/DT_FMArmor.DT_FMArmor"));
 	if (FPackageName::DoesPackageExist(TEXT("/Game/FieldMaker/Data/DT_FMWeaponVisuals")))
-  WeaponVisualDataTable = LoadObject<UDataTable>(nullptr,TEXT("/Game/FieldMaker/Data/DT_FMWeaponVisuals.DT_FMWeaponVisuals"));
+  WeaponVisualDataTable = LoadObject<UDataTable>(nullptr,FMCatalog::Visuals);
 	if (HasAuthority())
 	{
 		const FFMWeaponRow Primary = GetWeaponData(EFMWeaponSlot::Primary);

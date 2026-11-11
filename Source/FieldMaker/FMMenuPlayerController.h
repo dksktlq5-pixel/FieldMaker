@@ -33,6 +33,9 @@ private:
 	void FocusMenu(class UWidget* Widget);
 	void LogMenuSelection(const TCHAR* Selection);
 	void CloseSettings();
+	void OpenCatalog(bool bStructures);
+	void CloseCatalog();
+	UPROPERTY(Transient) TObjectPtr<class UFMCatalogWidget> CatalogPanel;
 	void CloseCustomize();
 	void ClosePlayPanel();
 	void HandleNetworkFailure(UWorld* World, class UNetDriver* Driver, ENetworkFailure::Type Failure, const FString& Error);

@@ -4,6 +4,12 @@
 #include "GameFramework/DamageType.h"
 #include "FMCombatData.generated.h"
 
+namespace FMCatalog
+{
+inline constexpr TCHAR Weapons[] = TEXT("/Game/FieldMaker/Data/DT_FMWeapons.DT_FMWeapons");
+inline constexpr TCHAR Visuals[] = TEXT("/Game/FieldMaker/Data/DT_FMWeaponVisuals.DT_FMWeaponVisuals");
+}
+
 UENUM(BlueprintType)
 enum class EFMHitZone : uint8 { Head, Body, Limb };
 

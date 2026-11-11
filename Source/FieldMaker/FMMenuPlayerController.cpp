@@ -1,4 +1,5 @@
 ﻿#include "FMMenuPlayerController.h"
+#include "FMCatalogWidget.h"
 #include "FMCustomizeWidget.h"
 #include "FMLobbyWidget.h"
 #include "FMSettingsWidget.h"
@@ -219,8 +220,29 @@ void AFMMenuPlayerController::HandleNetworkFailure(UWorld* World, UNetDriver* Dr
 		PlayPanel->Notice = NSLOCTEXT("FMLobby", "ConnectionFailed", "연결하지 못했습니다. 호스트의 주소와 방 상태를 확인하세요.");
 	}
 }
-void AFMMenuPlayerController::Armory() { LogMenuSelection(TEXT("Armory")); }
-void AFMMenuPlayerController::Structure() { LogMenuSelection(TEXT("Structure")); }
+void AFMMenuPlayerController::Armory() { OpenCatalog(false); }
+void AFMMenuPlayerController::Structure() { OpenCatalog(true); }
+
+void AFMMenuPlayerController::OpenCatalog(bool bStructures)
+{
+	if (!Menu || CatalogPanel) return;
+	CatalogPanel = CreateWidget<UFMCatalogWidget>(this, UFMCatalogWidget::StaticClass());
+	if (!CatalogPanel) return;
+	CatalogPanel->bStructures = bStructures;
+	CatalogPanel->OnClosed.BindUObject(this, &AFMMenuPlayerController::CloseCatalog);
+	Menu->SetIsEnabled(false);
+	CatalogPanel->AddToViewport(10);
+	FocusMenu(CatalogPanel);
+}
+
+void AFMMenuPlayerController::CloseCatalog()
+{
+	if (!CatalogPanel) return;
+	CatalogPanel->RemoveFromParent();
+	CatalogPanel = nullptr;
+	Menu->SetIsEnabled(true);
+	FocusMenu(Menu);
+}
 void AFMMenuPlayerController::Training()
 {
 	if (!bJoiningRoom && !IsSteamTravelBusy()) UGameplayStatics::OpenLevel(this, TEXT("/Game/Map/L_FMBridgeBattlefield"));
