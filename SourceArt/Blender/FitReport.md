@@ -36,3 +36,9 @@
 - Blender file and source/output FBXs are under `SourceArt/Blender` so Unreal's source-file references remain available after clearing `Saved`.
 
 This is a cleanup and hand-contact-preserving fit pass on the project's real Fab weapon geometry. It does not claim newly sculpted firearm designs or physically measured authentic dimensions; the listed values are the dimensions of the imported source meshes.
+
+## Visual review follow-up (2026-11-13)
+
+A proposed set of 17 donor-based variants was rendered in Blender and rejected before delivery: add-on geometry floated away from receivers, several parts were block-like, and imported materials fell back to plain materials. Those FBX and Static Mesh assets were removed. The original 16 fitted meshes and their source materials remain. The 43 visual rows resolve to those 16 meshes; the four non-HE grenade rows reuse G67 until dedicated source models are available.
+
+Unreal audit: all 16 original fitted Static Meshes load; every material slot has a valid material asset. All 43 visual table rows resolve with no missing mesh paths. This confirms asset references, not per-weapon hand animation or gameplay appearance.

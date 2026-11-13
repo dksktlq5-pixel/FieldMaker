@@ -67,11 +67,10 @@ bool IsFirearm(EFMWeaponSlot Slot)
 
 void AFMCharacter::InitializeWeaponPresentation()
 {
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> Rifle(TEXT("/Game/FieldMaker/Weapons/Realistic/SM_FM_AR4.SM_FM_AR4"));
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> Pistol(TEXT("/Game/FieldMaker/Weapons/Realistic/SM_FM_Pistol.SM_FM_Pistol"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> Rifle(TEXT("/Game/FieldMaker/Weapons/AiWeapon/SM_AIW_AR15.SM_AIW_AR15"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> Pistol(TEXT("/Game/FieldMaker/Weapons/AiWeapon/SM_AIW_USPS.SM_AIW_USPS"));
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> Knife(TEXT("/Game/FieldMaker/Weapons/Realistic/SM_FM_M9.SM_FM_M9"));
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> Grenade(TEXT("/Game/FieldMaker/Weapons/Realistic/SM_FM_G67.SM_FM_G67"));
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> RifleMag(TEXT("/Game/FPS_Weapon_Bundle/Weapons/Meshes/AR4/SM_AR4_Mag.SM_AR4_Mag"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> Grenade(TEXT("/Game/FieldMaker/Weapons/AiWeapon/SM_AIW_HE.SM_AIW_HE"));
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> FlamePlane(TEXT("/Engine/BasicShapes/Plane.Plane"));
 	static ConstructorHelpers::FObjectFinder<UMaterialInterface> FlashMaterial(TEXT("/Game/FieldMaker/Weapons/M_FMMuzzleFlame.M_FMMuzzleFlame"));
 	static ConstructorHelpers::FObjectFinder<USoundBase> RifleAudio(TEXT("/Game/FreeWeaponSFX/Wav/AssaultRifle/Gunshots/sfx_wpn_ar_gunshot_01.sfx_wpn_ar_gunshot_01"));
@@ -80,7 +79,7 @@ void AFMCharacter::InitializeWeaponPresentation()
 	static ConstructorHelpers::FObjectFinder<USoundBase> MeleeAudio(TEXT("/Game/FieldMaker/Weapons/A_FMKnifeWhoosh.A_FMKnifeWhoosh"));
 	static ConstructorHelpers::FObjectFinder<USoundBase> ThrowAudio(TEXT("/Game/FieldMaker/Weapons/A_FMThrow.A_FMThrow"));
 	WeaponModels = {Rifle.Object, Pistol.Object, Knife.Object, Grenade.Object};
-	MagazineModels = {RifleMag.Object, nullptr};
+	MagazineModels = {nullptr, nullptr};
 	RifleShot = RifleAudio.Object;
  static ConstructorHelpers::FObjectFinder<USoundAttenuation> Attenuation(TEXT("/Game/FieldMaker/Weapons/A_FMFireAttenuation.A_FMFireAttenuation"));
  FireAttenuation=Attenuation.Object;

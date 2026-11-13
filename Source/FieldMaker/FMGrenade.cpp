@@ -26,7 +26,7 @@ AFMGrenade::AFMGrenade()
 	auto* Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	Mesh->SetupAttachment(Collision);
 	Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> GrenadeMesh(TEXT("/Game/FieldMaker/Weapons/Realistic/SM_FM_G67.SM_FM_G67"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> GrenadeMesh(TEXT("/Game/FieldMaker/Weapons/AiWeapon/SM_AIW_HE.SM_AIW_HE"));
 	Mesh->SetStaticMesh(GrenadeMesh.Object);
 
 	auto* Projectile = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("Projectile"));

@@ -1,0 +1,209 @@
+[
+  {
+    "category": "Pistol",
+    "name": "Glock18",
+    "mesh": "SM_AIW_Glock18",
+    "base_source": "SM_FM_PolicePistol_Fitted",
+    "features": "polymer striker pistol: squared slide, rear serrations, accessory rail",
+    "fbx": "D:\\UnReal\\FieldMaker\\SourceArt\\Blender\\AiWeaponFBX\\SM_AIW_Glock18.fbx",
+    "triangles": 5917
+  },
+  {
+    "category": "Pistol",
+    "name": "USPS",
+    "mesh": "SM_AIW_USPS",
+    "base_source": "SM_FM_PolicePistol_Fitted",
+    "features": "large-frame service pistol: threaded muzzle and cylindrical suppressor",
+    "fbx": "D:\\UnReal\\FieldMaker\\SourceArt\\Blender\\AiWeaponFBX\\SM_AIW_USPS.fbx",
+    "triangles": 7901
+  },
+  {
+    "category": "Pistol",
+    "name": "P250",
+    "mesh": "SM_AIW_P250",
+    "base_source": "SM_FM_PolicePistol_Fitted",
+    "features": "compact alloy pistol: compact slide, exposed hammer removed visually, short rail",
+    "fbx": "D:\\UnReal\\FieldMaker\\SourceArt\\Blender\\AiWeaponFBX\\SM_AIW_P250.fbx",
+    "triangles": 6677
+  },
+  {
+    "category": "Pistol",
+    "name": "FiveSeven",
+    "mesh": "SM_AIW_FiveSeven",
+    "base_source": "SM_FM_PolicePistol_Fitted",
+    "features": "long polymer pistol: extended slide, tall sights, broad grip",
+    "fbx": "D:\\UnReal\\FieldMaker\\SourceArt\\Blender\\AiWeaponFBX\\SM_AIW_FiveSeven.fbx",
+    "triangles": 7461
+  },
+  {
+    "category": "Pistol",
+    "name": "DesertEagle",
+    "mesh": "SM_AIW_DesertEagle",
+    "base_source": "SM_FM_PolicePistol_Fitted",
+    "features": "oversized heavy pistol: long squared slide, wide barrel and large grip panels",
+    "fbx": "D:\\UnReal\\FieldMaker\\SourceArt\\Blender\\AiWeaponFBX\\SM_AIW_DesertEagle.fbx",
+    "triangles": 5599
+  },
+  {
+    "category": "SMG",
+    "name": "MAC10",
+    "mesh": "SM_AIW_MAC10",
+    "base_source": "SM_FM_SMG11_Fitted",
+    "features": "compact box receiver and wire stock; short barrel",
+    "fbx": "D:\\UnReal\\FieldMaker\\SourceArt\\Blender\\AiWeaponFBX\\SM_AIW_MAC10.fbx",
+    "triangles": 4055
+  },
+  {
+    "category": "SMG",
+    "name": "UMP45",
+    "mesh": "SM_AIW_UMP45",
+    "base_source": "SM_FM_MP5_Fitted",
+    "features": "polymer receiver, straight box magazine, folding stock profile",
+    "fbx": "D:\\UnReal\\FieldMaker\\SourceArt\\Blender\\AiWeaponFBX\\SM_AIW_UMP45.fbx",
+    "triangles": 20752
+  },
+  {
+    "category": "SMG",
+    "name": "MP5SD",
+    "mesh": "SM_AIW_MP5SD",
+    "base_source": "SM_FM_MP5_Fitted",
+    "features": "integral suppressor shroud and front sight ring",
+    "fbx": "D:\\UnReal\\FieldMaker\\SourceArt\\Blender\\AiWeaponFBX\\SM_AIW_MP5SD.fbx",
+    "triangles": 20752
+  },
+  {
+    "category": "SMG",
+    "name": "MP7",
+    "mesh": "SM_AIW_MP7",
+    "base_source": "SM_FM_SMG11_Fitted",
+    "features": "compact PDW: top rail, forward vertical grip, folding stock details",
+    "fbx": "D:\\UnReal\\FieldMaker\\SourceArt\\Blender\\AiWeaponFBX\\SM_AIW_MP7.fbx",
+    "triangles": 4055
+  },
+  {
+    "category": "SMG",
+    "name": "P90",
+    "mesh": "SM_AIW_P90",
+    "base_source": "SM_FM_SMG11_Fitted",
+    "features": "bullpup PDW: broad upper receiver, top-mounted horizontal magazine, centered grip",
+    "fbx": "D:\\UnReal\\FieldMaker\\SourceArt\\Blender\\AiWeaponFBX\\SM_AIW_P90.fbx",
+    "triangles": 4055
+  },
+  {
+    "category": "Rifle",
+    "name": "AK47",
+    "mesh": "SM_AIW_AK47",
+    "base_source": "SM_FM_KA47_Fitted",
+    "features": "curved magazine, stamped receiver, wood furniture retained from source",
+    "fbx": "D:\\UnReal\\FieldMaker\\SourceArt\\Blender\\AiWeaponFBX\\SM_AIW_AK47.fbx",
+    "triangles": 6165
+  },
+  {
+    "category": "Rifle",
+    "name": "AR70",
+    "mesh": "SM_AIW_AR70",
+    "base_source": "SM_FM_AR70_Fitted",
+    "features": "Beretta AR70: upper receiver and distinctive stock retained from source",
+    "fbx": "D:\\UnReal\\FieldMaker\\SourceArt\\Blender\\AiWeaponFBX\\SM_AIW_AR70.fbx",
+    "triangles": 5356
+  },
+  {
+    "category": "Rifle",
+    "name": "AR15",
+    "mesh": "SM_AIW_AR15",
+    "base_source": "SM_FM_AR15_Fitted",
+    "features": "AR platform: buffer stock, carry/rail sight and detachable curved magazine",
+    "fbx": "D:\\UnReal\\FieldMaker\\SourceArt\\Blender\\AiWeaponFBX\\SM_AIW_AR15.fbx",
+    "triangles": 25753
+  },
+  {
+    "category": "Sniper",
+    "name": "Ghoul",
+    "mesh": "SM_AIW_Ghoul",
+    "base_source": "SM_FM_Ghoul_Fitted",
+    "features": "long precision rifle retained from source, optic and barrel silhouette preserved",
+    "fbx": "D:\\UnReal\\FieldMaker\\SourceArt\\Blender\\AiWeaponFBX\\SM_AIW_Ghoul.fbx",
+    "triangles": 68615
+  },
+  {
+    "category": "Sniper",
+    "name": "AWP",
+    "mesh": "SM_AIW_AWP",
+    "base_source": "SM_FM_AWP_Fitted",
+    "features": "bolt-action precision silhouette with large optic and long barrel preserved",
+    "fbx": "D:\\UnReal\\FieldMaker\\SourceArt\\Blender\\AiWeaponFBX\\SM_AIW_AWP.fbx",
+    "triangles": 35356
+  },
+  {
+    "category": "Heavy",
+    "name": "Nova",
+    "mesh": "SM_AIW_Nova",
+    "base_source": "SM_FM_Shotgun_Fitted",
+    "features": "pump shotgun: tubular magazine, ribbed pump and ghost-ring sights",
+    "fbx": "D:\\UnReal\\FieldMaker\\SourceArt\\Blender\\AiWeaponFBX\\SM_AIW_Nova.fbx",
+    "triangles": 2133
+  },
+  {
+    "category": "Heavy",
+    "name": "Negev",
+    "mesh": "SM_AIW_Negev",
+    "base_source": "SM_FM_M249_Fitted",
+    "features": "belt-fed LMG variation: large drum housing, top cover and heavy barrel",
+    "fbx": "D:\\UnReal\\FieldMaker\\SourceArt\\Blender\\AiWeaponFBX\\SM_AIW_Negev.fbx",
+    "triangles": 11613
+  },
+  {
+    "category": "Heavy",
+    "name": "M249",
+    "mesh": "SM_AIW_M249",
+    "base_source": "SM_FM_M249_Fitted",
+    "features": "belt-fed LMG source: feed cover, bipod and heavy barrel preserved",
+    "fbx": "D:\\UnReal\\FieldMaker\\SourceArt\\Blender\\AiWeaponFBX\\SM_AIW_M249.fbx",
+    "triangles": 11613
+  },
+  {
+    "category": "Throwable",
+    "name": "HE",
+    "mesh": "SM_AIW_HE",
+    "base_source": "SM_FM_G67_Fitted",
+    "features": "frag grenade: segmented body, spoon and pull ring",
+    "fbx": "D:\\UnReal\\FieldMaker\\SourceArt\\Blender\\AiWeaponFBX\\SM_AIW_HE.fbx",
+    "triangles": 1249
+  },
+  {
+    "category": "Throwable",
+    "name": "Flashbang",
+    "mesh": "SM_AIW_Flashbang",
+    "base_source": "SM_FM_G67_Fitted",
+    "features": "flash grenade: smooth cylindrical canister, end caps and pull ring",
+    "fbx": "D:\\UnReal\\FieldMaker\\SourceArt\\Blender\\AiWeaponFBX\\SM_AIW_Flashbang.fbx",
+    "triangles": 1280
+  },
+  {
+    "category": "Throwable",
+    "name": "Smoke",
+    "mesh": "SM_AIW_Smoke",
+    "base_source": "SM_FM_G67_Fitted",
+    "features": "smoke canister: ribbed cylinder and perforated end cap",
+    "fbx": "D:\\UnReal\\FieldMaker\\SourceArt\\Blender\\AiWeaponFBX\\SM_AIW_Smoke.fbx",
+    "triangles": 3416
+  },
+  {
+    "category": "Throwable",
+    "name": "Incendiary",
+    "mesh": "SM_AIW_Incendiary",
+    "base_source": "SM_FM_G67_Fitted",
+    "features": "incendiary canister: stout ribbed body and color-coded safety band",
+    "fbx": "D:\\UnReal\\FieldMaker\\SourceArt\\Blender\\AiWeaponFBX\\SM_AIW_Incendiary.fbx",
+    "triangles": 1606
+  },
+  {
+    "category": "Throwable",
+    "name": "Decoy",
+    "mesh": "SM_AIW_Decoy",
+    "base_source": "SM_FM_G67_Fitted",
+    "features": "decoy canister: compact cylinder, vent bands and distinct color stripe",
+    "fbx": "D:\\UnReal\\FieldMaker\\SourceArt\\Blender\\AiWeaponFBX\\SM_AIW_Decoy.fbx",
+    "triangles": 794
+  }
+]
