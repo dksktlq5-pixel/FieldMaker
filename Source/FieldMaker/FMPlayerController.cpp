@@ -13,6 +13,7 @@
 #include "FMLobbyWidget.h"
 #include "FMSteamRoomSubsystem.h"
 #include "Engine/GameInstance.h"
+#include "Engine/Engine.h"
 #include "Engine/NetDriver.h"
 #include "IPAddress.h"
 #include "Kismet/GameplayStatics.h"
@@ -24,9 +25,32 @@ void AFMPlayerController::BeginPlay()
 	Super::BeginPlay();
 	if (IsLocalController())
 	{
+		if (GEngine) GEngine->OnNetworkFailure().AddUObject(this, &AFMPlayerController::HandleNetworkFailure);
 		SetInputMode(FInputModeGameOnly());
 		bShowMouseCursor = false;
 	}
+}
+
+void AFMPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	if (GEngine) GEngine->OnNetworkFailure().RemoveAll(this);
+	Super::EndPlay(EndPlayReason);
+}
+
+void AFMPlayerController::HandleNetworkFailure(UWorld* World, UNetDriver* Driver, ENetworkFailure::Type Failure, const FString& Error)
+{
+	if (!IsLocalController() || bLeavingRoom || (World && World != GetWorld())) return;
+	const auto* State = GetWorld() ? GetWorld()->GetGameState<AFMGameState>() : nullptr;
+	if (!State || !State->GetMatchSnapshot().bPlayerRoom) return;
+
+	bLeavingRoom = true;
+	if (State->GetMatchSnapshot().bSteamRoom)
+	{
+		if (auto* Instance = GetGameInstance())
+			if (auto* Steam = Instance->GetSubsystem<UFMSteamRoomSubsystem>()) Steam->LeaveRoom();
+	}
+	UE_LOG(LogTemp, Warning, TEXT("FIELDMAKER: Room connection lost (%d): %s. Returning to frontend."), int32(Failure), *Error);
+	UGameplayStatics::OpenLevel(this, TEXT("/Game/Map/L_FMFrontend"));
 }
 
 void AFMPlayerController::PlayerTick(float DeltaTime)
@@ -99,6 +123,7 @@ void AFMPlayerController::LeaveRoom()
 	if (IsLocalController() && State && State->GetMatchSnapshot().bPlayerRoom &&
 		(RoomWidget || State->GetMatchSnapshot().Phase == EFMMatchPhase::Finished))
 	{
+		bLeavingRoom = true;
 		if (State->GetMatchSnapshot().bSteamRoom) GetGameInstance()->GetSubsystem<UFMSteamRoomSubsystem>()->LeaveRoom();
 		UGameplayStatics::OpenLevel(this, TEXT("/Game/Map/L_FMFrontend"));
 	}

@@ -52,6 +52,7 @@ public:
  UFUNCTION(Server, Reliable) void ServerEquipTestArmor(FName Id);
 	UFUNCTION(BlueprintPure, Category="Combat")
 	FFMWeaponRow GetWeaponData(EFMWeaponSlot Slot) const;
+	UFUNCTION(BlueprintPure, Category="Combat") float GetCrosshairSpreadDegrees() const;
  UFUNCTION(BlueprintPure, Category="Presentation") FFMWeaponVisualRow GetWeaponVisualData() const;
  UFUNCTION(BlueprintPure, Category="Presentation") bool IsScopeViewActive() const;
  UFUNCTION(BlueprintPure, Category="Presentation") FFMWeaponVisualRow GetCatalogWeaponVisual(FName Id) const;
@@ -69,6 +70,8 @@ public:
 	int32 GetLoadedAmmo() const;
 	UFUNCTION(BlueprintPure, Category = "Combat")
 	int32 GetReserveAmmo() const;
+	UFUNCTION(BlueprintPure, Category = "Combat")
+	int32 GetGrenadeCount() const { return Grenades; }
 	void ResetForRound(bool bResetEquipment);
 	bool CanPurchase() const;
 	UFUNCTION(Server, Reliable) void ServerBuyStructure(int32 Index);
@@ -146,6 +149,7 @@ private:
 	static EFMHitZone HitZoneForBone(FName Bone);
 	UPROPERTY(ReplicatedUsing=OnRep_CombatStance)
 	bool bSprinting = false;
+	bool bSprintInputHeld = false;
 	UPROPERTY(ReplicatedUsing=OnRep_CombatStance)
 	bool bAiming = false;
 	UFUNCTION()
@@ -203,6 +207,12 @@ private:
 	FTransform ViewMeleeMotion;
 	FTransform WorldMeleeMotion;
 	double LastShotTime = -1.0;
+	double LastBallisticShotTime = -1.0;
+	FName LastBallisticWeapon;
+	int32 BurstShotIndex = 0;
+	int32 LocalBurstShotIndex = 0;
+	float CalculateShotSpread(const FFMWeaponRow& Data, int32 ShotIndex) const;
+	FRotator CameraRecoil = FRotator::ZeroRotator;
 	EFMWeaponSlot LastShotSlot = EFMWeaponSlot::Primary;
 
 	float GetEquipDuration() const { return GetWeaponData(WeaponSlot).EquipTime; }
@@ -224,7 +234,7 @@ private:
 	void OnRep_WeaponSlot();
 
 	UFUNCTION(NetMulticast, Unreliable)
-	void MulticastWeaponEffects(EFMWeaponMotion Motion, EFMWeaponSlot Slot);
+	void MulticastWeaponEffects(EFMWeaponMotion Motion, EFMWeaponSlot Slot, FVector2D CameraKick, int32 ShotIndex);
 
 	UPROPERTY()
 	TObjectPtr<class USoundBase> RifleShot;

@@ -151,6 +151,7 @@ void AFMCharacter::SetWeaponMotion(EFMWeaponMotion Motion)
 
 void AFMCharacter::OnRep_WeaponSlot()
 {
+	UpdateStanceSpeed();
 	const int32 Index = static_cast<int32>(WeaponSlot);
 	if (!WeaponModels.IsValidIndex(Index))
 	{
@@ -169,7 +170,15 @@ void AFMCharacter::OnRep_WeaponSlot()
 	WorldWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, Socket);
 	if (bKnife)
 	{
-		const FTransform KnifeInHand = KnifeGrip().Wrist.Inverse();
+		FFMHandTarget KnifePose = KnifeGrip();
+		if (!Visual.Mesh.IsNull() && Visual.bUseCustomHands)
+		{
+			KnifePose = Grip(Visual.RightPalm, Visual.RightBoneX, Visual.RightBoneY,
+				Visual.RightFingerBend, Visual.RightIndexIdle,
+				FMath::Clamp(Visual.RightThumb, 0.f, 1.f), true);
+			KnifePose.ThumbAlongFrame = FMath::Clamp(Visual.RightThumbAlong, 0.f, 1.f);
+		}
+		const FTransform KnifeInHand = KnifePose.Wrist.Inverse();
 		ViewWeapon->SetRelativeTransform(KnifeInHand);
 		WorldWeapon->SetRelativeTransform(KnifeInHand);
 	}
@@ -318,6 +327,17 @@ void AFMCharacter::UpdateWeaponPresentation(float DeltaSeconds)
 	default:
 		break;
 	}
+	// A very small first-person breathing sway keeps the hands alive while idle without
+	// changing the replicated third-person pose or pulling the weapon off its grip.
+	if (bLocalView && bFirearm && Motion == EFMWeaponMotion::Ready)
+	{
+		const float IdleAlpha = (1.f - FMath::Clamp(Speed / 90.f, 0.f, 1.f)) * (1.f - 0.8f * ADSAlpha);
+		const float Time = GetWorld()->GetTimeSeconds();
+		Offset += FVector(0.f, FMath::Sin(Time * 0.82f) * 0.14f,
+			FMath::Cos(Time * 0.82f) * 0.18f) * IdleAlpha;
+		Rotation += FRotator(FMath::Sin(Time * 0.82f) * 0.16f,
+			FMath::Sin(Time * 0.57f) * 0.12f, 0.f) * IdleAlpha;
+	}
 
 	const FVector ViewGrips[] = {FVector(49, 16, -22), FVector(49, 11, -16),
 		FVector(45, 22, -15), FVector(46, 16, -18)};
@@ -453,7 +473,16 @@ bool AFMCharacter::GetWeaponGripTargets(const USkeletalMeshComponent& PoseMesh, 
 		Targets.Left.ThumbAlongFrame = 0.72f;
 		break;
 	case EFMWeaponSlot::Melee:
-		Targets.Right = KnifeGrip();
+		Targets.Right = bDetailed && Visual.bUseCustomHands
+			? Grip(Visual.RightPalm, Visual.RightBoneX, Visual.RightBoneY,
+				Visual.RightFingerBend, Visual.RightIndexIdle,
+				FMath::Clamp(Visual.RightThumb, 0.f, 1.f), true)
+			: KnifeGrip();
+		if (bDetailed && Visual.bUseCustomHands)
+		{
+			Targets.Right.ThumbAlongFrame = FMath::Clamp(Visual.RightThumbAlong, 0.f, 1.f);
+		}
+		Targets.Right.bWeaponGrip = true;
 		Targets.bAlignKnifeWrist = true;
 		Targets.bFirstPersonKnife = bView;
 		break;
@@ -461,8 +490,18 @@ bool AFMCharacter::GetWeaponGripTargets(const USkeletalMeshComponent& PoseMesh, 
 	{
 		const float Release = Grenades == 0 ? 1.f : bThrowRelease ? 1.f - Phase(Age, ThrowReleaseTime, 0.52f) : 0.f;
 		const FVector2D Bend = FMath::Lerp(FVector2D(51, 105), FVector2D(12, 26), Release);
-		Targets.Right = Grip(FVector(-0.8, 1.0, 0.6), FVector(-0.94, 0.25, -0.20), FVector(0, -0.92, 0.39),
-			Bend, Bend, 0.57f * (1.f - Release), true);
+		Targets.Right = bDetailed && Visual.bUseCustomHands
+			? Grip(Visual.RightPalm, Visual.RightBoneX, Visual.RightBoneY,
+				FMath::Lerp(Visual.RightFingerBend, FVector2D(12, 26), Release),
+				FMath::Lerp(Visual.RightIndexIdle, FVector2D(12, 26), Release),
+				FMath::Clamp(Visual.RightThumb, 0.f, 1.f) * (1.f - Release), true)
+			: Grip(FVector(-0.8, 1.0, 0.6), FVector(-0.94, 0.25, -0.20), FVector(0, -0.92, 0.39),
+				Bend, Bend, 0.57f * (1.f - Release), true);
+		if (bDetailed && Visual.bUseCustomHands)
+		{
+			Targets.Right.ThumbAlongFrame = FMath::Clamp(Visual.RightThumbAlong, 0.f, 1.f);
+		}
+		Targets.Right.bWeaponGrip = true;
 		break;
 	}
 	}
@@ -540,7 +579,7 @@ bool AFMCharacter::GetWeaponGripTargets(const USkeletalMeshComponent& PoseMesh, 
 	return true;
 }
 
-void AFMCharacter::MulticastWeaponEffects_Implementation(EFMWeaponMotion Motion, EFMWeaponSlot Slot)
+void AFMCharacter::MulticastWeaponEffects_Implementation(EFMWeaponMotion Motion, EFMWeaponSlot Slot, FVector2D CameraKick, int32 ShotIndex)
 {
 	if (GetNetMode() == NM_DedicatedServer)
 	{
@@ -551,6 +590,12 @@ void AFMCharacter::MulticastWeaponEffects_Implementation(EFMWeaponMotion Motion,
 	{
 		LastShotSlot = Slot;
 		LastShotTime = GetWorld()->GetTimeSeconds();
+		if (IsLocallyControlled())
+		{
+			LocalBurstShotIndex = ShotIndex;
+			CameraRecoil.Pitch = FMath::Clamp(CameraRecoil.Pitch + CameraKick.X, 0.0, 6.0);
+			CameraRecoil.Yaw = FMath::Clamp(CameraRecoil.Yaw + CameraKick.Y, -2.0, 2.0);
+		}
 	}
 
 	USoundBase* Sound = nullptr;

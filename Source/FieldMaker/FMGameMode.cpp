@@ -11,6 +11,7 @@
 #include "EngineUtils.h"
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
+#include "HAL/IConsoleManager.h"
 
 AFMGameMode::AFMGameMode()
 {
@@ -244,8 +245,11 @@ void AFMGameMode::ClearStructures()
 void AFMGameMode::EndRound(int32 Winner, EFMResultReason Reason)
 {
 	auto* State = GetGameState<AFMGameState>();
-	const bool bKnife = State->GetMatchSnapshot().Phase == EFMMatchPhase::KnifeCombat;
-	State->RecordRoundResult(Winner, Reason);
+	if (!State) return;
+	const EFMMatchPhase CurrentPhase = State->GetMatchSnapshot().Phase;
+	if (CurrentPhase != EFMMatchPhase::KnifeCombat && CurrentPhase != EFMMatchPhase::Combat) return;
+	const bool bKnife = CurrentPhase == EFMMatchPhase::KnifeCombat;
+	if (!State->RecordRoundResult(Winner, Reason)) return;
 	for (APlayerState* Player : State->PlayerArray)
 	{
 		if (auto* Member = Cast<AFMPlayerState>(Player))
@@ -256,6 +260,82 @@ void AFMGameMode::EndRound(int32 Winner, EFMResultReason Reason)
 	}
 	SetRoundPhase(EFMMatchPhase::Result, 10.f);
 }
+
+#if WITH_DEV_AUTOMATION_TESTS
+void AFMGameMode::VerifyRoundResultIdempotency(UWorld* World)
+{
+	auto* Mode = World ? World->GetAuthGameMode<AFMGameMode>() : nullptr;
+	auto* State = World ? World->GetGameState<AFMGameState>() : nullptr;
+	if (!Mode || !State)
+	{
+		UE_LOG(LogTemp, Error, TEXT("FM round result idempotency verification failed: authoritative match classes unavailable"));
+		return;
+	}
+
+	// Start from a fresh round even when this development command is repeated in one PIE session.
+	State->AdvanceRound(false);
+	const FFMMatchSnapshot BeforeFirstRound = State->GetMatchSnapshot();
+	TMap<AFMPlayerState*, int32> CreditsBefore;
+	for (APlayerState* Player : State->PlayerArray)
+		if (auto* Member = Cast<AFMPlayerState>(Player)) CreditsBefore.Add(Member, Member->GetCredits());
+
+	State->SetPhase(EFMMatchPhase::Combat, 30.f);
+	Mode->EndRound(0, EFMResultReason::Elimination);
+	const bool bDuplicateStateResultAccepted = State->RecordRoundResult(1, EFMResultReason::DoubleElimination);
+	Mode->EndRound(1, EFMResultReason::DoubleElimination);
+	const FFMMatchSnapshot AfterFirstRound = State->GetMatchSnapshot();
+	bool bFirstRoundPassed = AfterFirstRound.Team0Score == BeforeFirstRound.Team0Score + 1 &&
+		AfterFirstRound.Team1Score == BeforeFirstRound.Team1Score &&
+		AfterFirstRound.RoundWinner == 0 && AfterFirstRound.ResultReason == EFMResultReason::Elimination &&
+		AfterFirstRound.bRoundResultRecorded && AfterFirstRound.Phase == EFMMatchPhase::Result && !bDuplicateStateResultAccepted;
+	for (const TPair<AFMPlayerState*, int32>& Pair : CreditsBefore)
+	{
+		const int32 Reward = Pair.Key->GetTeam() == 0 ? 4000 : 2500;
+		bFirstRoundPassed &= Pair.Key->GetCredits() == FMath::Min(12000, Pair.Value + Reward);
+	}
+	if (!bFirstRoundPassed)
+	{
+		UE_LOG(LogTemp, Error, TEXT("FM round result idempotency verification failed: duplicate first-round result changed score, reason, phase, or credits"));
+		return;
+	}
+
+	State->AdvanceRound(false);
+	State->SetPhase(EFMMatchPhase::Combat, 30.f);
+	const FFMMatchSnapshot BeforeSecondRound = State->GetMatchSnapshot();
+	CreditsBefore.Reset();
+	for (APlayerState* Player : State->PlayerArray)
+		if (auto* Member = Cast<AFMPlayerState>(Player)) CreditsBefore.Add(Member, Member->GetCredits());
+	Mode->EndRound(1, EFMResultReason::Elimination);
+	const bool bSecondDuplicateStateResultAccepted = State->RecordRoundResult(0, EFMResultReason::DoubleElimination);
+	Mode->EndRound(0, EFMResultReason::DoubleElimination);
+	const FFMMatchSnapshot AfterSecondRound = State->GetMatchSnapshot();
+	bool bSecondRoundPassed = AfterSecondRound.Team0Score == BeforeSecondRound.Team0Score &&
+		AfterSecondRound.Team1Score == BeforeSecondRound.Team1Score + 1 &&
+		AfterSecondRound.RoundWinner == 1 && AfterSecondRound.ResultReason == EFMResultReason::Elimination &&
+		AfterSecondRound.bRoundResultRecorded && AfterSecondRound.Phase == EFMMatchPhase::Result && !bSecondDuplicateStateResultAccepted;
+	for (const TPair<AFMPlayerState*, int32>& Pair : CreditsBefore)
+	{
+		const int32 Reward = Pair.Key->GetTeam() == 1 ? 4000 : 2500;
+		bSecondRoundPassed &= Pair.Key->GetCredits() == FMath::Min(12000, Pair.Value + Reward);
+	}
+	if (bSecondRoundPassed)
+	{
+		UE_LOG(LogTemp, Display, TEXT("FM_ROUND_RESULT_IDEMPOTENCY_PASS: duplicate finalization blocked; next-round guard reset"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("FM_ROUND_RESULT_IDEMPOTENCY_FAIL: next-round result was not independently recorded exactly once"));
+	}
+}
+
+namespace
+{
+FAutoConsoleCommandWithWorld VerifyRoundResultIdempotencyCommand(
+	TEXT("fm.Match.VerifyRoundResultIdempotency"),
+	TEXT("Development verification for one-time server round result, score, reward, and round reset"),
+	FConsoleCommandWithWorldDelegate::CreateStatic(&AFMGameMode::VerifyRoundResultIdempotency));
+}
+#endif
 
 void AFMGameMode::UpdateRound()
 {
@@ -298,7 +378,8 @@ void AFMGameMode::UpdateRound()
 	}
 	if (Members[0] == 0 || Members[1] == 0)
 	{
-		State->RecordRoundResult(INDEX_NONE, EFMResultReason::TeamLeft);
+		if (!Match.bRoundResultRecorded)
+			State->RecordRoundResult(INDEX_NONE, EFMResultReason::TeamLeft);
 		ClearStructures();
 		SetRoundPhase(EFMMatchPhase::Finished, 0.f);
 		GetWorldTimerManager().ClearTimer(RoundTimer);

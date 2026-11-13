@@ -19,6 +19,9 @@ void AFMGameState::SetLobbyReady(bool bReady)
 	MatchSnapshot.Phase = bReady ? EFMMatchPhase::Ready : EFMMatchPhase::WaitingForPlayers;
 	MatchSnapshot.RoundNumber = 1;
 	MatchSnapshot.PhaseEndServerTime = 0.0;
+	MatchSnapshot.RoundWinner = -1;
+	MatchSnapshot.ResultReason = EFMResultReason::None;
+	MatchSnapshot.bRoundResultRecorded = false;
 	ForceNetUpdate();
 }
 
@@ -30,14 +33,16 @@ void AFMGameState::InitializePlayerRoom(bool bSteamRoom)
 	SetLobbyReady(false);
 }
 
-void AFMGameState::RecordRoundResult(int32 Winner, EFMResultReason Reason)
+bool AFMGameState::RecordRoundResult(int32 Winner, EFMResultReason Reason)
 {
-	if (!HasAuthority()) return;
+	if (!HasAuthority() || MatchSnapshot.bRoundResultRecorded) return false;
+	MatchSnapshot.bRoundResultRecorded = true;
 	MatchSnapshot.RoundWinner = Winner;
 	MatchSnapshot.ResultReason = Reason;
 	if (Winner == 0) ++MatchSnapshot.Team0Score;
 	if (Winner == 1) ++MatchSnapshot.Team1Score;
 	ForceNetUpdate();
+	return true;
 }
 
 void AFMGameState::AdvanceRound(bool bSwapSides)
@@ -47,6 +52,7 @@ void AFMGameState::AdvanceRound(bool bSwapSides)
 	MatchSnapshot.bSidesSwapped |= bSwapSides;
 	MatchSnapshot.RoundWinner = -1;
 	MatchSnapshot.ResultReason = EFMResultReason::None;
+	MatchSnapshot.bRoundResultRecorded = false;
 	ForceNetUpdate();
 }
 
@@ -58,6 +64,19 @@ void AFMGameState::UpdateCapture(const FVector& Center, int32 Team, int32 Percen
 	MatchSnapshot.CapturePercent = Percent;
 	MatchSnapshot.bCaptureActive = true;
 	MatchSnapshot.bCaptureContested = bContested;
+}
+
+void AFMGameState::AddKillFeed(const FString& Killer, const FString& Victim, const FString& Weapon)
+{
+	if (!HasAuthority()) return;
+	FFMKillFeedEntry Entry;
+	Entry.Killer = Killer.Left(20);
+	Entry.Victim = Victim.Left(20);
+	Entry.Weapon = Weapon.Left(20);
+	Entry.ServerTime = GetServerWorldTimeSeconds();
+	KillFeed.Insert(MoveTemp(Entry), 0);
+	KillFeed.SetNum(FMath::Min(KillFeed.Num(), 6));
+	ForceNetUpdate();
 }
 
 void AFMGameState::SetPhase(EFMMatchPhase Phase, float Duration)
@@ -79,4 +98,5 @@ void AFMGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(AFMGameState, MatchSnapshot);
+	DOREPLIFETIME(AFMGameState, KillFeed);
 }

@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "Blueprint/UserWidget.h"
 #include "Styling/SlateTypes.h"
+#include "Styling/SlateBrush.h"
 #include "FMShopWidget.generated.h"
 
 UCLASS()
@@ -20,7 +21,17 @@ protected:
 private:
  int32 Selection = 0;
  TArray<FName> Catalog;
- UPROPERTY(Transient) TObjectPtr<class UFMCustomizeWidget> CharacterPreview;
+ UPROPERTY(Transient) TArray<TObjectPtr<class UTexture2D>> WeaponIconTextures;
+ UPROPERTY(Transient) TArray<TObjectPtr<class UTexture2D>> ItemIconTextures;
+ UPROPERTY(Transient) TObjectPtr<class AStaticMeshActor> WeaponPreviewModel;
+ UPROPERTY(Transient) TObjectPtr<class ASceneCapture2D> WeaponPreviewCapture;
+ UPROPERTY(Transient) TObjectPtr<class APointLight> WeaponPreviewLight;
+ UPROPERTY(Transient) TObjectPtr<class UTextureRenderTarget2D> WeaponPreviewTarget;
+ TArray<FSlateBrush> WeaponIconBrushes;
+ TMap<FName, FSlateBrush> ItemIconBrushes;
+ FSlateBrush WeaponPreviewBrush;
+ TSharedRef<SWidget> MakeItemImage(FName Id, int32 Icon);
+ void UpdateWeaponPreview();
  FName SelectedId() const;
  FText SelectedName() const;
  int32 IconFor(FName Id) const;

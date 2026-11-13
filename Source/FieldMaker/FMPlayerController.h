@@ -22,6 +22,7 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	virtual void SetupInputComponent() override;
 	virtual void OnPossess(APawn* InPawn) override;
 	virtual void AcknowledgePossession(APawn* InPawn) override;
@@ -47,6 +48,8 @@ private:
 	void StartAiming();
 	void StopAiming();
 	void ToggleTestArmor();
+	void HandleNetworkFailure(UWorld* World, UNetDriver* Driver, ENetworkFailure::Type Failure, const FString& Error);
+	bool bLeavingRoom = false;
 	UFUNCTION(Server, Reliable)
 	void ServerSetAppearance(uint32 AppearanceId);
 };

@@ -31,6 +31,9 @@ public:
 	bool bCombatSandbox = false;
 	static bool IsInPreparationZone(const AController* Player, const FVector& Location, bool bSpawnOnly);
 	static const AActor* GetTeamStart(const UWorld* World, uint8 Side);
+#if WITH_DEV_AUTOMATION_TESTS
+	static void VerifyRoundResultIdempotency(UWorld* World);
+#endif
 private:
 	void SetRoundPhase(EFMMatchPhase Phase, float Duration);
 	void UpdateRound();

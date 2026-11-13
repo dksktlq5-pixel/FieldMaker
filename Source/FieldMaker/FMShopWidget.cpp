@@ -1,10 +1,19 @@
 #include "FMShopWidget.h"
-#include "FMCustomizeWidget.h"
+#include "FMCharacter.h"
+#include "FMWeaponVisualData.h"
 #include "Widgets/Images/SImage.h"
 #include "FMPlayerController.h"
 #include "FMGameState.h"
 #include "FMPlayerState.h"
 #include "FMStructure.h"
+#include "Engine/Texture2D.h"
+#include "Engine/TextureRenderTarget2D.h"
+#include "Engine/StaticMeshActor.h"
+#include "Engine/SceneCapture2D.h"
+#include "Engine/PointLight.h"
+#include "Components/SceneCaptureComponent2D.h"
+#include "Components/StaticMeshComponent.h"
+#include "Components/PointLightComponent.h"
 #include "Engine/World.h"
 #include "Styling/CoreStyle.h"
 #include "Brushes/SlateColorBrush.h"
@@ -23,6 +32,21 @@ namespace
 {
 bool IsArmor(FName Id){return Id==TEXT("LightArmor") || Id==TEXT("MediumArmor");}
 const FLinearColor Mint(.85f,.69f,.29f), Ink(.035f,.039f,.043f), Paper(.90f,.90f,.88f), Muted(.53f,.54f,.54f);
+int32 TextureIndexForIcon(int32 Icon)
+{
+ switch (Icon)
+ {
+ case 0: return 2; // rifle
+ case 1: return 0; // pistol
+ case 5: return 1; // SMG
+ case 6: return 3; // sniper
+ case 7: return 5; // shotgun
+ case 8: return 4; // machine gun
+ case 2: return 6; // knife
+ case 3: return 7; // grenade
+ default: return INDEX_NONE;
+ }
+}
 TSharedRef<STextBlock> Text(const FText& Value,int32 Size,FLinearColor Color=Paper)
 {
  return SNew(STextBlock).Text(Value).Font(FCoreStyle::GetDefaultFontStyle("Regular",Size)).ColorAndOpacity(Color).AutoWrapText(true);
@@ -61,7 +85,44 @@ private:TAttribute<int32> Item;
 }
 
 FName UFMShopWidget::SelectedId() const {return Catalog.IsValidIndex(Selection)?Catalog[Selection]:NAME_None;}
-void UFMShopWidget::SelectItem(int32 Item){if(Catalog.IsValidIndex(Item))Selection=Item;}
+TSharedRef<SWidget> UFMShopWidget::MakeItemImage(FName Id, int32 Icon)
+{
+ static const TSet<FName> CustomIds = {
+  TEXT("Glock"),TEXT("Pistol"),TEXT("P250"),TEXT("FiveSeven"),TEXT("Deagle"),
+  TEXT("MAC10"),TEXT("UMP45"),TEXT("MP5SD"),TEXT("MP7"),TEXT("P90"),
+  TEXT("Nova"),TEXT("Negev"),TEXT("Grenade"),TEXT("Smoke"),TEXT("Fire"),TEXT("Flash"),TEXT("Decoy")};
+ if(CustomIds.Contains(Id))
+ {
+  if(!ItemIconBrushes.Contains(Id))
+  {
+   const FString AssetName=FString::Printf(TEXT("T_UIWeapon_%s"),*Id.ToString());
+   const FString Path=FString::Printf(TEXT("/Game/FieldMaker/Weapons/BlenderModeled/Icons/%s.%s"),*AssetName,*AssetName);
+   if(UTexture2D* Texture=LoadObject<UTexture2D>(nullptr,*Path))
+   {
+    ItemIconTextures.Add(Texture);
+    FSlateBrush Brush;Brush.SetResourceObject(Texture);Brush.ImageSize=FVector2D(768.f,512.f);Brush.DrawAs=ESlateBrushDrawType::Image;
+    ItemIconBrushes.Add(Id,Brush);
+   }
+  }
+  if(ItemIconBrushes.Contains(Id))
+   return SNew(SBox).HeightOverride(44.f)
+    [SNew(SScaleBox).Stretch(EStretch::ScaleToFit)
+     [SNew(SImage).Image_Lambda([this,Id]() -> const FSlateBrush*
+      {return ItemIconBrushes.Find(Id);})]];
+ }
+ const int32 TextureIndex = TextureIndexForIcon(Icon);
+ if (!WeaponIconBrushes.IsValidIndex(TextureIndex)) return SNew(SEquipmentIcon).Item(Icon);
+ return SNew(SBox).HeightOverride(44.f)
+  [SNew(SScaleBox).Stretch(EStretch::ScaleToFit)
+   [SNew(SImage).Image_Lambda([this, TextureIndex]() -> const FSlateBrush*
+    { return WeaponIconBrushes.IsValidIndex(TextureIndex) ? &WeaponIconBrushes[TextureIndex] : nullptr; })]];
+}
+void UFMShopWidget::SelectItem(int32 Item)
+{
+ if(!Catalog.IsValidIndex(Item))return;
+ Selection=Item;
+ UpdateWeaponPreview();
+}
 void UFMShopWidget::SelectWeaponById(FName Id){const int32 I=Catalog.IndexOfByKey(Id);if(I!=INDEX_NONE)Selection=I;}
 FText UFMShopWidget::SelectedName() const
 {
@@ -119,6 +180,74 @@ bool UFMShopWidget::CanActivate() const
  if(!P->GetCatalogWeaponVisual(SelectedId()).bAvailable)return false;
  return IconFor(SelectedId())!=3 || SelectedId()==TEXT("Grenade");
 }
+void UFMShopWidget::UpdateWeaponPreview()
+{
+ if(!GetWorld() || !Catalog.IsValidIndex(Selection)) return;
+ const auto* Pawn=GetOwningPlayerPawn<AFMCharacter>();
+ if(!Pawn) return;
+ const FFMWeaponVisualRow Visual=Pawn->GetCatalogWeaponVisual(Catalog[Selection]);
+ UStaticMesh* Mesh=Visual.Mesh.LoadSynchronous();
+ if(!Mesh)
+ {
+  WeaponPreviewBrush.SetResourceObject(nullptr);
+  return;
+ }
+
+ const FVector Origin(0,0,20000);
+ FActorSpawnParameters Params;
+ Params.ObjectFlags|=RF_Transient;
+ Params.SpawnCollisionHandlingOverride=ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+ if(!WeaponPreviewModel)
+ {
+  WeaponPreviewModel=GetWorld()->SpawnActor<AStaticMeshActor>(Origin,FRotator::ZeroRotator,Params);
+  if(!WeaponPreviewModel)return;
+  WeaponPreviewModel->SetActorEnableCollision(false);
+  WeaponPreviewModel->GetStaticMeshComponent()->SetMobility(EComponentMobility::Movable);
+ }
+ if(!WeaponPreviewCapture)
+ {
+  WeaponPreviewCapture=GetWorld()->SpawnActor<ASceneCapture2D>(Origin,FRotator::ZeroRotator,Params);
+  if(!WeaponPreviewCapture)return;
+  WeaponPreviewLight=GetWorld()->SpawnActor<APointLight>(Origin+FVector(150,-220,220),FRotator::ZeroRotator,Params);
+  if(WeaponPreviewLight)
+  {
+   if(auto* Component=WeaponPreviewLight->FindComponentByClass<UPointLightComponent>())
+   {
+    Component->SetMobility(EComponentMobility::Movable);
+    Component->SetAttenuationRadius(900.f);
+    Component->SetIntensity(42000.f);
+    Component->SetCastShadows(false);
+   }
+  }
+  WeaponPreviewTarget=NewObject<UTextureRenderTarget2D>(this);
+  WeaponPreviewTarget->InitAutoFormat(640,360);
+  auto* Scene=WeaponPreviewCapture->GetCaptureComponent2D();
+  Scene->TextureTarget=WeaponPreviewTarget;
+  Scene->CaptureSource=SCS_FinalColorLDR;
+  Scene->bCaptureEveryFrame=false;
+  Scene->bCaptureOnMovement=false;
+  Scene->PrimitiveRenderMode=ESceneCapturePrimitiveRenderMode::PRM_UseShowOnlyList;
+  Scene->ShowOnlyActorComponents(WeaponPreviewModel);
+  Scene->ShowFlags.SetAtmosphere(false);
+  Scene->ShowFlags.SetFog(false);
+  Scene->FOVAngle=38.f;
+  Scene->PostProcessSettings.bOverride_AutoExposureMinBrightness=true;
+  Scene->PostProcessSettings.bOverride_AutoExposureMaxBrightness=true;
+  Scene->PostProcessSettings.AutoExposureMinBrightness=8.f;
+  Scene->PostProcessSettings.AutoExposureMaxBrightness=8.f;
+ }
+ if(!WeaponPreviewTarget || !WeaponPreviewCapture)return;
+ const FBoxSphereBounds Bounds=Mesh->GetBounds();
+ const double Scale=105.0/FMath::Max(1.0,Bounds.BoxExtent.GetMax());
+ WeaponPreviewModel->GetStaticMeshComponent()->SetStaticMesh(Mesh);
+ WeaponPreviewModel->SetActorScale3D(FVector(Scale));
+ WeaponPreviewModel->SetActorLocation(Origin-Bounds.Origin*Scale);
+ const FVector Camera=Origin+FVector(115,-365,145);
+ WeaponPreviewCapture->SetActorLocationAndRotation(Camera,(Origin-Camera).Rotation());
+ WeaponPreviewBrush.SetImageSize(FVector2D(560,315));
+ WeaponPreviewBrush.SetResourceObject(WeaponPreviewTarget);
+ WeaponPreviewCapture->GetCaptureComponent2D()->CaptureScene();
+}
 FText UFMShopWidget::ActionText() const
 {
  if(!CanActivate())return FText::FromString(TEXT("장착 불가 / 준비 중"));
@@ -154,16 +283,28 @@ FReply UFMShopWidget::NativeOnKeyDown(const FGeometry& G,const FKeyEvent& E)
 TSharedRef<SWidget> UFMShopWidget::RebuildWidget()
 {
  SetIsFocusable(true);
- if(!CharacterPreview)
+ static const TCHAR* IconNames[] = {TEXT("Pistol"),TEXT("SMG"),TEXT("Rifle"),TEXT("Sniper"),TEXT("MachineGun"),TEXT("Shotgun"),TEXT("Knife"),TEXT("Grenade")};
+ WeaponIconTextures.Reset();
+ WeaponIconBrushes.Reset();
+ ItemIconTextures.Reset();
+ ItemIconBrushes.Reset();
+ for (const TCHAR* Name : IconNames)
  {
-  CharacterPreview=CreateWidget<UFMCustomizeWidget>(GetOwningPlayer(),UFMCustomizeWidget::StaticClass());
-  if(CharacterPreview)CharacterPreview->InitializePreview(9.f,true);
+  const FString Path = FString::Printf(TEXT("/Game/FieldMaker/UI/WeaponIcons/T_UIWeapon_%s.T_UIWeapon_%s"), Name, Name);
+  UTexture2D* Texture = LoadObject<UTexture2D>(nullptr, *Path);
+  WeaponIconTextures.Add(Texture);
+  FSlateBrush Brush;
+  Brush.SetResourceObject(Texture);
+  Brush.ImageSize = FVector2D(180.f, 110.f);
+  Brush.DrawAs = ESlateBrushDrawType::Image;
+  WeaponIconBrushes.Add(Brush);
  }
  if(const auto* P=GetOwningPlayerPawn<AFMCharacter>())Catalog=P->GetCatalogWeaponIds();
  Catalog.Append({TEXT("LightArmor"),TEXT("MediumArmor"),TEXT("Flash"),TEXT("Smoke"),TEXT("Fire"),TEXT("Decoy")});
  if (const auto* State = GetWorld()->GetGameState<AFMGameState>(); State && State->GetMatchSnapshot().Phase == EFMMatchPhase::Purchase)
   Catalog.Append({TEXT("Sandbags"), TEXT("BallisticWall"), TEXT("StepCrate"), TEXT("BuildContainer")});
  SelectWeaponById(TEXT("M4"));
+ UpdateWeaponPreview();
  CardStyle=FCoreStyle::Get().GetWidgetStyle<FButtonStyle>("Button");
  CardStyle.SetNormal(FSlateColorBrush(FLinearColor(.06f,.065f,.07f,.85f)));
  CardStyle.SetHovered(FSlateColorBrush(FLinearColor(.18f,.17f,.13f)));
@@ -196,7 +337,7 @@ TSharedRef<SWidget> UFMShopWidget::RebuildWidget()
         .BorderBackgroundColor_Lambda([this,I]{return Selection==I?FLinearColor(.14f,.14f,.12f):Ink;})
         [SNew(SVerticalBox)
          +SVerticalBox::Slot().AutoHeight()[Text(Name,12,Pending?Muted:Paper)]
-         +SVerticalBox::Slot().FillHeight(1)[SNew(SEquipmentIcon).Item(Icon)]
+         +SVerticalBox::Slot().FillHeight(1)[MakeItemImage(Id,Icon)]
          +SVerticalBox::Slot().AutoHeight()
           [SNew(SHorizontalBox)
            +SHorizontalBox::Slot().FillWidth(1)[Text(Pending?FText::FromString(TEXT("준비 중")):FText::FromString(FString::Printf(TEXT("$%d"),Price)),10,Pending?Muted:Mint)]
@@ -212,7 +353,16 @@ TSharedRef<SWidget> UFMShopWidget::RebuildWidget()
  }
  auto Details=SNew(SVerticalBox)
   +SVerticalBox::Slot().AutoHeight()[Text(TEXT("FIELDMAKER  /  LOADOUT"),11,Mint)]
-  +SVerticalBox::Slot().AutoHeight().Padding(0,8,0,10)[SNew(SBox).HeightOverride(205)[SNew(SImage).Image(CharacterPreview?CharacterPreview->GetPreviewBrush():FCoreStyle::Get().GetBrush("WhiteBrush"))]]
+  +SVerticalBox::Slot().AutoHeight().Padding(0,8,0,10)
+   [SNew(SBox).HeightOverride(205)
+    [SNew(SBorder).BorderImage(FCoreStyle::Get().GetBrush("WhiteBrush")).BorderBackgroundColor(FLinearColor(.06f,.08f,.10f))
+     [SNew(SImage).Image_Lambda([this]() -> const FSlateBrush*
+      {
+       if(WeaponPreviewBrush.GetResourceObject())return &WeaponPreviewBrush;
+       if(const FSlateBrush* ItemBrush=ItemIconBrushes.Find(SelectedId()))return ItemBrush;
+       const int32 I=TextureIndexForIcon(IconFor(SelectedId()));
+       return WeaponIconBrushes.IsValidIndex(I)?&WeaponIconBrushes[I]:FCoreStyle::Get().GetBrush("WhiteBrush");
+      })]]]
   +SVerticalBox::Slot().AutoHeight().Padding(0,0,0,16)[SNew(STextBlock).Text_Lambda([this]{return SelectedName();}).Font(FCoreStyle::GetDefaultFontStyle("Bold",27)).ColorAndOpacity(Mint)]
   +SVerticalBox::Slot().FillHeight(1)[SNew(STextBlock).Text_Lambda([this]{return DetailText();}).Font(FCoreStyle::GetDefaultFontStyle("Regular",14)).ColorAndOpacity(Paper).AutoWrapText(true)]
   +SVerticalBox::Slot().AutoHeight().Padding(0,12,0,10)[SNew(STextBlock).ColorAndOpacity(Muted).Font(FCoreStyle::GetDefaultFontStyle("Regular",11))
@@ -255,7 +405,13 @@ TSharedRef<SWidget> UFMShopWidget::RebuildWidget()
 
 void UFMShopWidget::NativeDestruct()
 {
- if(CharacterPreview)CharacterPreview->CleanupPreview();
- CharacterPreview=nullptr;
+ WeaponPreviewBrush.SetResourceObject(nullptr);
+ if(WeaponPreviewCapture)WeaponPreviewCapture->Destroy();
+ if(WeaponPreviewLight)WeaponPreviewLight->Destroy();
+ if(WeaponPreviewModel)WeaponPreviewModel->Destroy();
+ WeaponPreviewCapture=nullptr;
+ WeaponPreviewLight=nullptr;
+ WeaponPreviewModel=nullptr;
+ WeaponPreviewTarget=nullptr;
  Super::NativeDestruct();
 }

@@ -10,6 +10,8 @@
 #include "Components/StaticMeshComponent.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/DamageEvents.h"
+#include "DrawDebugHelpers.h"
+#include "HAL/IConsoleManager.h"
 #include "Misc/PackageName.h"
 #include "FMUserPreferences.h"
 #include "Animation/AnimSequence.h"
@@ -25,8 +27,24 @@
 
 namespace
 {
+#if !UE_BUILD_SHIPPING
+TAutoConsoleVariable<int32> CVarDrawImpacts(TEXT("fm.DrawImpacts"), 0,
+	TEXT("Draw authoritative firearm impacts for five seconds."));
+#endif
+
 constexpr float WalkSpeed = 250.0f;
 constexpr float SprintSpeed = 550.0f;
+
+float WeaponMovementScale(EFMWeaponSlot Slot)
+{
+	switch (Slot)
+	{
+	case EFMWeaponSlot::Melee: return 1.28f;
+	case EFMWeaponSlot::Secondary:
+	case EFMWeaponSlot::Throwable: return 1.10f;
+	default: return 1.f;
+	}
+}
 constexpr float CameraHeight = 64.0f;
 constexpr float CrouchedCapsuleHalfHeight = 60.0f;
 constexpr float CrouchedEyeClearance = 8.0f;
@@ -180,6 +198,9 @@ void AFMCharacter::Tick(float DeltaSeconds)
 	{
 		ADSAlpha = FMath::FInterpTo(ADSAlpha, bAiming ? 1.f : 0.f, DeltaSeconds, 14.f);
 		FirstPersonCamera->SetFieldOfView(FMath::Lerp(90.f, GetWeaponData(WeaponSlot).AimFOV, ADSAlpha));
+		CameraRecoil = Health > 0.f ? FMath::RInterpTo(CameraRecoil, FRotator::ZeroRotator, DeltaSeconds, 15.f) : FRotator::ZeroRotator;
+		FirstPersonCamera->ClearAdditiveOffset();
+		if (!CameraRecoil.IsNearlyZero()) FirstPersonCamera->AddAdditiveOffset(FTransform(CameraRecoil), 0.f);
 	}
 	if (GetNetMode() != NM_DedicatedServer && GetPlayerState())
 	{
@@ -276,7 +297,7 @@ void AFMCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	}
 	if (const auto* Action = LoadAction(TEXT("IA_FMSprint")))
 	{
-		Input->BindAction(Action, ETriggerEvent::Started, this, &AFMCharacter::StartSprint);
+		Input->BindAction(Action, ETriggerEvent::Triggered, this, &AFMCharacter::StartSprint);
 		Input->BindAction(Action, ETriggerEvent::Completed, this, &AFMCharacter::StopSprint);
 		Input->BindAction(Action, ETriggerEvent::Canceled, this, &AFMCharacter::StopSprint);
 	}
@@ -328,11 +349,16 @@ void AFMCharacter::OnEndCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdj
 
 void AFMCharacter::StartSprint()
 {
-	SetSprint(true);
+	if (!bSprintInputHeld)
+	{
+		bSprintInputHeld = true;
+		SetSprint(true);
+	}
 }
 
 void AFMCharacter::StopSprint()
 {
+	bSprintInputHeld = false;
 	SetSprint(false);
 }
 
@@ -347,7 +373,8 @@ void AFMCharacter::ServerSetSprint_Implementation(bool bSprint)
 	if (bSprinting)
 	{
 		bAiming = false;
-		CancelWeaponActions();
+		if (WeaponSlot <= EFMWeaponSlot::Secondary) CancelReload();
+		else CancelWeaponActions();
 	}
 	UpdateStanceSpeed();
 	ForceNetUpdate();
@@ -355,7 +382,7 @@ void AFMCharacter::ServerSetSprint_Implementation(bool bSprint)
 
 void AFMCharacter::UpdateStanceSpeed()
 {
-	GetCharacterMovement()->MaxWalkSpeed = bSprinting ? SprintSpeed : bAiming ? 180.f : WalkSpeed;
+	GetCharacterMovement()->MaxWalkSpeed = (bSprinting ? SprintSpeed : bAiming ? 180.f : WalkSpeed) * WeaponMovementScale(WeaponSlot);
 }
 
 void AFMCharacter::OnRep_CombatStance() { UpdateStanceSpeed(); }
@@ -375,13 +402,13 @@ bool AFMCharacter::IsCombatPhaseAllowed(bool bForAttack) const
 
 bool AFMCharacter::CanAttack() const
 {
-	return Health > 0.f && Controller && !bSprinting && !IsReloading() && IsCombatPhaseAllowed()
+	return Health > 0.f && Controller && (!bSprinting || WeaponSlot <= EFMWeaponSlot::Secondary) && !IsReloading() && IsCombatPhaseAllowed()
 		&& !(WeaponMotion.Motion == EFMWeaponMotion::Equip && GetMotionAge() < GetEquipDuration());
 }
 
 bool AFMCharacter::CanAim() const
 {
-	return CanAttack() && (WeaponSlot == EFMWeaponSlot::Primary || WeaponSlot == EFMWeaponSlot::Secondary);
+	return !bSprinting && CanAttack() && (WeaponSlot == EFMWeaponSlot::Primary || WeaponSlot == EFMWeaponSlot::Secondary);
 }
 
 void AFMCharacter::ServerSetAiming_Implementation(bool bNewAiming)
@@ -463,12 +490,18 @@ float AFMCharacter::TakeDamage(float Damage, const FDamageEvent& Event, AControl
 	if (Health <= 0.f)
 	{
 		GetCharacterMovement()->DisableMovement();
-		if (const auto* State = GetWorld()->GetGameState<AFMGameState>(); State && State->GetMatchSnapshot().bPlayerRoom)
+		if (auto* State = GetWorld()->GetGameState<AFMGameState>(); State && State->GetMatchSnapshot().bPlayerRoom)
 		{
 			SetActorEnableCollision(false);
 			SetActorHiddenInGame(true);
 			if (Attacker && Victim && Attacker != Victim && State->GetMatchSnapshot().Phase == EFMMatchPhase::Combat)
+			{
 				InstigatorController->GetPlayerState<AFMPlayerState>()->AddCredits(300);
+				FString WeaponName = TEXT("ELIM");
+				if (const auto* AttackerPawn = Cast<AFMCharacter>(Attacker->GetPawn()))
+					WeaponName = AttackerPawn->GetWeaponData(AttackerPawn->GetWeaponSlot()).DisplayName.ToString();
+				State->AddKillFeed(Attacker->GetPlayerName(), Victim->GetPlayerName(), WeaponName);
+			}
 		}
 		bSprinting = false;
 		bAiming = false;
@@ -498,6 +531,27 @@ void AFMCharacter::ServerEquipWeapon_Implementation(EFMWeaponSlot Slot)
 	OnRep_WeaponSlot();
 }
 
+float AFMCharacter::CalculateShotSpread(const FFMWeaponRow& Data, int32 ShotIndex) const
+{
+	const float Speed = GetVelocity().Size2D() / WeaponMovementScale(WeaponSlot);
+	const float Movement = FMath::Clamp(Speed / WalkSpeed, 0.f, 1.f);
+	const float SprintSpread = bSprinting ? FMath::Clamp((Speed - WalkSpeed) / (SprintSpeed - WalkSpeed), 0.f, 1.f) * 1.5f : 0.f;
+	const float ExtraSpread = 0.12f + FMath::Min(ShotIndex, 10) * 0.08f
+		+ Movement * 0.75f + SprintSpread + (GetCharacterMovement()->IsFalling() ? 1.4f : 0.f);
+	return Data.SpreadDegrees + ExtraSpread * (bAiming ? 0.55f : 1.f);
+}
+
+float AFMCharacter::GetCrosshairSpreadDegrees() const
+{
+	if (WeaponSlot != EFMWeaponSlot::Primary && WeaponSlot != EFMWeaponSlot::Secondary) return 0.f;
+	const auto Data = GetWeaponData(WeaponSlot);
+	const double Age = GetWorld()->GetTimeSeconds() - LastShotTime;
+	const float Hold = FMath::Max(0.30f, Data.AttackInterval * 1.35f);
+	const float Recovery = LastShotSlot == WeaponSlot && !IsReloading()
+		? 1.f - FMath::Clamp((Age - Hold) / 0.16, 0.0, 1.0) : 0.f;
+	return FMath::Lerp(CalculateShotSpread(Data, 0), CalculateShotSpread(Data, LocalBurstShotIndex), Recovery);
+}
+
 void AFMCharacter::ServerUseWeapon_Implementation()
 {
 	const double Now = GetWorld()->GetTimeSeconds();
@@ -512,13 +566,12 @@ void AFMCharacter::ServerUseWeapon_Implementation()
 	{
 		NextAttackTime = Now + GetWeaponData(WeaponSlot).AttackInterval;
 		SetWeaponMotion(EFMWeaponMotion::Throw);
-		MulticastWeaponEffects(EFMWeaponMotion::Throw, WeaponSlot);
+		MulticastWeaponEffects(EFMWeaponMotion::Throw, WeaponSlot, FVector2D::ZeroVector, 0);
 		GetWorldTimerManager().SetTimer(ThrowTimer, this, &AFMCharacter::ReleaseGrenade, ThrowReleaseTime, false);
 		return;
 	}
 
 	const FFMWeaponRow Data = GetWeaponData(WeaponSlot);
-	float Damage = Data.Damage;
 	switch (WeaponSlot)
 	{
 	case EFMWeaponSlot::Primary:
@@ -536,17 +589,53 @@ void AFMCharacter::ServerUseWeapon_Implementation()
 
 	const EFMWeaponMotion Motion = WeaponSlot == EFMWeaponSlot::Melee ? EFMWeaponMotion::Melee : EFMWeaponMotion::Fire;
 	SetWeaponMotion(Motion);
-	MulticastWeaponEffects(Motion, WeaponSlot);
+	FRotator ShotAim = Aim;
+	FVector2D CameraKick = FVector2D::ZeroVector;
+	float Spread = Data.SpreadDegrees;
+	if (Motion == EFMWeaponMotion::Fire)
+	{
+		const FName Id = GetWeaponId(WeaponSlot);
+		const float ResetDelay = FMath::Max(0.30f, Data.AttackInterval * 1.35f);
+		BurstShotIndex = Id == LastBallisticWeapon && Now - LastBallisticShotTime <= ResetDelay
+			? FMath::Min(BurstShotIndex + 1, 16) : 0;
+		LastBallisticWeapon = Id;
+		LastBallisticShotTime = Now;
 
-	for(int32 Pellet=0;Pellet<Data.PelletCount;++Pellet)
- {
- const FVector Direction = Data.SpreadDegrees>0 ? FMath::VRandCone(Aim.Vector(),FMath::DegreesToRadians(Data.SpreadDegrees)) : Aim.Vector();
+		float Strength = 1.f;
+		switch (Data.Category)
+		{
+		case EFMWeaponCategory::SMG: Strength = 0.72f; break;
+		case EFMWeaponCategory::Pistol: Strength = 0.85f; break;
+		case EFMWeaponCategory::Sniper: Strength = 1.50f; break;
+		case EFMWeaponCategory::Shotgun: Strength = 1.65f; break;
+		case EFMWeaponCategory::MachineGun: Strength = 1.20f; break;
+		default: break;
+		}
+		const float AimScale = bAiming ? 0.55f : 1.f;
+		const float Rise = FMath::Min(BurstShotIndex, 9) * 0.35f;
+		const float Sway = FMath::Sin(BurstShotIndex * 0.7f) * FMath::Min(BurstShotIndex * 0.18f, 1.15f);
+		ShotAim.Pitch += Rise * Strength * AimScale;
+		ShotAim.Yaw += Sway * Strength * AimScale;
+		CameraKick = FVector2D((0.95f + Rise * 0.20f) * Strength * AimScale,
+			(Sway * 0.24f + 0.10f) * Strength * AimScale);
+		Spread = CalculateShotSpread(Data, BurstShotIndex);
+	}
+	MulticastWeaponEffects(Motion, WeaponSlot, CameraKick, BurstShotIndex);
+
+	for (int32 Pellet = 0; Pellet < Data.PelletCount; ++Pellet)
+	{
+		const FVector Direction = Spread > 0.f
+			? FMath::VRandCone(ShotAim.Vector(), FMath::DegreesToRadians(Spread)) : ShotAim.Vector();
 	FHitResult Hit;
 	FCollisionQueryParams Query(SCENE_QUERY_STAT(FMWeapon), false, this);
 	if (GetWorld()->LineTraceSingleByChannel(Hit, Start, Start + Direction * Data.Range, ECC_GameTraceChannel1, Query))
 	{
+#if !UE_BUILD_SHIPPING
+		if (Motion == EFMWeaponMotion::Fire && CVarDrawImpacts.GetValueOnGameThread() > 0)
+			DrawDebugPoint(GetWorld(), Hit.ImpactPoint + Hit.ImpactNormal * 2.f, 8.f, FColor::Orange, false, 5.f);
+#endif
 		const EFMHitZone Zone = HitZoneForBone(Hit.BoneName);
-		Damage *= Zone == EFMHitZone::Head ? Data.HeadMultiplier : Zone == EFMHitZone::Limb ? Data.LimbMultiplier : 1.f;
+		float Damage = Data.Damage * (Zone == EFMHitZone::Head ? Data.HeadMultiplier : Zone == EFMHitZone::Limb ? Data.LimbMultiplier : 1.f);
 		if (Data.FalloffStart < Data.Range)
 			Damage *= FMath::GetMappedRangeValueClamped(FVector2D(Data.FalloffStart,Data.Range),
 				FVector2D(1.f,Data.MinimumDamageFraction),Hit.Distance);
@@ -597,7 +686,9 @@ void AFMCharacter::ServerReload_Implementation()
 	ServerStopFire_Implementation();
 	bAiming = false;
 	SetWeaponMotion(EFMWeaponMotion::Reload);
-	MulticastWeaponEffects(EFMWeaponMotion::Reload, WeaponSlot);
+	BurstShotIndex = 0;
+	LastBallisticWeapon = NAME_None;
+	MulticastWeaponEffects(EFMWeaponMotion::Reload, WeaponSlot, FVector2D::ZeroVector, 0);
 	GetWorldTimerManager().SetTimer(ReloadTimer, this, &AFMCharacter::FinishReload, GetReloadDuration(), false);
 }
 
